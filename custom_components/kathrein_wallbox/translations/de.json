@@ -1,0 +1,274 @@
+{
+  "selector": {
+    "ems_relay_matrix": {
+      "options": {
+        "line_1": "Phase 1",
+        "line_2": "Phase 2",
+        "line_3": "Phase 3",
+        "three_lines": "3 Phasen"
+      }
+    },
+    "ems_charging_current": {
+      "options": {
+        "6": "6 A",
+        "8": "8 A",
+        "10": "10 A",
+        "12": "12 A",
+        "16": "16 A",
+        "20": "20 A",
+        "24": "24 A",
+        "32": "32 A"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Aus",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 Min",
+        "180": "3 Min",
+        "300": "5 Min",
+        "600": "10 Min"
+      }
+    },
+    "ems_timeout_fallback_current": {
+      "options": {
+        "0": "0 A",
+        "6": "6 A",
+        "8": "8 A",
+        "10": "10 A",
+        "12": "12 A",
+        "16": "16 A",
+        "20": "20 A",
+        "24": "24 A",
+        "32": "32 A"
+      }
+    }
+  },
+  "services": {
+    "set_ems_control_enabled": {
+      "name": "EMS Steuerung einstellen",
+      "description": "EMS Steuerung dieser Wallbox aktivieren oder deaktivieren.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "enabled": {"name": "Aktiviert", "description": "Legt fest, ob EMS Steuerung aktiv ist."}
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Relaismatrix einstellen",
+      "description": "Phasen für die EMS Steuerung auswählen.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "value": {"name": "Phasenauswahl", "description": "Zu aktivierende Phasen."}
+      }
+    },
+    "set_charging_current": {
+      "name": "Ladestrom Vorgabe einstellen",
+      "description": "Den von der EMS angeforderten Ladestrom einstellen.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "value": {"name": "Ladestrom Vorgabe", "description": "EMS Ladestrom in Ampere. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+      }
+    },
+    "set_timeout_period": {
+      "name": "EMS Timeoutdauer einstellen",
+      "description": "Dauer der EMS Vorgabe einstellen.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "value": {"name": "Timeoutdauer", "description": "Dauer in Sekunden oder deaktiviert."}
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "EMS Timeout Fallback Relaismatrix einstellen",
+      "description": "Phasen auswählen, die nach Ablauf des EMS Timeouts verwendet werden.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "value": {"name": "Fallback Relaismatrix", "description": "Nach dem Timeout zu verwendende Phasen."}
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "EMS Timeout Fallback Ladestrom einstellen",
+      "description": "Fallback-Ladestrom nach Ablauf des EMS Timeouts einstellen.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
+        "value": {"name": "Fallback Ladestrom", "description": "Fallback-Ladestrom in Ampere. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit einer Kathrein-Wallbox verbinden",
+        "data": {
+          "host": "Host / IP-Adresse",
+          "port": "Port",
+          "unit_id": "Modbus-Unit-ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      },
+      "reconfigure": {
+        "title": "Verbindung der Kathrein-Wallbox aktualisieren",
+        "data": {
+          "host": "Host / IP-Adresse",
+          "port": "Port",
+          "unit_id": "Modbus-Unit-ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
+      "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
+    },
+    "abort": {
+      "already_configured": "Diese Wallbox ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Verbindungseinstellungen",
+        "data": {
+          "host": "Host / IP-Adresse",
+          "port": "Port",
+          "unit_id": "Modbus-Unit-ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
+      "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Spannung L1"},
+      "voltage_l2": {"name": "Spannung L2"},
+      "voltage_l3": {"name": "Spannung L3"},
+      "current_l1": {"name": "Strom L1"},
+      "current_l2": {"name": "Strom L2"},
+      "current_l3": {"name": "Strom L3"},
+      "active_power_l1": {"name": "Wirkleistung L1"},
+      "active_power_l2": {"name": "Wirkleistung L2"},
+      "active_power_l3": {"name": "Wirkleistung L3"},
+      "total_active_power": {"name": "Gesamtwirkleistung"},
+      "total_energy": {"name": "Gesamtenergie"},
+      "frequency": {"name": "Netzfrequenz"},
+      "charging_state": {
+        "name": "Ladezustand",
+        "state": {
+          "idle": "Bereit",
+          "ev_connected": "Fahrzeug verbunden",
+          "authentication_waiting": "Authentifizierung erwartet",
+          "authentication_confirmed": "Authentifizierung bestätigt",
+          "charging_active": "Ladevorgang aktiv",
+          "charging_paused": "Ladevorgang pausiert",
+          "charging_completed": "Ladevorgang abgeschlossen",
+          "rfid_pairing": "RFID-Kopplung",
+          "error": "Fehler",
+          "unknown": "Unbekannt"
+        }
+      },
+      "pp_state": {
+        "name": "Proximity Pilot (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Kabel nicht angeschlossen oder fest montiert",
+          "cable_not_connected": "Kabel nicht angeschlossen",
+          "fixed_cable_mounted": "Kabel fest angeschlossen",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Fehler",
+          "unknown": "Unbekannt"
+        }
+      },
+      "cp_state": {
+        "name": "Control-Pilot (CP)",
+        "state": {
+          "state_a": "A: Kein Fahrzeug erkannt",
+          "state_b": "B: Fahrzeug erkannt, ladebereit",
+          "state_c": "C: Fahrzeug lädt",
+          "state_d": "D: Fahrzeug lädt mit Lüftung",
+          "state_e": "E: Kurzschluss im CP-Signal",
+          "state_f": "F: Wallbox nicht verfügbar",
+          "unknown": "Unbekannt"
+        }
+      },
+      "granted_current": {"name": "Freigegebener Ladestrom"},
+      "granted_power": {"name": "Freigegebene Ladeleistung"},
+      "charging_duration": {"name": "Ladedauer"},
+      "charging_energy": {"name": "Geladene Energie"},
+      "relay_matrix": {
+        "name": "EMS Phasen",
+        "state": {
+          "line_1": "Phase 1",
+          "line_2": "Phase 2",
+          "line_3": "Phase 3",
+          "three_lines": "3 Phasen",
+          "unknown": "Unbekannt"
+        }
+      },
+      "charging_current": {"name": "EMS Ladestrom Vorgabe"},
+      "timeout_period": {"name": "EMS Timeoutdauer"},
+      "timeout_fallback_relay_matrix": {
+        "name": "EMS Timeout Fallback Phasen",
+        "state": {
+          "line_1": "Phase 1",
+          "line_2": "Phase 2",
+          "line_3": "Phase 3",
+          "three_lines": "3 Phasen",
+          "unknown": "Unbekannt"
+        }
+      },
+      "timeout_fallback_current": {"name": "EMS Timeout Fallback Strom"}
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Relais verschweißt",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "residual_dc_current": {
+        "name": "Gleichfehlerstrom erkannt",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "socket_lock_error": {
+        "name": "Fehler der Steckerverriegelung",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "charging_overcurrent": {
+        "name": "Ladeüberstrom",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "ventilation_unavailable": {
+        "name": "Lüftung nicht verfügbar",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "cp_short_circuit": {
+        "name": "Kurzschluss im CP-Signal",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "cp_loop_broken": {
+        "name": "CP-Stromkreis unterbrochen",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "pp_short_circuit": {
+        "name": "Kurzschluss im PP-Signal",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "internal_error": {
+        "name": "Interner Fehler",
+        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+      },
+      "relay_l1": {"name": "Relais L1"},
+      "relay_l2": {"name": "Relais L2"},
+      "relay_l3": {"name": "Relais L3"},
+      "ems_control_enabled": {
+        "name": "EMS Steuerung aktiviert",
+        "state": {"on": "Aktiviert", "off": "Deaktiviert"}
+      },
+      "meter_available": {"name": "Energiezähler verfügbar"}
+    }
+  }
+}

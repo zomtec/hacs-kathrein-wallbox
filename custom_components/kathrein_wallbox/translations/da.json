@@ -1,0 +1,57 @@
+{
+  "selector": {
+    "ems_relay_matrix": {"options": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 faser"}},
+    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_timeout_period": {"options": {"0": "Fra", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
+    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+  },
+  "services": {
+    "set_ems_control_enabled": {"name": "Indstil EMS-styring", "description": "Aktivér eller deaktivér EMS-styring for denne ladeboks.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "enabled": {"name": "Aktiveret", "description": "Angiver, om EMS-styring er aktiveret."}}},
+    "set_relay_matrix": {"name": "Indstil relækonfiguration", "description": "Vælg relækonfigurationen til EMS-styring.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "value": {"name": "Fasevalg", "description": "Faser, der skal aktiveres."}}},
+    "set_charging_current": {"name": "Indstil ladestrøm", "description": "Indstil den ladestrøm, som EMS anmoder om.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "value": {"name": "Strømindstilling", "description": "Ladestrøm anmodet af EMS i ampere. 0 A sætter opladningen på pause og giver ingen ladestrøm."}}},
+    "set_timeout_period": {"name": "Indstil EMS-timeout", "description": "Indstil, hvor længe EMS-kommandoen er aktiv.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "value": {"name": "Timeoutperiode", "description": "Timeout i sekunder eller fra."}}},
+    "set_timeout_fallback_relay_matrix": {"name": "Indstil relækonfiguration efter EMS-timeout", "description": "Vælg relækonfigurationen, der bruges, når EMS-timeout udløber.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "value": {"name": "Reservekonfiguration", "description": "Faser, der bruges efter timeout."}}},
+    "set_timeout_fallback_current": {"name": "Indstil reservestrøm efter EMS-timeout", "description": "Indstil ladestrømmen, der bruges, når EMS-timeout udløber.", "fields": {"entry_id": {"name": "Ladeboks", "description": "Konfigurationen for den ladeboks, der skal styres."}, "value": {"name": "Reservestrøm", "description": "Reservestrøm i ampere. 0 A sætter opladningen på pause og giver ingen ladestrøm."}}}
+  },
+  "config": {
+    "step": {
+      "user": {"title": "Tilslut en Kathrein-ladeboks", "data": {"host": "Vært / IP-adresse", "port": "Port", "unit_id": "Modbus-enheds-id", "scan_interval": "Forespørgselsinterval (sekunder)"}},
+      "reconfigure": {"title": "Opdatér forbindelsen til Kathrein-ladeboksen", "data": {"host": "Vært / IP-adresse", "port": "Port", "unit_id": "Modbus-enheds-id", "scan_interval": "Forespørgselsinterval (sekunder)"}}
+    },
+    "error": {"cannot_connect": "Kunne ikke oprette forbindelse. Kontrollér adressen, og at Modbus-serveren er aktiveret i easyOperate.", "unsupported_device": "Enheden rapporterede hverken mappingversion 2 eller et serienummer."},
+    "abort": {"already_configured": "Denne ladeboks er allerede konfigureret."}
+  },
+  "options": {
+    "step": {"init": {"title": "Forbindelsesindstillinger", "data": {"host": "Vært / IP-adresse", "port": "Port", "unit_id": "Modbus-enheds-id", "scan_interval": "Forespørgselsinterval (sekunder)"}}},
+    "error": {"cannot_connect": "Kunne ikke oprette forbindelse. Kontrollér adressen, og at Modbus-serveren er aktiveret i easyOperate.", "unsupported_device": "Enheden rapporterede hverken mappingversion 2 eller et serienummer."}
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Spænding L1"}, "voltage_l2": {"name": "Spænding L2"}, "voltage_l3": {"name": "Spænding L3"},
+      "current_l1": {"name": "Strøm L1"}, "current_l2": {"name": "Strøm L2"}, "current_l3": {"name": "Strøm L3"},
+      "active_power_l1": {"name": "Aktiv effekt L1"}, "active_power_l2": {"name": "Aktiv effekt L2"}, "active_power_l3": {"name": "Aktiv effekt L3"},
+      "total_active_power": {"name": "Samlet aktiv effekt"}, "total_energy": {"name": "Samlet energi"}, "frequency": {"name": "Netfrekvens"},
+      "charging_state": {"name": "Opladningsstatus", "state": {"idle": "Inaktiv", "ev_connected": "Køretøj tilsluttet", "authentication_waiting": "Venter på godkendelse", "authentication_confirmed": "Godkendelse bekræftet", "charging_active": "Opladning aktiv", "charging_paused": "Opladning sat på pause", "charging_completed": "Opladning fuldført", "rfid_pairing": "RFID-parring", "error": "Fejl", "unknown": "Ukendt"}},
+      "pp_state": {"name": "Nærhedssignal (PP)", "state": {"not_connected_or_fixed_cable": "Kabel ikke tilsluttet eller fastmonteret", "cable_not_connected": "Kabel ikke tilsluttet", "fixed_cable_mounted": "Fast kabel monteret", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Fejl", "unknown": "Ukendt"}},
+      "cp_state": {"name": "Styresignal (CP)", "state": {"state_a": "A: køretøj ikke registreret", "state_b": "B: køretøj registreret", "state_c": "C: køretøj oplader", "state_d": "D: opladning med ventilation", "state_e": "E: kortslutning i CP", "state_f": "F: EVSE ikke tilgængelig", "unknown": "Ukendt"}},
+      "granted_current": {"name": "Frigivet ladestrøm"}, "granted_power": {"name": "Frigivet ladeeffekt"}, "charging_duration": {"name": "Opladningsvarighed"}, "charging_energy": {"name": "Opladet energi"},
+      "relay_matrix": {"name": "EMS-relækonfiguration", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 faser", "unknown": "Ukendt"}},
+      "charging_current": {"name": "EMS-ladestrømindstilling"}, "timeout_period": {"name": "EMS-timeoutperiode"},
+      "timeout_fallback_relay_matrix": {"name": "EMS-reserverelækonfiguration", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 faser", "unknown": "Ukendt"}},
+      "timeout_fallback_current": {"name": "EMS-reserveladestrøm"}
+    },
+    "binary_sensor": {
+      "relay_welded": {"name": "Sammenbrændt relæ", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "residual_dc_current": {"name": "Residual jævnstrøm", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "socket_lock_error": {"name": "Fejl i stiklås", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "charging_overcurrent": {"name": "Overstrøm ved opladning", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "ventilation_unavailable": {"name": "Ventilation ikke tilgængelig", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "cp_short_circuit": {"name": "Kortslutning i CP", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "cp_loop_broken": {"name": "CP-sløjfe afbrudt", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "pp_short_circuit": {"name": "Kortslutning i PP", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "internal_error": {"name": "Intern fejl", "state": {"on": "Fejl registreret", "off": "Ingen fejl"}},
+      "relay_l1": {"name": "Relæ L1"}, "relay_l2": {"name": "Relæ L2"}, "relay_l3": {"name": "Relæ L3"},
+      "ems_control_enabled": {"name": "EMS-styring aktiveret", "state": {"on": "Aktiveret", "off": "Deaktiveret"}}, "meter_available": {"name": "Energimåler tilgængelig"}
+    }
+  }
+}

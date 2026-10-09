@@ -1,0 +1,57 @@
+{
+  "selector": {
+    "ems_relay_matrix": {"options": {"line_1": "Phase 1", "line_2": "Phase 2", "line_3": "Phase 3", "three_lines": "3 phases"}},
+    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_timeout_period": {"options": {"0": "Désactivé", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
+    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+  },
+  "services": {
+    "set_ems_control_enabled": {"name": "Définir l’état de la commande EMS", "description": "Activer ou désactiver la commande EMS de cette wallbox.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "enabled": {"name": "Activée", "description": "Indique si la commande EMS est activée."}}},
+    "set_relay_matrix": {"name": "Définir la matrice des relais", "description": "Choisir la configuration des relais utilisée par la commande EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "value": {"name": "Phases sélectionnées", "description": "Phases à activer."}}},
+    "set_charging_current": {"name": "Définir la consigne de courant de charge", "description": "Définir le courant de charge demandé par le système EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "value": {"name": "Consigne de courant", "description": "Courant demandé par l’EMS, en ampères. 0 A met la charge en pause et n’autorise aucun courant de charge."}}},
+    "set_timeout_period": {"name": "Définir le délai d’expiration EMS", "description": "Définir la durée de validité de la consigne EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "value": {"name": "Délai d’expiration", "description": "Délai en secondes, ou désactivé."}}},
+    "set_timeout_fallback_relay_matrix": {"name": "Définir la matrice des relais après expiration", "description": "Choisir la configuration des relais utilisée à l’expiration du délai EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "value": {"name": "Matrice de repli", "description": "Phases à utiliser après l’expiration du délai."}}},
+    "set_timeout_fallback_current": {"name": "Définir le courant de repli après expiration", "description": "Définir le courant de charge utilisé à l’expiration du délai EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuration de la wallbox à piloter."}, "value": {"name": "Courant de repli", "description": "Courant de repli en ampères. 0 A met la charge en pause et n’autorise aucun courant de charge."}}}
+  },
+  "config": {
+    "step": {
+      "user": {"title": "Connecter une wallbox Kathrein", "data": {"host": "Hôte / adresse IP", "port": "Port", "unit_id": "Identifiant d’unité Modbus", "scan_interval": "Intervalle d’interrogation (secondes)"}},
+      "reconfigure": {"title": "Modifier la connexion à la wallbox Kathrein", "data": {"host": "Hôte / adresse IP", "port": "Port", "unit_id": "Identifiant d’unité Modbus", "scan_interval": "Intervalle d’interrogation (secondes)"}}
+    },
+    "error": {"cannot_connect": "Connexion impossible. Vérifiez l’adresse et l’activation du serveur Modbus dans easyOperate.", "unsupported_device": "L’appareil ne signale ni la version 2 du mappage ni un numéro de série."},
+    "abort": {"already_configured": "Cette wallbox est déjà configurée."}
+  },
+  "options": {
+    "step": {"init": {"title": "Paramètres de connexion", "data": {"host": "Hôte / adresse IP", "port": "Port", "unit_id": "Identifiant d’unité Modbus", "scan_interval": "Intervalle d’interrogation (secondes)"}}},
+    "error": {"cannot_connect": "Connexion impossible. Vérifiez l’adresse et l’activation du serveur Modbus dans easyOperate.", "unsupported_device": "L’appareil ne signale ni la version 2 du mappage ni un numéro de série."}
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Tension L1"}, "voltage_l2": {"name": "Tension L2"}, "voltage_l3": {"name": "Tension L3"},
+      "current_l1": {"name": "Courant L1"}, "current_l2": {"name": "Courant L2"}, "current_l3": {"name": "Courant L3"},
+      "active_power_l1": {"name": "Puissance active L1"}, "active_power_l2": {"name": "Puissance active L2"}, "active_power_l3": {"name": "Puissance active L3"},
+      "total_active_power": {"name": "Puissance active totale"}, "total_energy": {"name": "Énergie totale"}, "frequency": {"name": "Fréquence du réseau"},
+      "charging_state": {"name": "État de la charge", "state": {"idle": "Au repos", "ev_connected": "Véhicule connecté", "authentication_waiting": "En attente d’authentification", "authentication_confirmed": "Authentification confirmée", "charging_active": "Charge en cours", "charging_paused": "Charge en pause", "charging_completed": "Charge terminée", "rfid_pairing": "Association RFID", "error": "Erreur", "unknown": "Inconnu"}},
+      "pp_state": {"name": "Pilote de proximité (PP)", "state": {"not_connected_or_fixed_cable": "Câble non connecté ou fixe", "cable_not_connected": "Câble non connecté", "fixed_cable_mounted": "Câble fixe installé", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Erreur", "unknown": "Inconnu"}},
+      "cp_state": {"name": "Pilote de contrôle (CP)", "state": {"state_a": "A : véhicule non détecté", "state_b": "B : véhicule détecté", "state_c": "C : véhicule en charge", "state_d": "D : charge avec ventilation", "state_e": "E : court-circuit du CP", "state_f": "F : borne indisponible", "unknown": "Inconnu"}},
+      "granted_current": {"name": "Courant de charge autorisé"}, "granted_power": {"name": "Puissance de charge autorisée"}, "charging_duration": {"name": "Durée de charge"}, "charging_energy": {"name": "Énergie chargée"},
+      "relay_matrix": {"name": "Matrice des relais EMS", "state": {"line_1": "Phase 1", "line_2": "Phase 2", "line_3": "Phase 3", "three_lines": "3 phases", "unknown": "Inconnu"}},
+      "charging_current": {"name": "Consigne de courant de charge EMS"}, "timeout_period": {"name": "Délai d’expiration EMS"},
+      "timeout_fallback_relay_matrix": {"name": "Matrice des relais de repli EMS", "state": {"line_1": "Phase 1", "line_2": "Phase 2", "line_3": "Phase 3", "three_lines": "3 phases", "unknown": "Inconnu"}},
+      "timeout_fallback_current": {"name": "Courant de repli EMS"}
+    },
+    "binary_sensor": {
+      "relay_welded": {"name": "Relais soudé", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "residual_dc_current": {"name": "Courant continu résiduel", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "socket_lock_error": {"name": "Défaut de verrouillage de la prise", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "charging_overcurrent": {"name": "Surintensité de charge", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "ventilation_unavailable": {"name": "Ventilation indisponible", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "cp_short_circuit": {"name": "Court-circuit du CP", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "cp_loop_broken": {"name": "Boucle CP interrompue", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "pp_short_circuit": {"name": "Court-circuit du PP", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "internal_error": {"name": "Erreur interne", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
+      "relay_l1": {"name": "Relais L1"}, "relay_l2": {"name": "Relais L2"}, "relay_l3": {"name": "Relais L3"},
+      "ems_control_enabled": {"name": "Commande EMS activée", "state": {"on": "Activée", "off": "Désactivée"}}, "meter_available": {"name": "Compteur d’énergie disponible"}
+    }
+  }
+}

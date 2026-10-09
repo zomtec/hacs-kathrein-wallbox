@@ -1,0 +1,13 @@
+{
+  "domain": "kathrein_wallbox",
+  "name": "Kathrein Wallbox",
+  "codeowners": ["@zomtec"],
+  "config_flow": true,
+  "dependencies": ["modbus"],
+  "documentation": "https://github.com/zomtec/hacs-kathrein-wallbox/blob/main/README.md",
+  "issue_tracker": "https://github.com/zomtec/hacs-kathrein-wallbox/issues",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": [],
+  "version": "0.2.8"
+}

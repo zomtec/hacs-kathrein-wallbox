@@ -1,0 +1,274 @@
+{
+  "selector": {
+    "ems_relay_matrix": {
+      "options": {
+        "line_1": "Phase 1",
+        "line_2": "Phase 2",
+        "line_3": "Phase 3",
+        "three_lines": "3 Phases"
+      }
+    },
+    "ems_charging_current": {
+      "options": {
+        "6": "6 A",
+        "8": "8 A",
+        "10": "10 A",
+        "12": "12 A",
+        "16": "16 A",
+        "20": "20 A",
+        "24": "24 A",
+        "32": "32 A"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Off",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 min",
+        "180": "3 min",
+        "300": "5 min",
+        "600": "10 min"
+      }
+    },
+    "ems_timeout_fallback_current": {
+      "options": {
+        "0": "0 A",
+        "6": "6 A",
+        "8": "8 A",
+        "10": "10 A",
+        "12": "12 A",
+        "16": "16 A",
+        "20": "20 A",
+        "24": "24 A",
+        "32": "32 A"
+      }
+    }
+  },
+  "services": {
+    "set_ems_control_enabled": {
+      "name": "Set EMS control state",
+      "description": "Enable or disable EMS control for this Wallbox.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "enabled": {"name": "Enabled", "description": "Whether EMS control is enabled."}
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Set relay matrix",
+      "description": "Choose the relay matrix for EMS control.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "value": {"name": "Phase selection", "description": "Relay phases to enable."}
+      }
+    },
+    "set_charging_current": {
+      "name": "Set charging current setpoint",
+      "description": "Set the charging current requested from the EMS.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "value": {"name": "Current setpoint", "description": "EMS charging current in amps. 0 A pauses charging and grants no charging current."}
+      }
+    },
+    "set_timeout_period": {
+      "name": "Set EMS timeout period",
+      "description": "Set how long the EMS override remains active.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "value": {"name": "Timeout period", "description": "Timeout in seconds, or off."}
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "Set EMS timeout fallback relay matrix",
+      "description": "Choose the relay matrix used when the EMS timeout expires.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "value": {"name": "Fallback relay matrix", "description": "Relay phases to use after timeout."}
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "Set EMS timeout fallback current",
+      "description": "Set the fallback charging current used when the EMS timeout expires.",
+      "fields": {
+        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "value": {"name": "Fallback current", "description": "Fallback current in amps. 0 A pauses charging and grants no charging current."}
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to a Kathrein Wallbox",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Modbus unit ID",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      },
+      "reconfigure": {
+        "title": "Update Kathrein Wallbox connection",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Modbus unit ID",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect. Check the address and ensure the Modbus server is enabled in easyOperate.",
+      "unsupported_device": "The device did not report mapping version 2 or a serial number."
+    },
+    "abort": {
+      "already_configured": "This Wallbox is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Connection settings",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Modbus unit ID",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect. Check the address and ensure the Modbus server is enabled in easyOperate.",
+      "unsupported_device": "The device did not report mapping version 2 or a serial number."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Voltage L1"},
+      "voltage_l2": {"name": "Voltage L2"},
+      "voltage_l3": {"name": "Voltage L3"},
+      "current_l1": {"name": "Current L1"},
+      "current_l2": {"name": "Current L2"},
+      "current_l3": {"name": "Current L3"},
+      "active_power_l1": {"name": "Active power L1"},
+      "active_power_l2": {"name": "Active power L2"},
+      "active_power_l3": {"name": "Active power L3"},
+      "total_active_power": {"name": "Total active power"},
+      "total_energy": {"name": "Total energy"},
+      "frequency": {"name": "Line frequency"},
+      "charging_state": {
+        "name": "Charging state",
+        "state": {
+          "idle": "Idle",
+          "ev_connected": "EV connected",
+          "authentication_waiting": "Authentication waiting",
+          "authentication_confirmed": "Authentication confirmed",
+          "charging_active": "Charging active",
+          "charging_paused": "Charging paused",
+          "charging_completed": "Charging completed",
+          "rfid_pairing": "RFID pairing",
+          "error": "Error",
+          "unknown": "Unknown"
+        }
+      },
+      "pp_state": {
+        "name": "Proximity pilot (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Cable not connected or fixed cable",
+          "cable_not_connected": "Cable not connected",
+          "fixed_cable_mounted": "Fixed cable mounted",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Error",
+          "unknown": "Unknown"
+        }
+      },
+      "cp_state": {
+        "name": "Control pilot (CP)",
+        "state": {
+          "state_a": "A: EV not detected",
+          "state_b": "B: EV detected",
+          "state_c": "C: EV charging",
+          "state_d": "D: EV charging with fan",
+          "state_e": "E: CP short circuit",
+          "state_f": "F: EVSE unavailable",
+          "unknown": "Unknown"
+        }
+      },
+      "granted_current": {"name": "Granted charging current"},
+      "granted_power": {"name": "Granted charging power"},
+      "charging_duration": {"name": "Charging duration"},
+      "charging_energy": {"name": "Energy charged"},
+      "relay_matrix": {
+        "name": "EMS relay matrix",
+        "state": {
+          "line_1": "Phase 1",
+          "line_2": "Phase 2",
+          "line_3": "Phase 3",
+          "three_lines": "3 Phases",
+          "unknown": "Unknown"
+        }
+      },
+      "charging_current": {"name": "EMS charging current setpoint"},
+      "timeout_period": {"name": "EMS timeout period"},
+      "timeout_fallback_relay_matrix": {
+        "name": "EMS timeout fallback relay matrix",
+        "state": {
+          "line_1": "Phase 1",
+          "line_2": "Phase 2",
+          "line_3": "Phase 3",
+          "three_lines": "3 Phases",
+          "unknown": "Unknown"
+        }
+      },
+      "timeout_fallback_current": {"name": "EMS timeout fallback current"}
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Relay welded",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "residual_dc_current": {
+        "name": "Residual DC current",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "socket_lock_error": {
+        "name": "Socket lock error",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "charging_overcurrent": {
+        "name": "Charging overcurrent",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "ventilation_unavailable": {
+        "name": "Ventilation unavailable",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "cp_short_circuit": {
+        "name": "CP short circuit",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "cp_loop_broken": {
+        "name": "CP loop broken",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "pp_short_circuit": {
+        "name": "PP short circuit",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "internal_error": {
+        "name": "Internal error",
+        "state": {"on": "Fault detected", "off": "No fault"}
+      },
+      "relay_l1": {"name": "Relay L1"},
+      "relay_l2": {"name": "Relay L2"},
+      "relay_l3": {"name": "Relay L3"},
+      "ems_control_enabled": {
+        "name": "EMS control enabled",
+        "state": {"on": "Enabled", "off": "Disabled"}
+      },
+      "meter_available": {"name": "Energy meter available"}
+    }
+  }
+}

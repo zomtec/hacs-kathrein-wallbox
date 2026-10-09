@@ -1,0 +1,57 @@
+{
+  "selector": {
+    "ems_relay_matrix": {"options": {"line_1": "Faza 1", "line_2": "Faza 2", "line_3": "Faza 3", "three_lines": "3 fazy"}},
+    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_timeout_period": {"options": {"0": "Wył.", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
+    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+  },
+  "services": {
+    "set_ems_control_enabled": {"name": "Ustaw sterowanie EMS", "description": "Włącz lub wyłącz sterowanie EMS dla tego wallboxa.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "enabled": {"name": "Włączone", "description": "Określa, czy sterowanie EMS jest włączone."}}},
+    "set_relay_matrix": {"name": "Ustaw konfigurację przekaźników", "description": "Wybierz konfigurację przekaźników dla sterowania EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "value": {"name": "Wybór faz", "description": "Fazy, które mają zostać włączone."}}},
+    "set_charging_current": {"name": "Ustaw zadaną wartość prądu ładowania", "description": "Ustaw prąd ładowania żądany przez EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "value": {"name": "Zadany prąd", "description": "Prąd ładowania żądany przez EMS, w amperach. 0 A wstrzymuje ładowanie i nie udostępnia prądu ładowania."}}},
+    "set_timeout_period": {"name": "Ustaw czas limitu EMS", "description": "Ustaw, jak długo obowiązuje polecenie EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "value": {"name": "Czas limitu", "description": "Czas w sekundach lub wyłączenie limitu."}}},
+    "set_timeout_fallback_relay_matrix": {"name": "Ustaw konfigurację przekaźników po limicie EMS", "description": "Wybierz konfigurację przekaźników używaną po upływie limitu EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "value": {"name": "Zapasowa konfiguracja przekaźników", "description": "Fazy używane po upływie limitu."}}},
+    "set_timeout_fallback_current": {"name": "Ustaw zapasowy prąd po limicie EMS", "description": "Ustaw prąd ładowania używany po upływie limitu EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Konfiguracja wallboxa, którym chcesz sterować."}, "value": {"name": "Zapasowy prąd", "description": "Zapasowy prąd w amperach. 0 A wstrzymuje ładowanie i nie udostępnia prądu ładowania."}}}
+  },
+  "config": {
+    "step": {
+      "user": {"title": "Połącz z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}},
+      "reconfigure": {"title": "Zmień połączenie z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}}
+    },
+    "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."},
+    "abort": {"already_configured": "Ten wallbox jest już skonfigurowany."}
+  },
+  "options": {
+    "step": {"init": {"title": "Ustawienia połączenia", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}}},
+    "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."}
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Napięcie L1"}, "voltage_l2": {"name": "Napięcie L2"}, "voltage_l3": {"name": "Napięcie L3"},
+      "current_l1": {"name": "Prąd L1"}, "current_l2": {"name": "Prąd L2"}, "current_l3": {"name": "Prąd L3"},
+      "active_power_l1": {"name": "Moc czynna L1"}, "active_power_l2": {"name": "Moc czynna L2"}, "active_power_l3": {"name": "Moc czynna L3"},
+      "total_active_power": {"name": "Całkowita moc czynna"}, "total_energy": {"name": "Całkowita energia"}, "frequency": {"name": "Częstotliwość sieci"},
+      "charging_state": {"name": "Stan ładowania", "state": {"idle": "Bezczynny", "ev_connected": "Podłączono pojazd", "authentication_waiting": "Oczekiwanie na autoryzację", "authentication_confirmed": "Autoryzacja potwierdzona", "charging_active": "Ładowanie aktywne", "charging_paused": "Ładowanie wstrzymane", "charging_completed": "Ładowanie zakończone", "rfid_pairing": "Parowanie RFID", "error": "Błąd", "unknown": "Nieznany"}},
+      "pp_state": {"name": "Pilot zbliżeniowy (PP)", "state": {"not_connected_or_fixed_cable": "Przewód niepodłączony lub zamontowany na stałe", "cable_not_connected": "Przewód niepodłączony", "fixed_cable_mounted": "Przewód zamontowany na stałe", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Błąd", "unknown": "Nieznany"}},
+      "cp_state": {"name": "Pilot sterujący (CP)", "state": {"state_a": "A: nie wykryto pojazdu", "state_b": "B: wykryto pojazd", "state_c": "C: pojazd ładuje się", "state_d": "D: ładowanie z wentylacją", "state_e": "E: zwarcie CP", "state_f": "F: EVSE niedostępny", "unknown": "Nieznany"}},
+      "granted_current": {"name": "Udostępniony prąd ładowania"}, "granted_power": {"name": "Udostępniona moc ładowania"}, "charging_duration": {"name": "Czas ładowania"}, "charging_energy": {"name": "Naładowana energia"},
+      "relay_matrix": {"name": "Konfiguracja przekaźników EMS", "state": {"line_1": "Faza 1", "line_2": "Faza 2", "line_3": "Faza 3", "three_lines": "3 fazy", "unknown": "Nieznany"}},
+      "charging_current": {"name": "Zadany prąd ładowania EMS"}, "timeout_period": {"name": "Limit czasu EMS"},
+      "timeout_fallback_relay_matrix": {"name": "Zapasowa konfiguracja przekaźników EMS", "state": {"line_1": "Faza 1", "line_2": "Faza 2", "line_3": "Faza 3", "three_lines": "3 fazy", "unknown": "Nieznany"}},
+      "timeout_fallback_current": {"name": "Zapasowy prąd EMS"}
+    },
+    "binary_sensor": {
+      "relay_welded": {"name": "Sklejony przekaźnik", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "residual_dc_current": {"name": "Resztkowy prąd stały", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "socket_lock_error": {"name": "Błąd blokady gniazda", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "charging_overcurrent": {"name": "Nadprąd ładowania", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "ventilation_unavailable": {"name": "Wentylacja niedostępna", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "cp_short_circuit": {"name": "Zwarcie CP", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "cp_loop_broken": {"name": "Przerwana pętla CP", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "pp_short_circuit": {"name": "Zwarcie PP", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "internal_error": {"name": "Błąd wewnętrzny", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "relay_l1": {"name": "Przekaźnik L1"}, "relay_l2": {"name": "Przekaźnik L2"}, "relay_l3": {"name": "Przekaźnik L3"},
+      "ems_control_enabled": {"name": "Sterowanie EMS włączone", "state": {"on": "Włączone", "off": "Wyłączone"}}, "meter_available": {"name": "Licznik energii dostępny"}
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "selector": {
+    "ems_relay_matrix": {"options": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases"}},
+    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_timeout_period": {"options": {"0": "Desativado", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
+    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+  },
+  "services": {
+    "set_ems_control_enabled": {"name": "Definir estado do controlo EMS", "description": "Ativa ou desativa o controlo EMS desta wallbox.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "enabled": {"name": "Ativado", "description": "Indica se o controlo EMS está ativado."}}},
+    "set_relay_matrix": {"name": "Definir configuração dos relés", "description": "Selecione a configuração dos relés para o controlo EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "value": {"name": "Seleção de fases", "description": "Fases a ativar."}}},
+    "set_charging_current": {"name": "Definir corrente de carregamento", "description": "Define a corrente de carregamento solicitada pelo EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "value": {"name": "Corrente solicitada", "description": "Corrente solicitada pelo EMS, em amperes. 0 A pausa o carregamento e não disponibiliza corrente de carregamento."}}},
+    "set_timeout_period": {"name": "Definir tempo limite do EMS", "description": "Define durante quanto tempo o comando do EMS permanece ativo.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "value": {"name": "Tempo limite", "description": "Tempo limite em segundos ou desativado."}}},
+    "set_timeout_fallback_relay_matrix": {"name": "Definir configuração de relés após o tempo limite do EMS", "description": "Selecione a configuração dos relés utilizada quando o tempo limite do EMS expira.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "value": {"name": "Configuração de recurso", "description": "Fases utilizadas após o tempo limite."}}},
+    "set_timeout_fallback_current": {"name": "Definir corrente de recurso após o tempo limite do EMS", "description": "Define a corrente de carregamento utilizada quando o tempo limite do EMS expira.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuração da wallbox a controlar."}, "value": {"name": "Corrente de recurso", "description": "Corrente de recurso em amperes. 0 A pausa o carregamento e não disponibiliza corrente de carregamento."}}}
+  },
+  "config": {
+    "step": {
+      "user": {"title": "Ligar a uma wallbox Kathrein", "data": {"host": "Anfitrião / endereço IP", "port": "Porta", "unit_id": "ID da unidade Modbus", "scan_interval": "Intervalo de consulta (segundos)"}},
+      "reconfigure": {"title": "Atualizar ligação à wallbox Kathrein", "data": {"host": "Anfitrião / endereço IP", "port": "Porta", "unit_id": "ID da unidade Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}
+    },
+    "error": {"cannot_connect": "Não foi possível estabelecer ligação. Verifique o endereço e confirme que o servidor Modbus está ativado no easyOperate.", "unsupported_device": "O dispositivo não comunicou a versão 2 do mapa nem um número de série."},
+    "abort": {"already_configured": "Esta wallbox já está configurada."}
+  },
+  "options": {
+    "step": {"init": {"title": "Definições de ligação", "data": {"host": "Anfitrião / endereço IP", "port": "Porta", "unit_id": "ID da unidade Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}},
+    "error": {"cannot_connect": "Não foi possível estabelecer ligação. Verifique o endereço e confirme que o servidor Modbus está ativado no easyOperate.", "unsupported_device": "O dispositivo não comunicou a versão 2 do mapa nem um número de série."}
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Tensão L1"}, "voltage_l2": {"name": "Tensão L2"}, "voltage_l3": {"name": "Tensão L3"},
+      "current_l1": {"name": "Corrente L1"}, "current_l2": {"name": "Corrente L2"}, "current_l3": {"name": "Corrente L3"},
+      "active_power_l1": {"name": "Potência ativa L1"}, "active_power_l2": {"name": "Potência ativa L2"}, "active_power_l3": {"name": "Potência ativa L3"},
+      "total_active_power": {"name": "Potência ativa total"}, "total_energy": {"name": "Energia total"}, "frequency": {"name": "Frequência da rede"},
+      "charging_state": {"name": "Estado do carregamento", "state": {"idle": "Em espera", "ev_connected": "Veículo elétrico ligado", "authentication_waiting": "A aguardar autenticação", "authentication_confirmed": "Autenticação confirmada", "charging_active": "Carregamento em curso", "charging_paused": "Carregamento em pausa", "charging_completed": "Carregamento concluído", "rfid_pairing": "Emparelhamento RFID", "error": "Erro", "unknown": "Desconhecido"}},
+      "pp_state": {"name": "Sinal de proximidade (PP)", "state": {"not_connected_or_fixed_cable": "Cabo não ligado ou cabo fixo", "cable_not_connected": "Cabo não ligado", "fixed_cable_mounted": "Cabo fixo instalado", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Erro", "unknown": "Desconhecido"}},
+      "cp_state": {"name": "Sinal de controlo (CP)", "state": {"state_a": "A: veículo não detetado", "state_b": "B: veículo detetado", "state_c": "C: veículo a carregar", "state_d": "D: carregamento com ventilação", "state_e": "E: curto-circuito no CP", "state_f": "F: EVSE indisponível", "unknown": "Desconhecido"}},
+      "granted_current": {"name": "Corrente de carregamento autorizada"}, "granted_power": {"name": "Potência de carregamento autorizada"}, "charging_duration": {"name": "Duração do carregamento"}, "charging_energy": {"name": "Energia carregada"},
+      "relay_matrix": {"name": "Configuração dos relés EMS", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases", "unknown": "Desconhecido"}},
+      "charging_current": {"name": "Corrente de carregamento solicitada pelo EMS"}, "timeout_period": {"name": "Tempo limite do EMS"},
+      "timeout_fallback_relay_matrix": {"name": "Configuração de recurso dos relés EMS", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases", "unknown": "Desconhecido"}},
+      "timeout_fallback_current": {"name": "Corrente de recurso do EMS"}
+    },
+    "binary_sensor": {
+      "relay_welded": {"name": "Relé colado", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "residual_dc_current": {"name": "Corrente contínua residual", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "socket_lock_error": {"name": "Erro no bloqueio da tomada", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "charging_overcurrent": {"name": "Sobrecorrente de carregamento", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "ventilation_unavailable": {"name": "Ventilação indisponível", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "cp_short_circuit": {"name": "Curto-circuito no CP", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "cp_loop_broken": {"name": "Circuito CP interrompido", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "pp_short_circuit": {"name": "Curto-circuito no PP", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "internal_error": {"name": "Erro interno", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "relay_l1": {"name": "Relé L1"}, "relay_l2": {"name": "Relé L2"}, "relay_l3": {"name": "Relé L3"},
+      "ems_control_enabled": {"name": "Controlo EMS ativado", "state": {"on": "Ativado", "off": "Desativado"}}, "meter_available": {"name": "Contador de energia disponível"}
+    }
+  }
+}

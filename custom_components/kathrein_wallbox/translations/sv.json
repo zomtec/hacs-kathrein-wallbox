@@ -1,0 +1,57 @@
+{
+  "selector": {
+    "ems_relay_matrix": {"options": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser"}},
+    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_timeout_period": {"options": {"0": "Av", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
+    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+  },
+  "services": {
+    "set_ems_control_enabled": {"name": "Ställ in EMS-styrning", "description": "Aktivera eller inaktivera EMS-styrningen för den här laddboxen.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "enabled": {"name": "Aktiverad", "description": "Anger om EMS-styrningen är aktiverad."}}},
+    "set_relay_matrix": {"name": "Ställ in reläkonfiguration", "description": "Välj reläkonfiguration för EMS-styrningen.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "value": {"name": "Fasval", "description": "Faser som ska aktiveras."}}},
+    "set_charging_current": {"name": "Ställ in laddström", "description": "Ange laddströmmen som EMS begär.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "value": {"name": "Strömvärde", "description": "Laddström som EMS begär, i ampere. 0 A pausar laddningen och ger ingen tillgänglig laddström."}}},
+    "set_timeout_period": {"name": "Ställ in EMS-tidsgräns", "description": "Ange hur länge EMS-överstyrningen ska vara aktiv.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "value": {"name": "Tidsgräns", "description": "Tidsgräns i sekunder eller av."}}},
+    "set_timeout_fallback_relay_matrix": {"name": "Ställ in reläkonfiguration efter EMS-tidsgräns", "description": "Välj reläkonfigurationen som används när EMS-tidsgränsen löper ut.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "value": {"name": "Reservkonfiguration", "description": "Faser som används efter tidsgränsen."}}},
+    "set_timeout_fallback_current": {"name": "Ställ in reservström efter EMS-tidsgräns", "description": "Ange laddströmmen som används när EMS-tidsgränsen löper ut.", "fields": {"entry_id": {"name": "Laddbox", "description": "Konfigurationen för laddboxen som ska styras."}, "value": {"name": "Reservström", "description": "Reservström i ampere. 0 A pausar laddningen och ger ingen tillgänglig laddström."}}}
+  },
+  "config": {
+    "step": {
+      "user": {"title": "Anslut en Kathrein-laddbox", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}},
+      "reconfigure": {"title": "Ändra anslutningen till Kathrein-laddboxen", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}
+    },
+    "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."},
+    "abort": {"already_configured": "Den här laddboxen är redan konfigurerad."}
+  },
+  "options": {
+    "step": {"init": {"title": "Anslutningsinställningar", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}},
+    "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."}
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {"name": "Spänning L1"}, "voltage_l2": {"name": "Spänning L2"}, "voltage_l3": {"name": "Spänning L3"},
+      "current_l1": {"name": "Ström L1"}, "current_l2": {"name": "Ström L2"}, "current_l3": {"name": "Ström L3"},
+      "active_power_l1": {"name": "Aktiv effekt L1"}, "active_power_l2": {"name": "Aktiv effekt L2"}, "active_power_l3": {"name": "Aktiv effekt L3"},
+      "total_active_power": {"name": "Total aktiv effekt"}, "total_energy": {"name": "Total energi"}, "frequency": {"name": "Nätfrekvens"},
+      "charging_state": {"name": "Laddstatus", "state": {"idle": "Inaktiv", "ev_connected": "Fordon anslutet", "authentication_waiting": "Väntar på autentisering", "authentication_confirmed": "Autentisering bekräftad", "charging_active": "Laddning pågår", "charging_paused": "Laddning pausad", "charging_completed": "Laddning klar", "rfid_pairing": "RFID-parkoppling", "error": "Fel", "unknown": "Okänd"}},
+      "pp_state": {"name": "Närhetssignal (PP)", "state": {"not_connected_or_fixed_cable": "Kabel inte ansluten eller fast monterad", "cable_not_connected": "Kabel inte ansluten", "fixed_cable_mounted": "Fast kabel monterad", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Fel", "unknown": "Okänd"}},
+      "cp_state": {"name": "Styrsignal (CP)", "state": {"state_a": "A: fordon inte upptäckt", "state_b": "B: fordon upptäckt", "state_c": "C: fordon laddar", "state_d": "D: laddning med ventilation", "state_e": "E: kortslutning i CP", "state_f": "F: EVSE inte tillgänglig", "unknown": "Okänd"}},
+      "granted_current": {"name": "Tillgänglig laddström"}, "granted_power": {"name": "Tillgänglig laddeffekt"}, "charging_duration": {"name": "Laddningstid"}, "charging_energy": {"name": "Laddad energi"},
+      "relay_matrix": {"name": "EMS-reläkonfiguration", "state": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser", "unknown": "Okänd"}},
+      "charging_current": {"name": "EMS-laddströmsvärde"}, "timeout_period": {"name": "EMS-tidsgräns"},
+      "timeout_fallback_relay_matrix": {"name": "EMS-reservreläkonfiguration", "state": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser", "unknown": "Okänd"}},
+      "timeout_fallback_current": {"name": "EMS-reservström"}
+    },
+    "binary_sensor": {
+      "relay_welded": {"name": "Fastsvetsat relä", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "residual_dc_current": {"name": "Kvarvarande likström", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "socket_lock_error": {"name": "Fel på kontaktlåset", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "charging_overcurrent": {"name": "Överström vid laddning", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "ventilation_unavailable": {"name": "Ventilation inte tillgänglig", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "cp_short_circuit": {"name": "Kortslutning i CP", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "cp_loop_broken": {"name": "Avbrott i CP-slingan", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "pp_short_circuit": {"name": "Kortslutning i PP", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "internal_error": {"name": "Internt fel", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "relay_l1": {"name": "Relä L1"}, "relay_l2": {"name": "Relä L2"}, "relay_l3": {"name": "Relä L3"},
+      "ems_control_enabled": {"name": "EMS-styrning aktiverad", "state": {"on": "Aktiverad", "off": "Inaktiverad"}}, "meter_available": {"name": "Energimätare tillgänglig"}
+    }
+  }
+}
