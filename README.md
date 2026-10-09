@@ -45,7 +45,7 @@ The device manual describes register `0x005C` as energy in Wh. The session count
 
 ## License
 
-Original project materials are licensed under the MIT License. The Kathrein brand graphics and the Modbus register manual (including its extracted text) are excluded and remain subject to their respective rights holders' terms. See [LICENSE](LICENSE) for the complete license and exclusions.
+Original project materials are licensed under the MIT License. The Kathrein brand graphics and the Modbus register manual (including its extracted text) are excluded and remain subject to their respective rights holders' terms. See [LICENSE](LICENSE) and [LICENSE-SCOPE.md](LICENSE-SCOPE.md) for the license and exclusions.
 
 ## Brand assets
 

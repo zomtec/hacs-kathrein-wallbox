@@ -19,15 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Scope
------
-
-This license applies to the original project materials except for the files
-listed below. The following third-party assets are excluded from this license
-and remain subject to the terms of their respective rights holders:
-
-- custom_components/kathrein_wallbox/brand/icon.png
-- custom_components/kathrein_wallbox/brand/logo.png
-- modbus_register/Modbus-Server.pdf
-- modbus_register/Modbus-Server.md (text extracted from the PDF above)
