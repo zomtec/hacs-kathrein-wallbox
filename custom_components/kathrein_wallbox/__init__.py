@@ -7,6 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.components.modbus import async_get_unit
+from homeassistant.helpers import config_validation as cv
 from modbus_connection import ModbusTcpParams
 
 from .const import (
@@ -18,6 +19,8 @@ from .const import (
     get_scan_interval,
 )
 from .coordinator import KathreinCoordinator, WallboxRuntimeData
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 SERVICE_SET_EMS_CONTROL_ENABLED = "set_ems_control_enabled"
 SERVICE_SET_RELAY_MATRIX = "set_relay_matrix"

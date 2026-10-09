@@ -7,6 +7,7 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import (
+    CONFIG_SCHEMA,
     async_setup_entry,
     async_unload_entry,
 )
@@ -19,6 +20,11 @@ from custom_components.kathrein_wallbox.const import (
     PLATFORMS,
 )
 from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
+
+
+def test_config_schema_accepts_empty_config() -> None:
+    """Declare the integration as config-entry-only to Hassfest."""
+    assert CONFIG_SCHEMA({}) == {}
 
 
 @pytest.mark.asyncio
