@@ -43,6 +43,10 @@ The config flow requires mapping version `0x0002` and a readable serial number. 
 
 The device manual describes register `0x005C` as energy in Wh. The session counter uses UINT32 at `0x0069` and is also exposed in Wh. The integration has been developed against Register Mapping V1.5; verify the readings and write behavior for the specific Wallbox model and firmware before relying on automated control.
 
+## Acknowledgments
+
+This integration was created with substantial assistance from GitHub Copilot.
+
 ## License
 
 Original project materials are licensed under the MIT License. The Kathrein brand graphics and the Modbus register manual (including its extracted text) are excluded and remain subject to their respective rights holders' terms. See [LICENSE](LICENSE) and [LICENSE-SCOPE.md](LICENSE-SCOPE.md) for the license and exclusions.
