@@ -1,7 +1,7 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"line_1": "Fáze 1", "line_2": "Fáze 2", "line_3": "Fáze 3", "three_lines": "3 fáze"}},
-    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_relay_matrix": {"options": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}},
+    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
     "ems_timeout_period": {"options": {"0": "Vypnuto", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
     "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
   },
@@ -19,11 +19,17 @@
       "reconfigure": {"title": "Upravit připojení nabíjecí stanice Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)"}}
     },
     "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je v easyOperate povolen server Modbus.", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."},
-    "abort": {"already_configured": "Tato nabíjecí stanice je již nakonfigurována."}
+    "abort": {"already_configured": "Tato nabíjecí stanice je již nakonfigurována.", "reconfigure_successful": "Nastavení připojení bylo aktualizováno.", "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."}
   },
   "options": {
     "step": {"init": {"title": "Nastavení připojení", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)"}}},
-    "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je v easyOperate povolen server Modbus.", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."}
+    "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je v easyOperate povolen server Modbus.", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo.", "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."}
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "Pro {entry_id} nebyla nalezena žádná konfigurace nabíjecí stanice Kathrein."},
+    "entry_not_loaded": {"message": "Nabíjecí stanice {title} není aktivní."},
+    "current_limit_11_kw": {"message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."},
+    "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"}
   },
   "entity": {
     "sensor": {
@@ -35,9 +41,9 @@
       "pp_state": {"name": "Signál proximity pilot (PP)", "state": {"not_connected_or_fixed_cable": "Kabel není připojen nebo je pevně připojen", "cable_not_connected": "Kabel není připojen", "fixed_cable_mounted": "Pevný kabel je připojen", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Chyba", "unknown": "Neznámý"}},
       "cp_state": {"name": "Řídicí signál (CP)", "state": {"state_a": "A: vozidlo nebylo detekováno", "state_b": "B: vozidlo detekováno", "state_c": "C: vozidlo se nabíjí", "state_d": "D: nabíjení s ventilací", "state_e": "E: zkrat CP", "state_f": "F: EVSE není k dispozici", "unknown": "Neznámý"}},
       "granted_current": {"name": "Povolený nabíjecí proud"}, "granted_power": {"name": "Povolený nabíjecí výkon"}, "charging_duration": {"name": "Doba nabíjení"}, "charging_energy": {"name": "Dodaná energie"},
-      "relay_matrix": {"name": "Konfigurace relé EMS", "state": {"line_1": "Fáze 1", "line_2": "Fáze 2", "line_3": "Fáze 3", "three_lines": "3 fáze", "unknown": "Neznámý"}},
+      "relay_matrix": {"name": "Konfigurace relé EMS", "state": {"phase_1": "Fáze 1", "phase_2": "Fáze 2", "phase_3": "Fáze 3", "three_phases": "3 fáze", "unknown": "Neznámý"}},
       "charging_current": {"name": "Požadovaný nabíjecí proud EMS"}, "timeout_period": {"name": "Časový limit EMS"},
-      "timeout_fallback_relay_matrix": {"name": "Záložní konfigurace relé EMS", "state": {"line_1": "Fáze 1", "line_2": "Fáze 2", "line_3": "Fáze 3", "three_lines": "3 fáze", "unknown": "Neznámý"}},
+      "timeout_fallback_relay_matrix": {"name": "Záložní konfigurace relé EMS", "state": {"phase_1": "Fáze 1", "phase_2": "Fáze 2", "phase_3": "Fáze 3", "three_phases": "3 fáze", "unknown": "Neznámý"}},
       "timeout_fallback_current": {"name": "Záložní proud EMS"}
     },
     "binary_sensor": {

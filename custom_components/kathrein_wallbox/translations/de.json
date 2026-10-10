@@ -2,14 +2,13 @@
   "selector": {
     "ems_relay_matrix": {
       "options": {
-        "line_1": "Phase 1",
-        "line_2": "Phase 2",
-        "line_3": "Phase 3",
-        "three_lines": "3 Phasen"
+        "phase_1": "Phase 1",
+        "three_phases": "3 Phasen"
       }
     },
     "ems_charging_current": {
       "options": {
+        "0": "0 A",
         "6": "6 A",
         "8": "8 A",
         "10": "10 A",
@@ -121,7 +120,9 @@
       "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
     },
     "abort": {
-      "already_configured": "Diese Wallbox ist bereits eingerichtet."
+      "already_configured": "Diese Wallbox ist bereits eingerichtet.",
+      "reconfigure_successful": "Die Verbindungseinstellungen wurden aktualisiert.",
+      "unique_id_mismatch": "Das Gerät unter dieser Adresse ist eine andere Wallbox als die, die neu konfiguriert wird."
     }
   },
   "options": {
@@ -138,8 +139,15 @@
     },
     "error": {
       "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
-      "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
+      "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer.",
+      "unique_id_mismatch": "Das Gerät unter dieser Adresse ist eine andere Wallbox als die, die neu konfiguriert wird."
     }
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "Für {entry_id} wurde keine Kathrein-Wallbox-Konfiguration gefunden."},
+    "entry_not_loaded": {"message": "Die Wallbox {title} ist nicht aktiv."},
+    "current_limit_11_kw": {"message": "Wallboxen mit 11 kW unterstützen einen EMS Ladestrom von höchstens {max_current} A."},
+    "write_failed": {"message": "Schreiben auf die Wallbox nicht möglich: {error}"}
   },
   "entity": {
     "sensor": {
@@ -203,10 +211,10 @@
       "relay_matrix": {
         "name": "EMS Phasen",
         "state": {
-          "line_1": "Phase 1",
-          "line_2": "Phase 2",
-          "line_3": "Phase 3",
-          "three_lines": "3 Phasen",
+          "phase_1": "Phase 1",
+          "phase_2": "Phase 2",
+          "phase_3": "Phase 3",
+          "three_phases": "3 Phasen",
           "unknown": "Unbekannt"
         }
       },
@@ -215,10 +223,10 @@
       "timeout_fallback_relay_matrix": {
         "name": "EMS Timeout Fallback Phasen",
         "state": {
-          "line_1": "Phase 1",
-          "line_2": "Phase 2",
-          "line_3": "Phase 3",
-          "three_lines": "3 Phasen",
+          "phase_1": "Phase 1",
+          "phase_2": "Phase 2",
+          "phase_3": "Phase 3",
+          "three_phases": "3 Phasen",
           "unknown": "Unbekannt"
         }
       },

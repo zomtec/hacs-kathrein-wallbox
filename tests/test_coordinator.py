@@ -3,18 +3,8 @@
 import pytest
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from modbus_connection import IllegalDataAddressError
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.kathrein_wallbox.const import DOMAIN
-from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
-
-
-@pytest.fixture
-def coordinator(hass, mock_modbus_unit):
-    """Create a coordinator attached to an in-memory config entry."""
-    entry = MockConfigEntry(domain=DOMAIN)
-    entry.add_to_hass(hass)
-    return KathreinCoordinator(hass, entry, mock_modbus_unit)
+from custom_components.kathrein_wallbox.model import SERIAL_ADDRESS
 
 
 @pytest.mark.asyncio
@@ -40,6 +30,17 @@ async def test_required_register_failure_fails_wallbox_poll(
     mock_modbus_unit.fail_read(0x0000, IllegalDataAddressError())
 
     with pytest.raises(UpdateFailed, match="Unable to read Kathrein Wallbox"):
+        await coordinator._async_update_data()
+
+
+@pytest.mark.asyncio
+async def test_missing_serial_number_fails_wallbox_poll(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Refuse to publish data for a device that reports no serial number."""
+    mock_modbus_unit.holding[SERIAL_ADDRESS] = [0] * 8
+
+    with pytest.raises(UpdateFailed, match="serial number"):
         await coordinator._async_update_data()
 
 

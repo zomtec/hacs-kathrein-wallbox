@@ -1,15 +1,15 @@
 """Diagnostics for the Kathrein Wallbox integration."""
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from modbus_connection import ModbusError
 
-from .coordinator import WallboxRuntimeData
+from .coordinator import KathreinConfigEntry
+from .model import SERIAL_ADDRESS, SERIAL_REGISTER_COUNT
 
 
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,
-    entry: ConfigEntry[WallboxRuntimeData],
+    entry: KathreinConfigEntry,
 ) -> dict[str, object]:
     """Return the raw mapped registers without exposing the serial number."""
     coordinator = entry.runtime_data.coordinator
@@ -37,7 +37,7 @@ async def async_get_config_entry_diagnostics(
             registers.setdefault(register_type, {}).update(values)
 
     holding = registers.get("holding", {})
-    for address in range(0x0011, 0x0019):
+    for address in range(SERIAL_ADDRESS, SERIAL_ADDRESS + SERIAL_REGISTER_COUNT):
         holding.pop(address, None)
 
     return {

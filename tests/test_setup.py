@@ -4,6 +4,7 @@ from datetime import timedelta
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from homeassistant.const import CONF_HOST, CONF_PORT
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import (
@@ -12,8 +13,6 @@ from custom_components.kathrein_wallbox import (
     async_unload_entry,
 )
 from custom_components.kathrein_wallbox.const import (
-    CONF_HOST,
-    CONF_PORT,
     CONF_SCAN_INTERVAL,
     CONF_UNIT_ID,
     DOMAIN,

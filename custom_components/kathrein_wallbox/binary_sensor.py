@@ -1,73 +1,91 @@
 """Binary sensor platform for Wallbox relays and faults."""
 
+from dataclasses import dataclass
+
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .coordinator import KathreinCoordinator, WallboxRuntimeData
-from .entity import KathreinWallboxEntity
+from .coordinator import KathreinConfigEntry, KathreinCoordinator
+from .entity import CoordinatorGetter, KathreinWallboxEntity
+from .model import EMS_CONTROL_ENABLED, ErrorState, RelayState
 
-FAULTS = (
-    ("relay_welded", 0x0001),
-    ("residual_dc_current", 0x0002),
-    ("socket_lock_error", 0x0004),
-    ("charging_overcurrent", 0x0008),
-    ("ventilation_unavailable", 0x0010),
-    ("cp_short_circuit", 0x0020),
-    ("cp_loop_broken", 0x0040),
-    ("pp_short_circuit", 0x0080),
-    ("internal_error", 0x8000),
-)
-RELAYS = (
-    ("relay_l1", 0x0001),
-    ("relay_l2", 0x0002),
-    ("relay_l3", 0x0004),
-)
 
-ENTITY_DESCRIPTIONS = (
-    tuple(
-        BinarySensorEntityDescription(
-            key=key,
-            translation_key=key,
-            device_class=BinarySensorDeviceClass.PROBLEM,
-            entity_category=EntityCategory.DIAGNOSTIC,
-        )
-        for key, _ in FAULTS
+@dataclass(frozen=True, kw_only=True)
+class KathreinBinarySensorDescription(BinarySensorEntityDescription):
+    """Describe a Wallbox binary sensor and how to read its state."""
+
+    is_on_fn: CoordinatorGetter[bool | None]
+
+
+def _bit_set(register: int | None, mask: int) -> bool | None:
+    """Return whether any bit of the mask is set in the register."""
+    if register is None:
+        return None
+    return bool(register & mask)
+
+
+def _fault(key: str, flag: ErrorState) -> KathreinBinarySensorDescription:
+    """Describe a fault bit of the EVSE error register."""
+    return KathreinBinarySensorDescription(
+        key=key,
+        translation_key=key,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda c: _bit_set(c.evse.error_states, flag),
     )
-    + tuple(
-        BinarySensorEntityDescription(
-            key=key,
-            translation_key=key,
-            device_class=BinarySensorDeviceClass.POWER,
-            entity_category=EntityCategory.DIAGNOSTIC,
-        )
-        for key, _ in RELAYS
+
+
+def _relay(key: str, flag: RelayState) -> KathreinBinarySensorDescription:
+    """Describe a phase relay bit of the EVSE relay state register."""
+    return KathreinBinarySensorDescription(
+        key=key,
+        translation_key=key,
+        device_class=BinarySensorDeviceClass.POWER,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda c: _bit_set(c.evse.relay_state, flag),
     )
-    + (
-        BinarySensorEntityDescription(
-            key="ems_control_enabled",
-            translation_key="ems_control_enabled",
-            entity_category=EntityCategory.DIAGNOSTIC,
+
+
+ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
+    _fault("relay_welded", ErrorState.RELAY_WELDED),
+    _fault("residual_dc_current", ErrorState.RESIDUAL_DC_CURRENT),
+    _fault("socket_lock_error", ErrorState.SOCKET_LOCK_ERROR),
+    _fault("charging_overcurrent", ErrorState.CHARGING_OVERCURRENT),
+    _fault("ventilation_unavailable", ErrorState.VENTILATION_UNAVAILABLE),
+    _fault("cp_short_circuit", ErrorState.CP_SHORT_CIRCUIT),
+    _fault("cp_loop_broken", ErrorState.CP_LOOP_BROKEN),
+    _fault("pp_short_circuit", ErrorState.PP_SHORT_CIRCUIT),
+    _fault("internal_error", ErrorState.INTERNAL_ERROR),
+    _relay("relay_l1", RelayState.RELAY_L1),
+    _relay("relay_l2", RelayState.RELAY_L2),
+    _relay("relay_l3", RelayState.RELAY_L3),
+    KathreinBinarySensorDescription(
+        key="ems_control_enabled",
+        translation_key="ems_control_enabled",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda c: _bit_set(
+            c.ems_control.control_register, EMS_CONTROL_ENABLED
         ),
-        BinarySensorEntityDescription(
-            key="meter_available",
-            translation_key="meter_available",
-            device_class=BinarySensorDeviceClass.CONNECTIVITY,
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-    )
+    ),
+    KathreinBinarySensorDescription(
+        key="meter_available",
+        translation_key="meter_available",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda c: c.meter_available,
+    ),
 )
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry[WallboxRuntimeData],
+    entry: KathreinConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Wallbox diagnostic binary sensors."""
@@ -79,34 +97,19 @@ async def async_setup_entry(
 
 
 class KathreinBinarySensor(KathreinWallboxEntity, BinarySensorEntity):
-    """Expose a fault bit or relay bit as a binary sensor."""
+    """Expose a fault, relay, or availability state as a binary sensor."""
 
-    entity_description: BinarySensorEntityDescription
+    entity_description: KathreinBinarySensorDescription
 
     def __init__(
         self,
         coordinator: KathreinCoordinator,
-        description: BinarySensorEntityDescription,
+        description: KathreinBinarySensorDescription,
     ) -> None:
         super().__init__(coordinator, description.key)
         self.entity_description = description
-        bitmask = dict((*FAULTS, *RELAYS))
-        self._register_bit = bitmask.get(description.key)
-        self._is_fault = description.key in dict(FAULTS)
 
     @property
     def is_on(self) -> bool | None:
-        """Return the state represented by this register bit."""
-        if self.entity_description.key == "ems_control_enabled":
-            register = self.coordinator.ems_control.control_register
-            return None if register is None else bool(register & 0x8000)
-        if self.entity_description.key == "meter_available":
-            return self.coordinator.meter_available
-        register = (
-            self.coordinator.evse.error_states
-            if self._is_fault
-            else self.coordinator.evse.relay_state
-        )
-        if register is None or self._register_bit is None:
-            return None
-        return bool(register & self._register_bit)
+        """Return the state represented by this description."""
+        return self.entity_description.is_on_fn(self.coordinator)

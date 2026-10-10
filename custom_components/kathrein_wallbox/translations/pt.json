@@ -1,7 +1,7 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases"}},
-    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fases"}},
+    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
     "ems_timeout_period": {"options": {"0": "Desativado", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
     "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
   },
@@ -19,11 +19,17 @@
       "reconfigure": {"title": "Atualizar ligação à wallbox Kathrein", "data": {"host": "Anfitrião / endereço IP", "port": "Porta", "unit_id": "ID da unidade Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}
     },
     "error": {"cannot_connect": "Não foi possível estabelecer ligação. Verifique o endereço e confirme que o servidor Modbus está ativado no easyOperate.", "unsupported_device": "O dispositivo não comunicou a versão 2 do mapa nem um número de série."},
-    "abort": {"already_configured": "Esta wallbox já está configurada."}
+    "abort": {"already_configured": "Esta wallbox já está configurada.", "reconfigure_successful": "As definições de ligação foram atualizadas.", "unique_id_mismatch": "O dispositivo neste endereço é uma wallbox diferente da que está a ser reconfigurada."}
   },
   "options": {
     "step": {"init": {"title": "Definições de ligação", "data": {"host": "Anfitrião / endereço IP", "port": "Porta", "unit_id": "ID da unidade Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}},
-    "error": {"cannot_connect": "Não foi possível estabelecer ligação. Verifique o endereço e confirme que o servidor Modbus está ativado no easyOperate.", "unsupported_device": "O dispositivo não comunicou a versão 2 do mapa nem um número de série."}
+    "error": {"cannot_connect": "Não foi possível estabelecer ligação. Verifique o endereço e confirme que o servidor Modbus está ativado no easyOperate.", "unsupported_device": "O dispositivo não comunicou a versão 2 do mapa nem um número de série.", "unique_id_mismatch": "O dispositivo neste endereço é uma wallbox diferente da que está a ser reconfigurada."}
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "Não foi encontrada nenhuma configuração de wallbox Kathrein para {entry_id}."},
+    "entry_not_loaded": {"message": "A wallbox {title} não está ativa."},
+    "current_limit_11_kw": {"message": "As wallbox de 11 kW suportam uma corrente de carregamento EMS máxima de {max_current} A."},
+    "write_failed": {"message": "Não foi possível escrever na wallbox: {error}"}
   },
   "entity": {
     "sensor": {
@@ -35,9 +41,9 @@
       "pp_state": {"name": "Sinal de proximidade (PP)", "state": {"not_connected_or_fixed_cable": "Cabo não ligado ou cabo fixo", "cable_not_connected": "Cabo não ligado", "fixed_cable_mounted": "Cabo fixo instalado", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Erro", "unknown": "Desconhecido"}},
       "cp_state": {"name": "Sinal de controlo (CP)", "state": {"state_a": "A: veículo não detetado", "state_b": "B: veículo detetado", "state_c": "C: veículo a carregar", "state_d": "D: carregamento com ventilação", "state_e": "E: curto-circuito no CP", "state_f": "F: EVSE indisponível", "unknown": "Desconhecido"}},
       "granted_current": {"name": "Corrente de carregamento autorizada"}, "granted_power": {"name": "Potência de carregamento autorizada"}, "charging_duration": {"name": "Duração do carregamento"}, "charging_energy": {"name": "Energia carregada"},
-      "relay_matrix": {"name": "Configuração dos relés EMS", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases", "unknown": "Desconhecido"}},
+      "relay_matrix": {"name": "Configuração dos relés EMS", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fases", "unknown": "Desconhecido"}},
       "charging_current": {"name": "Corrente de carregamento solicitada pelo EMS"}, "timeout_period": {"name": "Tempo limite do EMS"},
-      "timeout_fallback_relay_matrix": {"name": "Configuração de recurso dos relés EMS", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fases", "unknown": "Desconhecido"}},
+      "timeout_fallback_relay_matrix": {"name": "Configuração de recurso dos relés EMS", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fases", "unknown": "Desconhecido"}},
       "timeout_fallback_current": {"name": "Corrente de recurso do EMS"}
     },
     "binary_sensor": {

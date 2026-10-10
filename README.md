@@ -36,7 +36,7 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 
 1. In Home Assistant, open **Settings > Devices & services > Add integration** and search for **Kathrein Wallbox**, or use the setup button above after installation.
 2. Enter the Wallbox host or IP address. The default Modbus TCP port is `502`; the default unit ID is `0` (recommended by the register manual).
-3. Choose a polling interval. It defaults to `15` seconds and can be set from `5` to `300` seconds. These connection settings can be changed later in the integration options.
+3. Choose a polling interval. It defaults to `15` seconds and can be set from `5` to `300` seconds. These connection settings can be changed later through **Reconfigure** or the integration options; both refuse a device with a different serial number.
 
 The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries.
 
@@ -44,7 +44,7 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 
 | Group | Entities |
 | --- | --- |
-| Meter | Per-phase voltage, current, and active power; total active power and energy; line frequency. |
+| Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. |
 | Charging | Charging state, session duration and energy, granted current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | EMS enabled state and readbacks for relay matrix, current, timeout, and timeout fallback values. |
@@ -59,21 +59,23 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | Service | Register | Additional field and allowed values |
 | --- | --- | --- |
 | `set_ems_control_enabled` | `0x00A0` | `enabled`: `true` or `false` |
-| `set_relay_matrix` | `0x00A1` | `value`: `line_1`, `line_2`, `line_3`, or `three_lines` |
-| `set_charging_current` | `0x00A2` | `value`: `6`, `8`, `10`, `12`, `16`, `20`, `24`, or `32` A |
+| `set_relay_matrix` | `0x00A1` | `value`: `phase_1` or `three_phases` |
+| `set_charging_current` | `0x00A2` | `value`: `0`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, or `32` A |
 | `set_timeout_period` | `0x00A3` | `value`: `0` (off), `30`, `60`, `120`, `180`, `300`, or `600` seconds |
-| `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `line_1`, `line_2`, `line_3`, or `three_lines` |
+| `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
 | `set_timeout_fallback_current` | `0x00A5` | `value`: `0`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, or `32` A |
 
-For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value is available only for the timeout fallback; it pauses charging and grants no charging current.
+For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The relay-matrix sensors report `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
+
+Unsupported values and unknown or inactive Wallbox entries are rejected with a validation error before anything is written. A failed register write is reported as an error.
 
 Example service call to request `16 A` (replace the placeholder with the Wallbox's config entry ID):
 
 ```yaml
 service: kathrein_wallbox.set_charging_current
 data:
-	entry_id: "<config-entry-id>"
-	value: "16"
+  entry_id: "<config-entry-id>"
+  value: "16"
 ```
 
 These services write directly to the Wallbox. Check the phase selection, current, timeout, fallback behavior, and Wallbox rating before using them in automations. The integration does not write authentication tags or tariff registers.

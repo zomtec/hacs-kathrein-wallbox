@@ -1,7 +1,7 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fasen"}},
-    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fasen"}},
+    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
     "ems_timeout_period": {"options": {"0": "Uit", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
     "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
   },
@@ -19,11 +19,17 @@
       "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)"}}
     },
     "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
-    "abort": {"already_configured": "Deze wallbox is al geconfigureerd."}
+    "abort": {"already_configured": "Deze wallbox is al geconfigureerd.", "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
   },
   "options": {
     "step": {"init": {"title": "Verbindingsinstellingen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)"}}},
-    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."}
+    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "Er is geen Kathrein-wallboxconfiguratie gevonden voor {entry_id}."},
+    "entry_not_loaded": {"message": "De wallbox {title} is niet actief."},
+    "current_limit_11_kw": {"message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."},
+    "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"}
   },
   "entity": {
     "sensor": {
@@ -35,9 +41,9 @@
       "pp_state": {"name": "Proximity pilot (PP)", "state": {"not_connected_or_fixed_cable": "Kabel niet aangesloten of vast gemonteerd", "cable_not_connected": "Kabel niet aangesloten", "fixed_cable_mounted": "Vaste kabel gemonteerd", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Fout", "unknown": "Onbekend"}},
       "cp_state": {"name": "Control pilot (CP)", "state": {"state_a": "A: voertuig niet gedetecteerd", "state_b": "B: voertuig gedetecteerd", "state_c": "C: voertuig laadt", "state_d": "D: voertuig laadt met ventilatie", "state_e": "E: CP-kortsluiting", "state_f": "F: laadstation niet beschikbaar", "unknown": "Onbekend"}},
       "granted_current": {"name": "Vrijgegeven laadstroom"}, "granted_power": {"name": "Vrijgegeven laadvermogen"}, "charging_duration": {"name": "Laadduur"}, "charging_energy": {"name": "Geladen energie"},
-      "relay_matrix": {"name": "EMS-relaisconfiguratie", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fasen", "unknown": "Onbekend"}},
+      "relay_matrix": {"name": "EMS-relaisconfiguratie", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fasen", "unknown": "Onbekend"}},
       "charging_current": {"name": "EMS-laadstroominstelling"}, "timeout_period": {"name": "EMS-time-out"},
-      "timeout_fallback_relay_matrix": {"name": "EMS-terugvalrelaisconfiguratie", "state": {"line_1": "Fase 1", "line_2": "Fase 2", "line_3": "Fase 3", "three_lines": "3 fasen", "unknown": "Onbekend"}},
+      "timeout_fallback_relay_matrix": {"name": "EMS-terugvalrelaisconfiguratie", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fasen", "unknown": "Onbekend"}},
       "timeout_fallback_current": {"name": "EMS-terugvalstroom"}
     },
     "binary_sensor": {

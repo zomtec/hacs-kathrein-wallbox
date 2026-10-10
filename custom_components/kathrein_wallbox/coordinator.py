@@ -1,7 +1,5 @@
 """Polling coordinator for Kathrein Wallbox register data."""
 
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
 from datetime import timedelta
@@ -14,7 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from modbus_connection import ModbusError, ModbusUnit
 
-from .const import DEFAULT_SCAN_INTERVAL
+from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME
 from .model import (
     WallboxEMSControl,
     WallboxEVSE,
@@ -32,7 +30,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     def __init__(
         self,
         hass: HomeAssistant,
-        entry: ConfigEntry,
+        entry: KathreinConfigEntry,
         unit: ModbusUnit,
         update_interval: timedelta | None = None,
     ) -> None:
@@ -40,7 +38,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             hass,
             _LOGGER,
             config_entry=entry,
-            name="Kathrein Wallbox",
+            name=DEVICE_NAME,
             update_interval=update_interval or DEFAULT_SCAN_INTERVAL,
         )
         self.unit = unit
@@ -60,6 +58,9 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             await self.ems_control.async_update()
         except ModbusError as err:
             raise UpdateFailed(f"Unable to read Kathrein Wallbox: {err}") from err
+
+        if not self.identity.serial:
+            raise UpdateFailed("Kathrein Wallbox did not report a serial number")
 
         try:
             await self.meter.async_update()
@@ -111,3 +112,6 @@ class WallboxRuntimeData:
     """Runtime objects owned by a config entry."""
 
     coordinator: KathreinCoordinator
+
+
+type KathreinConfigEntry = ConfigEntry[WallboxRuntimeData]

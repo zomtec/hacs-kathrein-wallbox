@@ -14,7 +14,7 @@ set_ems_control_enabled:
 
 set_relay_matrix:
   name: Set relay matrix
-  description: Write the valid relay-matrix setpoint for EMS control.
+  description: Choose the relay matrix for EMS control.
   fields:
     entry_id:
       required: true
@@ -28,14 +28,12 @@ set_relay_matrix:
           translation_key: ems_relay_matrix
           mode: dropdown
           options:
-            - line_1
-            - line_2
-            - line_3
-            - three_lines
+            - phase_1
+            - three_phases
 
 set_charging_current:
-  name: Set EMS charging current setpoint
-  description: Write one of the valid EMS charging current setpoints.
+  name: Set charging current setpoint
+  description: Set the charging current requested from the EMS.
   fields:
     entry_id:
       required: true
@@ -48,6 +46,7 @@ set_charging_current:
         select:
           translation_key: ems_charging_current
           options:
+            - "0"
             - "6"
             - "8"
             - "10"
@@ -58,8 +57,8 @@ set_charging_current:
             - "32"
 
 set_timeout_period:
-  name: Set timeout period
-  description: Write one of the valid timeout periods for the EMS override.
+  name: Set EMS timeout period
+  description: Set how long the EMS override remains active.
   fields:
     entry_id:
       required: true
@@ -81,8 +80,8 @@ set_timeout_period:
             - "600"
 
 set_timeout_fallback_relay_matrix:
-  name: Set timeout fallback relay matrix
-  description: Write one of the valid relay matrices for the EMS timeout fallback.
+  name: Set EMS timeout fallback relay matrix
+  description: Choose the relay matrix used when the EMS timeout expires.
   fields:
     entry_id:
       required: true
@@ -96,14 +95,12 @@ set_timeout_fallback_relay_matrix:
           translation_key: ems_relay_matrix
           mode: dropdown
           options:
-            - line_1
-            - line_2
-            - line_3
-            - three_lines
+            - phase_1
+            - three_phases
 
 set_timeout_fallback_current:
-  name: Set timeout fallback current
-  description: Write one of the valid fallback current values for the EMS timeout.
+  name: Set EMS timeout fallback current
+  description: Set the fallback charging current used when the EMS timeout expires.
   fields:
     entry_id:
       required: true

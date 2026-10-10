@@ -2,14 +2,13 @@
   "selector": {
     "ems_relay_matrix": {
       "options": {
-        "line_1": "Phase 1",
-        "line_2": "Phase 2",
-        "line_3": "Phase 3",
-        "three_lines": "3 Phases"
+        "phase_1": "Phase 1",
+        "three_phases": "3 Phases"
       }
     },
     "ems_charging_current": {
       "options": {
+        "0": "0 A",
         "6": "6 A",
         "8": "8 A",
         "10": "10 A",
@@ -121,7 +120,9 @@
       "unsupported_device": "The device did not report mapping version 2 or a serial number."
     },
     "abort": {
-      "already_configured": "This Wallbox is already configured."
+      "already_configured": "This Wallbox is already configured.",
+      "reconfigure_successful": "The connection settings were updated.",
+      "unique_id_mismatch": "The device at this address is a different Wallbox than the one being reconfigured."
     }
   },
   "options": {
@@ -138,8 +139,15 @@
     },
     "error": {
       "cannot_connect": "Unable to connect. Check the address and ensure the Modbus server is enabled in easyOperate.",
-      "unsupported_device": "The device did not report mapping version 2 or a serial number."
+      "unsupported_device": "The device did not report mapping version 2 or a serial number.",
+      "unique_id_mismatch": "The device at this address is a different Wallbox than the one being reconfigured."
     }
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "No Kathrein Wallbox configuration found for {entry_id}."},
+    "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
+    "current_limit_11_kw": {"message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."},
+    "write_failed": {"message": "Unable to write to the Wallbox: {error}"}
   },
   "entity": {
     "sensor": {
@@ -154,7 +162,7 @@
       "active_power_l3": {"name": "Active power L3"},
       "total_active_power": {"name": "Total active power"},
       "total_energy": {"name": "Total energy"},
-      "frequency": {"name": "Line frequency"},
+      "frequency": {"name": "Grid frequency"},
       "charging_state": {
         "name": "Charging state",
         "state": {
@@ -203,10 +211,10 @@
       "relay_matrix": {
         "name": "EMS relay matrix",
         "state": {
-          "line_1": "Phase 1",
-          "line_2": "Phase 2",
-          "line_3": "Phase 3",
-          "three_lines": "3 Phases",
+          "phase_1": "Phase 1",
+          "phase_2": "Phase 2",
+          "phase_3": "Phase 3",
+          "three_phases": "3 Phases",
           "unknown": "Unknown"
         }
       },
@@ -215,10 +223,10 @@
       "timeout_fallback_relay_matrix": {
         "name": "EMS timeout fallback relay matrix",
         "state": {
-          "line_1": "Phase 1",
-          "line_2": "Phase 2",
-          "line_3": "Phase 3",
-          "three_lines": "3 Phases",
+          "phase_1": "Phase 1",
+          "phase_2": "Phase 2",
+          "phase_3": "Phase 3",
+          "three_phases": "3 Phases",
           "unknown": "Unknown"
         }
       },

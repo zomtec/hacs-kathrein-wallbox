@@ -4,11 +4,15 @@ from datetime import timedelta
 
 import pytest
 from modbus_connection import IllegalDataAddressError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox.const import (
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
     EXPECTED_MAPPING_VERSION,
+    MAX_SCAN_INTERVAL_SECONDS,
+    MIN_SCAN_INTERVAL_SECONDS,
     get_scan_interval,
 )
 from custom_components.kathrein_wallbox.model import (
@@ -95,15 +99,31 @@ async def test_session_energy_decodes_as_big_endian_uint32(mock_modbus_unit) -> 
     assert energy.charging_energy == 1500
 
 
-def test_get_scan_interval_prefers_options_then_data_then_default() -> None:
+@pytest.mark.parametrize(
+    ("data", "options", "expected"),
+    [
+        ({CONF_SCAN_INTERVAL: 30}, {CONF_SCAN_INTERVAL: 15}, timedelta(seconds=15)),
+        ({CONF_SCAN_INTERVAL: 30}, {}, timedelta(seconds=30)),
+        ({}, {}, DEFAULT_SCAN_INTERVAL),
+        (
+            {CONF_SCAN_INTERVAL: 1},
+            {},
+            timedelta(seconds=MIN_SCAN_INTERVAL_SECONDS),
+        ),
+        (
+            {CONF_SCAN_INTERVAL: 10_000},
+            {},
+            timedelta(seconds=MAX_SCAN_INTERVAL_SECONDS),
+        ),
+    ],
+)
+def test_get_scan_interval_prefers_options_then_data_then_default(
+    data, options, expected
+) -> None:
     """Resolve the polling interval from options, data, or the default."""
-    assert get_scan_interval(
-        {"options": {CONF_SCAN_INTERVAL: 15}, "data": {CONF_SCAN_INTERVAL: 30}}
-    ) == timedelta(seconds=15)
-    assert get_scan_interval({"data": {CONF_SCAN_INTERVAL: 30}}) == timedelta(
-        seconds=30
-    )
-    assert get_scan_interval({}) == DEFAULT_SCAN_INTERVAL
+    entry = MockConfigEntry(domain=DOMAIN, data=data, options=options)
+
+    assert get_scan_interval(entry) == expected
 
 
 @pytest.mark.asyncio

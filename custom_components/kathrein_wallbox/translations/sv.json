@@ -1,7 +1,7 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser"}},
-    "ems_charging_current": {"options": {"6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
+    "ems_relay_matrix": {"options": {"phase_1": "Fas 1", "three_phases": "3 faser"}},
+    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
     "ems_timeout_period": {"options": {"0": "Av", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
     "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
   },
@@ -19,11 +19,17 @@
       "reconfigure": {"title": "Ändra anslutningen till Kathrein-laddboxen", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}
     },
     "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."},
-    "abort": {"already_configured": "Den här laddboxen är redan konfigurerad."}
+    "abort": {"already_configured": "Den här laddboxen är redan konfigurerad.", "reconfigure_successful": "Anslutningsinställningarna har uppdaterats.", "unique_id_mismatch": "Enheten på den här adressen är en annan laddbox än den som konfigureras om."}
   },
   "options": {
     "step": {"init": {"title": "Anslutningsinställningar", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}},
-    "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."}
+    "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer.", "unique_id_mismatch": "Enheten på den här adressen är en annan laddbox än den som konfigureras om."}
+  },
+  "exceptions": {
+    "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},
+    "entry_not_loaded": {"message": "Laddboxen {title} är inte aktiv."},
+    "current_limit_11_kw": {"message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."},
+    "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"}
   },
   "entity": {
     "sensor": {
@@ -35,9 +41,9 @@
       "pp_state": {"name": "Närhetssignal (PP)", "state": {"not_connected_or_fixed_cable": "Kabel inte ansluten eller fast monterad", "cable_not_connected": "Kabel inte ansluten", "fixed_cable_mounted": "Fast kabel monterad", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Fel", "unknown": "Okänd"}},
       "cp_state": {"name": "Styrsignal (CP)", "state": {"state_a": "A: fordon inte upptäckt", "state_b": "B: fordon upptäckt", "state_c": "C: fordon laddar", "state_d": "D: laddning med ventilation", "state_e": "E: kortslutning i CP", "state_f": "F: EVSE inte tillgänglig", "unknown": "Okänd"}},
       "granted_current": {"name": "Tillgänglig laddström"}, "granted_power": {"name": "Tillgänglig laddeffekt"}, "charging_duration": {"name": "Laddningstid"}, "charging_energy": {"name": "Laddad energi"},
-      "relay_matrix": {"name": "EMS-reläkonfiguration", "state": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser", "unknown": "Okänd"}},
+      "relay_matrix": {"name": "EMS-reläkonfiguration", "state": {"phase_1": "Fas 1", "phase_2": "Fas 2", "phase_3": "Fas 3", "three_phases": "3 faser", "unknown": "Okänd"}},
       "charging_current": {"name": "EMS-laddströmsvärde"}, "timeout_period": {"name": "EMS-tidsgräns"},
-      "timeout_fallback_relay_matrix": {"name": "EMS-reservreläkonfiguration", "state": {"line_1": "Fas 1", "line_2": "Fas 2", "line_3": "Fas 3", "three_lines": "3 faser", "unknown": "Okänd"}},
+      "timeout_fallback_relay_matrix": {"name": "EMS-reservreläkonfiguration", "state": {"phase_1": "Fas 1", "phase_2": "Fas 2", "phase_3": "Fas 3", "three_phases": "3 faser", "unknown": "Okänd"}},
       "timeout_fallback_current": {"name": "EMS-reservström"}
     },
     "binary_sensor": {

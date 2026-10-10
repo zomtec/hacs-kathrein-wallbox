@@ -1,26 +1,35 @@
 """Kathrein Wallbox integration setup."""
 
-import inspect
+from collections.abc import Awaitable, Callable, Mapping
+from dataclasses import dataclass
 
 import voluptuous as vol
 from homeassistant.components.modbus import async_get_unit
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
-from modbus_connection import ModbusTcpParams, ModbusUnit
+from homeassistant.helpers.typing import ConfigType
+from modbus_connection import ModbusError, ModbusTcpParams
 
-from .const import (
-    CONF_HOST,
-    CONF_PORT,
-    CONF_UNIT_ID,
-    DOMAIN,
-    PLATFORMS,
-    get_scan_interval,
+from .const import CONF_UNIT_ID, DOMAIN, PLATFORMS, get_scan_interval
+from .coordinator import KathreinConfigEntry, KathreinCoordinator, WallboxRuntimeData
+from .model import (
+    EMS_CHARGING_CURRENTS_MA,
+    EMS_CONTROL_DISABLED,
+    EMS_CONTROL_ENABLED,
+    EMS_TIMEOUT_PERIODS_S,
+    MAX_CURRENT_11_KW_MA,
+    MILLIAMPERE_PER_AMPERE,
+    RelayMatrix,
 )
-from .coordinator import KathreinCoordinator, WallboxRuntimeData
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+ATTR_ENTRY_ID = "entry_id"
+ATTR_ENABLED = "enabled"
+ATTR_VALUE = "value"
 
 SERVICE_SET_EMS_CONTROL_ENABLED = "set_ems_control_enabled"
 SERVICE_SET_RELAY_MATRIX = "set_relay_matrix"
@@ -29,272 +38,151 @@ SERVICE_SET_TIMEOUT_PERIOD = "set_timeout_period"
 SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX = "set_timeout_fallback_relay_matrix"
 SERVICE_SET_TIMEOUT_FALLBACK_CURRENT = "set_timeout_fallback_current"
 
-EMS_CONTROL_VALID_VALUES = {
-    "relay_matrix": {1: "Phase 1", 2: "Phase 2", 4: "Phase 3", 7: "3 Phases"},
-    "charging_current": {
-        6000: "6 A",
-        8000: "8 A",
-        10000: "10 A",
-        12000: "12 A",
-        16000: "16 A",
-        20000: "20 A",
-        24000: "24 A",
-        32000: "32 A",
-    },
-    "timeout_period": {
-        0: "Off",
-        30: "30 s",
-        60: "60 s",
-        120: "2 min",
-        180: "3 min",
-        300: "5 min",
-        600: "10 min",
-    },
-    "timeout_fallback_relay_matrix": {
-        1: "Phase 1",
-        2: "Phase 2",
-        4: "Phase 3",
-        7: "3 Phases",
-    },
-    "timeout_fallback_current": {
-        0: "Off",
-        6000: "6 A",
-        8000: "8 A",
-        10000: "10 A",
-        12000: "12 A",
-        16000: "16 A",
-        20000: "20 A",
-        24000: "24 A",
-        32000: "32 A",
-    },
-}
+# Service option -> register value; the manual reserves phases 2 and 3 for future use.
 EMS_RELAY_MATRIX_OPTIONS = {
-    "line_1": 1,
-    "line_2": 2,
-    "line_3": 4,
-    "three_lines": 7,
+    "phase_1": RelayMatrix.PHASE_1,
+    "three_phases": RelayMatrix.THREE_PHASES,
 }
 EMS_CHARGING_CURRENT_OPTIONS = {
-    str(current_ma // 1000): current_ma
-    for current_ma in EMS_CONTROL_VALID_VALUES["charging_current"]
+    str(current_ma // MILLIAMPERE_PER_AMPERE): current_ma
+    for current_ma in EMS_CHARGING_CURRENTS_MA
 }
-EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS = {
-    "0": 0,
-    **EMS_CHARGING_CURRENT_OPTIONS,
+EMS_TIMEOUT_PERIOD_OPTIONS = {
+    str(seconds): seconds for seconds in EMS_TIMEOUT_PERIODS_S
 }
 
 
-async def _async_write_modbus_register(
-    unit: ModbusUnit, address: int, value: int
-) -> None:
-    """Write a register through the ModbusUnit implementation, tolerating API variations."""
-    method_names = (
-        "write_register",
-        "write_holding_register",
-        "async_write_register",
-        "async_write_holding_register",
-        "write_registers",
-        "write_holding_registers",
-        "async_write_registers",
-        "async_write_holding_registers",
-    )
-    for method_name in method_names:
-        method = getattr(unit, method_name, None)
-        if method is None:
-            continue
-        try:
-            result = method(address, value)
-            if inspect.isawaitable(result):
-                await result
-            return
-        except TypeError:
-            try:
-                result = method(address, [value])
-                if inspect.isawaitable(result):
-                    await result
-                return
-            except TypeError:
-                continue
-    raise HomeAssistantError(
-        f"Modbus client for {address} does not expose a supported write method."
-    )
+@dataclass(frozen=True, kw_only=True)
+class EmsSetpointService:
+    """Describe a service that writes one EMS setpoint register."""
+
+    name: str
+    field: str
+    options: Mapping[str, int]
+    is_current: bool = False
 
 
-async def _async_handle_write_register(
-    hass: HomeAssistant,
-    call: ServiceCall,
-    register_address: int,
-    allowed_values: dict[int, str],
-    value_mapping: dict[str, int] | None = None,
-) -> None:
-    """Validate the requested value against the supported EMS setpoint values and write it."""
-    raw_value = call.data["value"]
-    if value_mapping is None:
-        value = int(raw_value)
-    else:
-        try:
-            value = value_mapping[raw_value]
-        except KeyError as err:
-            raise HomeAssistantError(f"Unsupported EMS value {raw_value}.") from err
-    if value not in allowed_values:
-        raise HomeAssistantError(
-            f"Unsupported EMS value {value}. Allowed values: {sorted(allowed_values)}"
-        )
+EMS_SETPOINT_SERVICES = (
+    EmsSetpointService(
+        name=SERVICE_SET_RELAY_MATRIX,
+        field="relay_matrix",
+        options=EMS_RELAY_MATRIX_OPTIONS,
+    ),
+    EmsSetpointService(
+        name=SERVICE_SET_CHARGING_CURRENT,
+        field="charging_current",
+        options=EMS_CHARGING_CURRENT_OPTIONS,
+        is_current=True,
+    ),
+    EmsSetpointService(
+        name=SERVICE_SET_TIMEOUT_PERIOD,
+        field="timeout_period",
+        options=EMS_TIMEOUT_PERIOD_OPTIONS,
+    ),
+    EmsSetpointService(
+        name=SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
+        field="timeout_fallback_relay_matrix",
+        options=EMS_RELAY_MATRIX_OPTIONS,
+    ),
+    EmsSetpointService(
+        name=SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
+        field="timeout_fallback_current",
+        options=EMS_CHARGING_CURRENT_OPTIONS,
+        is_current=True,
+    ),
+)
 
-    entry_id = call.data["entry_id"]
+
+def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
+    """Return the coordinator of a loaded Wallbox config entry."""
     entry = hass.config_entries.async_get_entry(entry_id)
     if entry is None or entry.domain != DOMAIN:
-        raise HomeAssistantError(
-            f"No Kathrein Wallbox config entry found for {entry_id}."
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="entry_not_found",
+            translation_placeholders={"entry_id": entry_id},
         )
-
-    coordinator = entry.runtime_data.coordinator
-    if (
-        register_address in (0x00A2, 0x00A5)
-        and coordinator.identity.is_11_kw
-        and value > 16000
-    ):
-        raise HomeAssistantError(
-            "11 kW Wallboxes support a maximum EMS charging current of 16 A."
+    if entry.state is not ConfigEntryState.LOADED:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="entry_not_loaded",
+            translation_placeholders={"title": entry.title},
         )
-    await _async_write_modbus_register(coordinator.unit, register_address, value)
+    return entry.runtime_data.coordinator
 
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Register the Wallbox EMS control services once."""
-    if hass.services.has_service(DOMAIN, SERVICE_SET_EMS_CONTROL_ENABLED):
-        return True
+async def _async_write_ems_register(
+    coordinator: KathreinCoordinator, field: str, value: int
+) -> None:
+    """Write an EMS control field and report device failures."""
+    try:
+        await coordinator.ems_control.write(field, value)
+    except ModbusError as err:
+        raise HomeAssistantError(
+            translation_domain=DOMAIN,
+            translation_key="write_failed",
+            translation_placeholders={"error": str(err)},
+        ) from err
+
+
+def _setpoint_handler(
+    hass: HomeAssistant, service: EmsSetpointService
+) -> Callable[[ServiceCall], Awaitable[None]]:
+    """Create the handler writing one validated setpoint."""
+
+    async def _async_handle(call: ServiceCall) -> None:
+        coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        value = service.options[call.data[ATTR_VALUE]]
+        if (
+            service.is_current
+            and coordinator.identity.is_11_kw
+            and value > MAX_CURRENT_11_KW_MA
+        ):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="current_limit_11_kw",
+                translation_placeholders={
+                    "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
+                },
+            )
+        await _async_write_ems_register(coordinator, service.field, value)
+
+    return _async_handle
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register the Wallbox EMS control services."""
 
     async def _async_set_ems_control_enabled(call: ServiceCall) -> None:
         """Enable or disable the EMS control register."""
-        value = 0x8000 if call.data["enabled"] else 0
-        entry_id = call.data["entry_id"]
-        entry = hass.config_entries.async_get_entry(entry_id)
-        if entry is None or entry.domain != DOMAIN:
-            raise HomeAssistantError(
-                f"No Kathrein Wallbox config entry found for {entry_id}."
-            )
-        coordinator = entry.runtime_data.coordinator
-        await _async_write_modbus_register(coordinator.unit, 0x00A0, value)
-
-    async def _async_set_relay_matrix(call: ServiceCall) -> None:
-        """Set the relay matrix for the EMS control register."""
-        await _async_handle_write_register(
-            hass,
-            call,
-            0x00A1,
-            EMS_CONTROL_VALID_VALUES["relay_matrix"],
-            EMS_RELAY_MATRIX_OPTIONS,
-        )
-
-    async def _async_set_charging_current(call: ServiceCall) -> None:
-        """Set the EMS charging current setpoint."""
-        await _async_handle_write_register(
-            hass,
-            call,
-            0x00A2,
-            EMS_CONTROL_VALID_VALUES["charging_current"],
-            EMS_CHARGING_CURRENT_OPTIONS,
-        )
-
-    async def _async_set_timeout_period(call: ServiceCall) -> None:
-        """Set the timeout period for the EMS charge current override."""
-        await _async_handle_write_register(
-            hass, call, 0x00A3, EMS_CONTROL_VALID_VALUES["timeout_period"]
-        )
-
-    async def _async_set_timeout_fallback_relay_matrix(call: ServiceCall) -> None:
-        """Set the timeout fallback relay matrix."""
-        await _async_handle_write_register(
-            hass,
-            call,
-            0x00A4,
-            EMS_CONTROL_VALID_VALUES["timeout_fallback_relay_matrix"],
-            EMS_RELAY_MATRIX_OPTIONS,
-        )
-
-    async def _async_set_timeout_fallback_current(call: ServiceCall) -> None:
-        """Set the timeout fallback current."""
-        await _async_handle_write_register(
-            hass,
-            call,
-            0x00A5,
-            EMS_CONTROL_VALID_VALUES["timeout_fallback_current"],
-            EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS,
-        )
+        coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        value = EMS_CONTROL_ENABLED if call.data[ATTR_ENABLED] else EMS_CONTROL_DISABLED
+        await _async_write_ems_register(coordinator, "control_register", value)
 
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_EMS_CONTROL_ENABLED,
         _async_set_ems_control_enabled,
         schema=vol.Schema(
-            {vol.Required("entry_id"): str, vol.Required("enabled"): bool}
+            {vol.Required(ATTR_ENTRY_ID): str, vol.Required(ATTR_ENABLED): bool}
         ),
     )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_RELAY_MATRIX,
-        _async_set_relay_matrix,
-        schema=vol.Schema(
-            {
-                vol.Required("entry_id"): str,
-                vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
-            }
-        ),
-    )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_CHARGING_CURRENT,
-        _async_set_charging_current,
-        schema=vol.Schema(
-            {
-                vol.Required("entry_id"): str,
-                vol.Required("value"): vol.In(EMS_CHARGING_CURRENT_OPTIONS),
-            }
-        ),
-    )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_TIMEOUT_PERIOD,
-        _async_set_timeout_period,
-        schema=vol.Schema(
-            {
-                vol.Required("entry_id"): str,
-                vol.Required("value"): vol.In(
-                    sorted(
-                        str(value)
-                        for value in EMS_CONTROL_VALID_VALUES["timeout_period"]
-                    )
-                ),
-            }
-        ),
-    )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
-        _async_set_timeout_fallback_relay_matrix,
-        schema=vol.Schema(
-            {
-                vol.Required("entry_id"): str,
-                vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
-            }
-        ),
-    )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
-        _async_set_timeout_fallback_current,
-        schema=vol.Schema(
-            {
-                vol.Required("entry_id"): str,
-                vol.Required("value"): vol.In(EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS),
-            }
-        ),
-    )
+    for service in EMS_SETPOINT_SERVICES:
+        hass.services.async_register(
+            DOMAIN,
+            service.name,
+            _setpoint_handler(hass, service),
+            schema=vol.Schema(
+                {
+                    vol.Required(ATTR_ENTRY_ID): str,
+                    vol.Required(ATTR_VALUE): vol.In(list(service.options)),
+                }
+            ),
+        )
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> bool:
     """Set up a Wallbox config entry."""
     params = ModbusTcpParams(
         host=entry.data[CONF_HOST],
@@ -313,6 +201,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> bool:
     """Unload platforms for a Wallbox config entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
