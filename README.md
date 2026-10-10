@@ -5,7 +5,7 @@ Integrate a Kathrein Wallbox with Home Assistant over local Modbus TCP. Monitor 
 [![HACS custom repository](https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat-square)](https://www.hacs.xyz/docs/faq/custom_repositories/)
 [![Latest release](https://img.shields.io/github/v/release/zomtec/hacs-kathrein-wallbox?style=flat-square)](https://github.com/zomtec/hacs-kathrein-wallbox/releases/latest)
 [![License](https://img.shields.io/github/license/zomtec/hacs-kathrein-wallbox?style=flat-square)](LICENSE)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/zomtec/hacs-kathrein-wallbox?style=flat-square)](https://github.com/zomtec/hacs-kathrein-wallbox/commits)
+[![Commit activity](https://img.shields.io/github/commit-activity/y/zomtec/hacs-kathrein-wallbox?style=flat-square)](https://github.com/zomtec/hacs-kathrein-wallbox/commits)
 
 > [!IMPORTANT]
 > This integration communicates with the Wallbox locally over Modbus TCP. Enable the Modbus server in the Wallbox **easyOperate** configuration before adding the integration.
