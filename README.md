@@ -2,7 +2,14 @@
 
 Integrate a Kathrein Wallbox with Home Assistant over local Modbus TCP. Monitor charging and meter data, inspect EVSE diagnostics, and set supported EMS charging values.
 
+## Disclaimer
+
+This is an independent community project and is not affiliated with, endorsed by, or sponsored by KATHREIN Digital Systems GmbH, the manufacturer of the Wallbox. Kathrein and related product names are trademarks of their respective owners.
+
 [![HACS custom repository](https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat-square)](https://www.hacs.xyz/docs/faq/custom_repositories/)
+[![Latest release](https://img.shields.io/github/v/release/zomtec/hacs-kathrein-wallbox?style=flat-square)](https://github.com/zomtec/hacs-kathrein-wallbox/releases/latest)
+[![License](https://img.shields.io/github/license/zomtec/hacs-kathrein-wallbox?style=flat-square)](LICENSE)
+[![Commit activity](https://img.shields.io/github/commit-activity/y/zomtec/hacs-kathrein-wallbox?style=flat-square)](https://github.com/zomtec/hacs-kathrein-wallbox/commits)
 
 > [!IMPORTANT]
 > This integration communicates with the Wallbox locally over Modbus TCP. Enable the Modbus server in the Wallbox **easyOperate** configuration before adding the integration.
@@ -93,10 +100,6 @@ Downloaded config-entry diagnostics include model and mapping information, meter
 ## Support
 
 Please [open an issue](https://github.com/zomtec/hacs-kathrein-wallbox/issues) for bug reports or feature requests. Include your Home Assistant version, Wallbox model and firmware if known, and relevant diagnostics with personal or network details reviewed.
-
-## Disclaimer
-
-This is an independent community project and is not affiliated with, endorsed by, or sponsored by KATHREIN Digital Systems GmbH, the manufacturer of the Wallbox. Kathrein and related product names are trademarks of their respective owners.
 
 ## Acknowledgments
 
