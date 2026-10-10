@@ -94,6 +94,10 @@ Downloaded config-entry diagnostics include model and mapping information, meter
 
 Please [open an issue](https://github.com/zomtec/hacs-kathrein-wallbox/issues) for bug reports or feature requests. Include your Home Assistant version, Wallbox model and firmware if known, and relevant diagnostics with personal or network details reviewed.
 
+## Disclaimer
+
+This is an independent community project and is not affiliated with, endorsed by, or sponsored by KATHREIN Digital Systems GmbH, the manufacturer of the Wallbox. Kathrein and related product names are trademarks of their respective owners.
+
 ## Acknowledgments
 
 This integration was created with substantial assistance from GitHub Copilot.
