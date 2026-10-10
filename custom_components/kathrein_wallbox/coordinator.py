@@ -65,7 +65,9 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             await self.meter.async_update()
         except ModbusError as err:
             if self.meter_available:
-                _LOGGER.warning("Energy meter registers are no longer available: %s", err)
+                _LOGGER.warning(
+                    "Energy meter registers are no longer available: %s", err
+                )
             self.meter_available = False
             self.session_energy_available = False
         else:
@@ -75,7 +77,9 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
                     await self.session_energy.async_update()
                 except ModbusError as err:
                     if self.session_energy_available:
-                        _LOGGER.warning("Session energy register is no longer available: %s", err)
+                        _LOGGER.warning(
+                            "Session energy register is no longer available: %s", err
+                        )
                     self.session_energy_available = False
                 else:
                     self.session_energy_available = True

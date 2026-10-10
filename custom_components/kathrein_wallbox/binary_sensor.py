@@ -30,34 +30,38 @@ RELAYS = (
     ("relay_l3", 0x0004),
 )
 
-ENTITY_DESCRIPTIONS = tuple(
-    BinarySensorEntityDescription(
-        key=key,
-        translation_key=key,
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        entity_category=EntityCategory.DIAGNOSTIC,
+ENTITY_DESCRIPTIONS = (
+    tuple(
+        BinarySensorEntityDescription(
+            key=key,
+            translation_key=key,
+            device_class=BinarySensorDeviceClass.PROBLEM,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        for key, _ in FAULTS
     )
-    for key, _ in FAULTS
-) + tuple(
-    BinarySensorEntityDescription(
-        key=key,
-        translation_key=key,
-        device_class=BinarySensorDeviceClass.POWER,
-        entity_category=EntityCategory.DIAGNOSTIC,
+    + tuple(
+        BinarySensorEntityDescription(
+            key=key,
+            translation_key=key,
+            device_class=BinarySensorDeviceClass.POWER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        for key, _ in RELAYS
     )
-    for key, _ in RELAYS
-) + (
-    BinarySensorEntityDescription(
-        key="ems_control_enabled",
-        translation_key="ems_control_enabled",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    BinarySensorEntityDescription(
-        key="meter_available",
-        translation_key="meter_available",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
+    + (
+        BinarySensorEntityDescription(
+            key="ems_control_enabled",
+            translation_key="ems_control_enabled",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        BinarySensorEntityDescription(
+            key="meter_available",
+            translation_key="meter_available",
+            device_class=BinarySensorDeviceClass.CONNECTIVITY,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    )
 )
 
 

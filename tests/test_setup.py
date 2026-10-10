@@ -69,9 +69,7 @@ async def test_unload_entry_unloads_all_platforms(hass, monkeypatch) -> None:
     """Delegate config-entry unload to all forwarded platforms."""
     entry = MockConfigEntry(domain=DOMAIN)
     unload_platforms = AsyncMock(return_value=True)
-    monkeypatch.setattr(
-        hass.config_entries, "async_unload_platforms", unload_platforms
-    )
+    monkeypatch.setattr(hass.config_entries, "async_unload_platforms", unload_platforms)
 
     assert await async_unload_entry(hass, entry)
 

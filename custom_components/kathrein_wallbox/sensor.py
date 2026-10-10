@@ -26,7 +26,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import KathreinCoordinator, WallboxRuntimeData
 from .entity import KathreinWallboxEntity
-from .model import CPState, ChargingState, METER_FIELDS, PPState
+from .model import METER_FIELDS, ChargingState, CPState, PPState
 
 _ENUM_UNKNOWN = "unknown"
 
@@ -321,8 +321,7 @@ class KathreinSensorBase(KathreinWallboxEntity):
     @property
     def native_value(self) -> str | float | int | None:
         """Return a finite register value or the translated enum state."""
-        value = self._get_native_value()
-        return value
+        return self._get_native_value()
 
     def _get_native_value(self) -> str | float | int | None:
         """Read and normalize the current register value."""
@@ -340,14 +339,15 @@ class KathreinSensorBase(KathreinWallboxEntity):
             return None
         enum_mapping = ENUM_MAPPINGS.get(self.entity_description.key)
         if enum_mapping is not None:
-            if (
-                key == "pp_state"
-                and int(value) == int(PPState.CABLE_NOT_CONNECTED_OR_FIXED)
+            if key == "pp_state" and int(value) == int(
+                PPState.CABLE_NOT_CONNECTED_OR_FIXED
             ):
                 cable_is_fixed = self.coordinator.identity.cable_is_fixed
                 if cable_is_fixed is None:
                     return "not_connected_or_fixed_cable"
-                return "fixed_cable_mounted" if cable_is_fixed else "cable_not_connected"
+                return (
+                    "fixed_cable_mounted" if cable_is_fixed else "cable_not_connected"
+                )
             return enum_mapping.get(int(value), _ENUM_UNKNOWN)
         if self.entity_description.key in {
             "granted_current",

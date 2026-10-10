@@ -47,7 +47,7 @@ def get_scan_interval(source: Any) -> timedelta:
 
     try:
         seconds = int(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         seconds = int(DEFAULT_SCAN_INTERVAL.total_seconds())
 
     seconds = max(MIN_SCAN_INTERVAL_SECONDS, min(seconds, MAX_SCAN_INTERVAL_SECONDS))

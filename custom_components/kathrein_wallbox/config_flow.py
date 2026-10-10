@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.const import CONF_HOST, CONF_PORT
@@ -12,7 +13,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import selector
 from modbus_connection import ModbusError, ModbusTcpParams
-import voluptuous as vol
 
 from .const import (
     CONF_SCAN_INTERVAL,
@@ -22,12 +22,12 @@ from .const import (
     DEFAULT_UNIT_ID,
     DOMAIN,
     EXPECTED_MAPPING_VERSION,
-    MIN_PORT,
     MAX_PORT,
-    MIN_UNIT_ID,
+    MAX_SCAN_INTERVAL_SECONDS,
     MAX_UNIT_ID,
+    MIN_PORT,
     MIN_SCAN_INTERVAL_SECONDS,
-    MAX_SCAN_INTERVAL_SECONDS
+    MIN_UNIT_ID,
 )
 from .model import WallboxIdentity
 
@@ -52,7 +52,9 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
                 mode=selector.NumberSelectorMode.BOX,
             )
         ),
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL.seconds): selector.NumberSelector(
+        vol.Optional(
+            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL.seconds
+        ): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=MIN_SCAN_INTERVAL_SECONDS,
                 max=MAX_SCAN_INTERVAL_SECONDS,
@@ -120,7 +122,7 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 serial, device_type = await _async_validate_input(self.hass, user_input)
             except InvalidWallbox:
                 errors["base"] = "unsupported_device"
-            except (HomeAssistantError, ModbusError):
+            except HomeAssistantError, ModbusError:
                 _LOGGER.exception("Unable to connect to the Kathrein Wallbox")
                 errors["base"] = "cannot_connect"
             else:
@@ -146,10 +148,10 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                serial, device_type = await _async_validate_input(self.hass, user_input)
+                _, device_type = await _async_validate_input(self.hass, user_input)
             except InvalidWallbox:
                 errors["base"] = "unsupported_device"
-            except (HomeAssistantError, ModbusError):
+            except HomeAssistantError, ModbusError:
                 _LOGGER.exception("Unable to connect to the Kathrein Wallbox")
                 errors["base"] = "cannot_connect"
             else:
@@ -166,7 +168,9 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_HOST, default=current.get(CONF_HOST, "")): str,
-                    vol.Optional(CONF_PORT, default=current.get(CONF_PORT, DEFAULT_PORT)): selector.NumberSelector(
+                    vol.Optional(
+                        CONF_PORT, default=current.get(CONF_PORT, DEFAULT_PORT)
+                    ): selector.NumberSelector(
                         selector.NumberSelectorConfig(
                             min=MIN_PORT,
                             max=MAX_PORT,
@@ -219,7 +223,7 @@ class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlow):
                 await _async_validate_input(self.hass, connection_data)
             except InvalidWallbox:
                 errors["base"] = "unsupported_device"
-            except (HomeAssistantError, ModbusError):
+            except HomeAssistantError, ModbusError:
                 _LOGGER.exception("Unable to connect to the Kathrein Wallbox")
                 errors["base"] = "cannot_connect"
             else:
@@ -275,7 +279,7 @@ class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlow):
                             step=1,
                             mode=selector.NumberSelectorMode.BOX,
                         )
-                    )
+                    ),
                 }
             ),
             errors=errors,

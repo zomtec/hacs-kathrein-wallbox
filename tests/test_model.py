@@ -97,8 +97,12 @@ async def test_session_energy_decodes_as_big_endian_uint32(mock_modbus_unit) -> 
 
 def test_get_scan_interval_prefers_options_then_data_then_default() -> None:
     """Resolve the polling interval from options, data, or the default."""
-    assert get_scan_interval({"options": {CONF_SCAN_INTERVAL: 15}, "data": {CONF_SCAN_INTERVAL: 30}}) == timedelta(seconds=15)
-    assert get_scan_interval({"data": {CONF_SCAN_INTERVAL: 30}}) == timedelta(seconds=30)
+    assert get_scan_interval(
+        {"options": {CONF_SCAN_INTERVAL: 15}, "data": {CONF_SCAN_INTERVAL: 30}}
+    ) == timedelta(seconds=15)
+    assert get_scan_interval({"data": {CONF_SCAN_INTERVAL: 30}}) == timedelta(
+        seconds=30
+    )
     assert get_scan_interval({}) == DEFAULT_SCAN_INTERVAL
 
 

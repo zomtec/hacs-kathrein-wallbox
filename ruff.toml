@@ -1,0 +1,38 @@
+target-version = "py314"
+line-length = 88
+
+[lint]
+select = [
+    "ANN",  # type annotations
+    "ASYNC",  # blocking calls in async code
+    "B",  # bugbear
+    "C4",  # comprehensions
+    "D",  # docstrings
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "G",  # logging format
+    "I",  # import sorting
+    "PIE",
+    "PT",  # pytest style
+    "RET",
+    "RUF",
+    "SIM",
+    "T20",  # no print
+    "TID",  # import conventions
+    "UP",  # pyupgrade
+    "W",  # pycodestyle warnings
+]
+ignore = [
+    "D203",  # conflicts with D211
+    "D213",  # conflicts with D212
+    "D107",  # __init__ is documented by the class docstring
+    "E501",  # line length is enforced by the formatter
+    "ANN401",  # Any is needed at Home Assistant boundaries
+]
+
+[lint.per-file-ignores]
+"tests/**" = ["ANN", "D"]
+
+[lint.isort]
+known-first-party = ["custom_components"]
+combine-as-imports = true

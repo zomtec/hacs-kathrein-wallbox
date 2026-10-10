@@ -3,12 +3,12 @@
 import inspect
 
 import voluptuous as vol
+from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.components.modbus import async_get_unit
 from homeassistant.helpers import config_validation as cv
-from modbus_connection import ModbusTcpParams
+from modbus_connection import ModbusTcpParams, ModbusUnit
 
 from .const import (
     CONF_HOST,
@@ -31,10 +31,42 @@ SERVICE_SET_TIMEOUT_FALLBACK_CURRENT = "set_timeout_fallback_current"
 
 EMS_CONTROL_VALID_VALUES = {
     "relay_matrix": {1: "Phase 1", 2: "Phase 2", 4: "Phase 3", 7: "3 Phases"},
-    "charging_current": {6000: "6 A", 8000: "8 A", 10000: "10 A", 12000: "12 A", 16000: "16 A", 20000: "20 A", 24000: "24 A", 32000: "32 A"},
-    "timeout_period": {0: "Off", 30: "30 s", 60: "60 s", 120: "2 min", 180: "3 min", 300: "5 min", 600: "10 min"},
-    "timeout_fallback_relay_matrix": {1: "Phase 1", 2: "Phase 2", 4: "Phase 3", 7: "3 Phases"},
-    "timeout_fallback_current": {0: "Off", 6000: "6 A", 8000: "8 A", 10000: "10 A", 12000: "12 A", 16000: "16 A", 20000: "20 A", 24000: "24 A", 32000: "32 A"},
+    "charging_current": {
+        6000: "6 A",
+        8000: "8 A",
+        10000: "10 A",
+        12000: "12 A",
+        16000: "16 A",
+        20000: "20 A",
+        24000: "24 A",
+        32000: "32 A",
+    },
+    "timeout_period": {
+        0: "Off",
+        30: "30 s",
+        60: "60 s",
+        120: "2 min",
+        180: "3 min",
+        300: "5 min",
+        600: "10 min",
+    },
+    "timeout_fallback_relay_matrix": {
+        1: "Phase 1",
+        2: "Phase 2",
+        4: "Phase 3",
+        7: "3 Phases",
+    },
+    "timeout_fallback_current": {
+        0: "Off",
+        6000: "6 A",
+        8000: "8 A",
+        10000: "10 A",
+        12000: "12 A",
+        16000: "16 A",
+        20000: "20 A",
+        24000: "24 A",
+        32000: "32 A",
+    },
 }
 EMS_RELAY_MATRIX_OPTIONS = {
     "line_1": 1,
@@ -52,7 +84,9 @@ EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS = {
 }
 
 
-async def _async_write_modbus_register(unit, address: int, value: int) -> None:
+async def _async_write_modbus_register(
+    unit: ModbusUnit, address: int, value: int
+) -> None:
     """Write a register through the ModbusUnit implementation, tolerating API variations."""
     method_names = (
         "write_register",
@@ -110,7 +144,9 @@ async def _async_handle_write_register(
     entry_id = call.data["entry_id"]
     entry = hass.config_entries.async_get_entry(entry_id)
     if entry is None or entry.domain != DOMAIN:
-        raise HomeAssistantError(f"No Kathrein Wallbox config entry found for {entry_id}.")
+        raise HomeAssistantError(
+            f"No Kathrein Wallbox config entry found for {entry_id}."
+        )
 
     coordinator = entry.runtime_data.coordinator
     if (
@@ -135,7 +171,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         entry_id = call.data["entry_id"]
         entry = hass.config_entries.async_get_entry(entry_id)
         if entry is None or entry.domain != DOMAIN:
-            raise HomeAssistantError(f"No Kathrein Wallbox config entry found for {entry_id}.")
+            raise HomeAssistantError(
+                f"No Kathrein Wallbox config entry found for {entry_id}."
+            )
         coordinator = entry.runtime_data.coordinator
         await _async_write_modbus_register(coordinator.unit, 0x00A0, value)
 
@@ -161,7 +199,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     async def _async_set_timeout_period(call: ServiceCall) -> None:
         """Set the timeout period for the EMS charge current override."""
-        await _async_handle_write_register(hass, call, 0x00A3, EMS_CONTROL_VALID_VALUES["timeout_period"])
+        await _async_handle_write_register(
+            hass, call, 0x00A3, EMS_CONTROL_VALID_VALUES["timeout_period"]
+        )
 
     async def _async_set_timeout_fallback_relay_matrix(call: ServiceCall) -> None:
         """Set the timeout fallback relay matrix."""
@@ -187,52 +227,69 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         DOMAIN,
         SERVICE_SET_EMS_CONTROL_ENABLED,
         _async_set_ems_control_enabled,
-        schema=vol.Schema({vol.Required("entry_id"): str, vol.Required("enabled"): bool}),
+        schema=vol.Schema(
+            {vol.Required("entry_id"): str, vol.Required("enabled"): bool}
+        ),
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_RELAY_MATRIX,
         _async_set_relay_matrix,
-        schema=vol.Schema({
-            vol.Required("entry_id"): str,
-            vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entry_id"): str,
+                vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
+            }
+        ),
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_CHARGING_CURRENT,
         _async_set_charging_current,
-        schema=vol.Schema({
-            vol.Required("entry_id"): str,
-            vol.Required("value"): vol.In(EMS_CHARGING_CURRENT_OPTIONS),
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entry_id"): str,
+                vol.Required("value"): vol.In(EMS_CHARGING_CURRENT_OPTIONS),
+            }
+        ),
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_TIMEOUT_PERIOD,
         _async_set_timeout_period,
-        schema=vol.Schema({
-            vol.Required("entry_id"): str,
-            vol.Required("value"): vol.In(sorted(str(value) for value in EMS_CONTROL_VALID_VALUES["timeout_period"])),
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entry_id"): str,
+                vol.Required("value"): vol.In(
+                    sorted(
+                        str(value)
+                        for value in EMS_CONTROL_VALID_VALUES["timeout_period"]
+                    )
+                ),
+            }
+        ),
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
         _async_set_timeout_fallback_relay_matrix,
-        schema=vol.Schema({
-            vol.Required("entry_id"): str,
-            vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entry_id"): str,
+                vol.Required("value"): vol.In(EMS_RELAY_MATRIX_OPTIONS),
+            }
+        ),
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
         _async_set_timeout_fallback_current,
-        schema=vol.Schema({
-            vol.Required("entry_id"): str,
-            vol.Required("value"): vol.In(EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS),
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entry_id"): str,
+                vol.Required("value"): vol.In(EMS_TIMEOUT_FALLBACK_CURRENT_OPTIONS),
+            }
+        ),
     )
     return True
 

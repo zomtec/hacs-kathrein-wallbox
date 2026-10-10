@@ -3,8 +3,8 @@
 from types import SimpleNamespace
 
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.exceptions import HomeAssistantError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import (
     SERVICE_SET_CHARGING_CURRENT,
@@ -68,9 +68,9 @@ async def test_ems_services_write_expected_register(
         blocking=True,
     )
 
-    assert [(event.address, event.values) for event in mock_modbus_unit.write_events] == [
-        (address, [value])
-    ]
+    assert [
+        (event.address, event.values) for event in mock_modbus_unit.write_events
+    ] == [(address, [value])]
 
 
 @pytest.mark.parametrize(
@@ -95,9 +95,9 @@ async def test_11_kw_wallbox_accepts_maximum_ems_current(
         blocking=True,
     )
 
-    assert [(event.address, event.values) for event in mock_modbus_unit.write_events] == [
-        (address, [16000])
-    ]
+    assert [
+        (event.address, event.values) for event in mock_modbus_unit.write_events
+    ] == [(address, [16000])]
 
 
 @pytest.mark.parametrize(
