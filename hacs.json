@@ -1,3 +1,9 @@
 {
-  "name": "Kathrein Wallbox"
+  "name": "Kathrein Wallbox",
+  "hacs": "1.25.0",
+  "homeassistant": "2026.9.0",
+  "hide_default_branch": true,
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "kathrein_wallbox.zip"
 }

@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions: {}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set manifest version
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest_path = Path("custom_components/kathrein_wallbox/manifest.json")
+          manifest = json.loads(manifest_path.read_text())
+          manifest["version"] = os.environ["RELEASE_TAG"].removeprefix("v")
+          manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+
+      - name: Package integration
+        shell: bash
+        run: |
+          cd "${GITHUB_WORKSPACE}/custom_components/kathrein_wallbox"
+          zip -r "${GITHUB_WORKSPACE}/kathrein_wallbox.zip" .
+
+      - name: Upload ZIP to release
+        uses: softprops/action-gh-release@v3.0.1
+        with:
+          files: ${{ github.workspace }}/kathrein_wallbox.zip
+          fail_on_unmatched_files: true
