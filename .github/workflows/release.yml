@@ -42,7 +42,7 @@ jobs:
           zip -r "${GITHUB_WORKSPACE}/kathrein_wallbox.zip" .
 
       - name: Upload ZIP to release
-        uses: softprops/action-gh-release@v3.0.1
+        uses: softprops/action-gh-release@v3.0.3
         with:
           files: ${{ github.workspace }}/kathrein_wallbox.zip
           fail_on_unmatched_files: true
