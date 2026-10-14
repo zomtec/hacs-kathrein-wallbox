@@ -27,6 +27,7 @@
     "entry_not_found": {"message": "Pro {entry_id} nebyla nalezena žádná konfigurace nabíjecí stanice Kathrein."},
     "entry_not_loaded": {"message": "Nabíjecí stanice {title} není aktivní."},
     "current_limit_11_kw": {"message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."},
+    "charging_current_out_of_range": {"message": "Nabíjecí proud musí být 0 A (pauza) nebo mezi 6 a {max_current} A."},
     "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"}
   },
   "entity": {

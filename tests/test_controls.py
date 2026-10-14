@@ -1,7 +1,7 @@
 """Tests for the EMS number, select and switch entities."""
 
 import pytest
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from modbus_connection import ModbusError
 
 from custom_components.kathrein_wallbox.number import KathreinChargingCurrentNumber
@@ -26,12 +26,12 @@ async def _set_ems_register(coordinator, unit, address, value) -> None:
 
 @pytest.mark.parametrize(
     ("register", "expected"),
-    [(16000, 16.0), (13000, 13.0), (0, None), (0xFFFF, None)],
+    [(16000, 16.0), (13000, 13.0), (0, 0.0), (0xFFFF, None)],
 )
 async def test_charging_current_number_reads_setpoint(
     coordinator, mock_modbus_unit, register, expected
 ) -> None:
-    """Show the setpoint in A and hide paused or cancelled values."""
+    """Show the setpoint in A, 0 A while paused, and hide a cancel value."""
     await _set_ems_register(
         coordinator, mock_modbus_unit, EMS_CHARGING_CURRENT_ADDRESS, register
     )
@@ -42,9 +42,9 @@ async def test_charging_current_number_reads_setpoint(
 async def test_charging_current_number_limits_11_kw_wallbox(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Offer 6 to 32 A, or 6 to 16 A on an 11 kW Wallbox."""
+    """Offer 0 to 32 A, or 0 to 16 A on an 11 kW Wallbox."""
     number = KathreinChargingCurrentNumber(coordinator)
-    assert (number.native_min_value, number.native_max_value) == (6, 32)
+    assert (number.native_min_value, number.native_max_value) == (0, 32)
 
     mock_modbus_unit.holding[DEVICE_INFO_ADDRESS] = DEVICE_INFO_11_KW
     await coordinator.identity.async_update()
@@ -62,6 +62,27 @@ async def test_charging_current_number_writes_milliamperes(
 
     assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [13000])]
     assert number.native_value == 13
+
+
+async def test_charging_current_number_pauses_at_zero(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Pause charging by writing 0 mA."""
+    await KathreinChargingCurrentNumber(coordinator).async_set_native_value(0)
+
+    assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [0])]
+
+
+@pytest.mark.parametrize("value", [1, 5])
+async def test_charging_current_number_rejects_gap_below_minimum(
+    coordinator, mock_modbus_unit, value
+) -> None:
+    """Reject 1 to 5 A, which the Wallbox does not accept, without writing."""
+    with pytest.raises(ServiceValidationError) as error:
+        await KathreinChargingCurrentNumber(coordinator).async_set_native_value(value)
+
+    assert error.value.translation_key == "charging_current_out_of_range"
+    assert mock_modbus_unit.write_events == []
 
 
 @pytest.mark.parametrize(

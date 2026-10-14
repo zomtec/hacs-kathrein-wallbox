@@ -27,6 +27,7 @@
     "entry_not_found": {"message": "No se ha encontrado ninguna configuración de wallbox Kathrein para {entry_id}."},
     "entry_not_loaded": {"message": "La wallbox {title} no está activa."},
     "current_limit_11_kw": {"message": "Las wallbox de 11 kW admiten una corriente de carga EMS máxima de {max_current} A."},
+    "charging_current_out_of_range": {"message": "La corriente de carga debe ser 0 A (pausa) o estar entre 6 y {max_current} A."},
     "write_failed": {"message": "No se puede escribir en la wallbox: {error}"}
   },
   "entity": {

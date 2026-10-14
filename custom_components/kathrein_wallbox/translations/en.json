@@ -121,6 +121,7 @@
     "entry_not_found": {"message": "No Kathrein Wallbox configuration found for {entry_id}."},
     "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
     "current_limit_11_kw": {"message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."},
+    "charging_current_out_of_range": {"message": "The charging current must be 0 A (pause) or between 6 and {max_current} A."},
     "write_failed": {"message": "Unable to write to the Wallbox: {error}"}
   },
   "entity": {
