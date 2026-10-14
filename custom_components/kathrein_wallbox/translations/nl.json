@@ -1,17 +1,15 @@
 {
   "selector": {
     "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fasen"}},
-    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
-    "ems_timeout_period": {"options": {"0": "Uit", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
-    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+    "ems_timeout_period": {"options": {"0": "Uit", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
   },
   "services": {
     "set_ems_control_enabled": {"name": "EMS-regeling instellen", "description": "Schakel de EMS-regeling voor deze wallbox in of uit.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "enabled": {"name": "Ingeschakeld", "description": "Geeft aan of de EMS-regeling is ingeschakeld."}}},
     "set_relay_matrix": {"name": "Relaisconfiguratie instellen", "description": "Kies de relaisconfiguratie voor de EMS-regeling.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Faseselectie", "description": "De in te schakelen fasen."}}},
-    "set_charging_current": {"name": "Laadstroom instellen", "description": "Stel de door het EMS gevraagde laadstroom in.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Laadstroominstelling", "description": "Door het EMS gevraagde laadstroom in ampère. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}},
+    "set_charging_current": {"name": "Laadstroom instellen", "description": "Stel de door het EMS gevraagde laadstroom in.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Laadstroominstelling", "description": "Door het EMS gevraagde laadstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}},
     "set_timeout_period": {"name": "EMS-time-out instellen", "description": "Stel in hoelang de EMS-instelling actief blijft.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Time-out", "description": "Time-out in seconden, of uit."}}},
     "set_timeout_fallback_relay_matrix": {"name": "Relaisconfiguratie na EMS-time-out instellen", "description": "Kies de relaisconfiguratie die na het verlopen van de EMS-time-out wordt gebruikt.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Terugvalconfiguratie", "description": "De fasen die na de time-out worden gebruikt."}}},
-    "set_timeout_fallback_current": {"name": "Terugvalstroom na EMS-time-out instellen", "description": "Stel de laadstroom in die na het verlopen van de EMS-time-out wordt gebruikt.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Terugvalstroom", "description": "Terugvalstroom in ampère. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}}
+    "set_timeout_fallback_current": {"name": "Terugvalstroom na EMS-time-out instellen", "description": "Stel de laadstroom in die na het verlopen van de EMS-time-out wordt gebruikt.", "fields": {"entry_id": {"name": "Wallbox", "description": "De wallboxconfiguratie die je wilt bedienen."}, "value": {"name": "Terugvalstroom", "description": "Terugvalstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}}
   },
   "config": {
     "step": {

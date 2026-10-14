@@ -1,17 +1,15 @@
 {
   "selector": {
     "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fases"}},
-    "ems_charging_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}},
-    "ems_timeout_period": {"options": {"0": "Desactivado", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}},
-    "ems_timeout_fallback_current": {"options": {"0": "0 A", "6": "6 A", "8": "8 A", "10": "10 A", "12": "12 A", "16": "16 A", "20": "20 A", "24": "24 A", "32": "32 A"}}
+    "ems_timeout_period": {"options": {"0": "Desactivado", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
   },
   "services": {
     "set_ems_control_enabled": {"name": "Configurar el control EMS", "description": "Activa o desactiva el control EMS de esta wallbox.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "enabled": {"name": "Activado", "description": "Indica si el control EMS está activado."}}},
     "set_relay_matrix": {"name": "Configurar la matriz de relés", "description": "Selecciona la matriz de relés para el control EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Selección de fases", "description": "Fases que se deben activar."}}},
-    "set_charging_current": {"name": "Configurar la corriente de carga", "description": "Establece la corriente de carga solicitada por el EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Consigna de corriente", "description": "Corriente solicitada por el EMS, en amperios. 0 A pausa la carga y no concede corriente de carga."}}},
+    "set_charging_current": {"name": "Configurar la corriente de carga", "description": "Establece la corriente de carga solicitada por el EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Consigna de corriente", "description": "Corriente solicitada por el EMS, en amperios: 0 o de 6 a 32 A en pasos de 1 A. 0 A pausa la carga y no concede corriente de carga."}}},
     "set_timeout_period": {"name": "Configurar el tiempo de espera del EMS", "description": "Establece cuánto tiempo permanece activa la consigna del EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Tiempo de espera", "description": "Tiempo en segundos o desactivado."}}},
     "set_timeout_fallback_relay_matrix": {"name": "Configurar la matriz de relés de respaldo", "description": "Selecciona la matriz de relés que se utilizará cuando venza el tiempo del EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Matriz de respaldo", "description": "Fases que se utilizarán cuando venza el tiempo."}}},
-    "set_timeout_fallback_current": {"name": "Configurar la corriente de respaldo", "description": "Establece la corriente de carga que se utilizará cuando venza el tiempo del EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Corriente de respaldo", "description": "Corriente de respaldo en amperios. 0 A pausa la carga y no concede corriente de carga."}}}
+    "set_timeout_fallback_current": {"name": "Configurar la corriente de respaldo", "description": "Establece la corriente de carga que se utilizará cuando venza el tiempo del EMS.", "fields": {"entry_id": {"name": "Wallbox", "description": "Configuración de la wallbox que se va a controlar."}, "value": {"name": "Corriente de respaldo", "description": "Corriente de respaldo en amperios: 0 o de 6 a 32 A en pasos de 1 A. 0 A pausa la carga y no concede corriente de carga."}}}
   },
   "config": {
     "step": {

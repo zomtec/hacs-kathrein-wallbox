@@ -43,18 +43,12 @@ set_charging_current:
     value:
       required: true
       selector:
-        select:
-          translation_key: ems_charging_current
-          options:
-            - "0"
-            - "6"
-            - "8"
-            - "10"
-            - "12"
-            - "16"
-            - "20"
-            - "24"
-            - "32"
+        number:
+          min: 0
+          max: 32
+          step: 1
+          unit_of_measurement: A
+          mode: box
 
 set_timeout_period:
   name: Set EMS timeout period
@@ -110,15 +104,9 @@ set_timeout_fallback_current:
     value:
       required: true
       selector:
-        select:
-          translation_key: ems_timeout_fallback_current
-          options:
-            - "0"
-            - "6"
-            - "8"
-            - "10"
-            - "12"
-            - "16"
-            - "20"
-            - "24"
-            - "32"
+        number:
+          min: 0
+          max: 32
+          step: 1
+          unit_of_measurement: A
+          mode: box

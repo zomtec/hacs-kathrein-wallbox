@@ -1,7 +1,8 @@
 """Kathrein Wallbox integration setup."""
 
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from typing import Any
 
 import voluptuous as vol
 from homeassistant.components.modbus import async_get_unit
@@ -16,9 +17,11 @@ from modbus_connection import ModbusError, ModbusTcpParams
 from .const import CONF_UNIT_ID, DOMAIN, PLATFORMS, get_scan_interval
 from .coordinator import KathreinConfigEntry, KathreinCoordinator, WallboxRuntimeData
 from .model import (
-    EMS_CHARGING_CURRENTS_MA,
+    EMS_CHARGING_PAUSED_MA,
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
+    EMS_MAX_CHARGING_CURRENT_MA,
+    EMS_MIN_CHARGING_CURRENT_MA,
     EMS_TIMEOUT_PERIODS_S,
     MAX_CURRENT_11_KW_MA,
     MILLIAMPERE_PER_AMPERE,
@@ -43,13 +46,37 @@ EMS_RELAY_MATRIX_OPTIONS = {
     "phase_1": RelayMatrix.PHASE_1,
     "three_phases": RelayMatrix.THREE_PHASES,
 }
-EMS_CHARGING_CURRENT_OPTIONS = {
-    str(current_ma // MILLIAMPERE_PER_AMPERE): current_ma
-    for current_ma in EMS_CHARGING_CURRENTS_MA
-}
 EMS_TIMEOUT_PERIOD_OPTIONS = {
     str(seconds): seconds for seconds in EMS_TIMEOUT_PERIODS_S
 }
+
+
+def _whole_amperes(value: Any) -> int:
+    """Accept a whole number of amperes given as number or text."""
+    try:
+        amperes = float(value)
+    except (TypeError, ValueError) as err:
+        raise vol.Invalid("expected a whole number of amperes") from err
+    if not amperes.is_integer():
+        raise vol.Invalid("expected a whole number of amperes")
+    return int(amperes)
+
+
+def _milliamperes(amperes: int) -> int:
+    """Convert a current in A to the mA register value."""
+    return amperes * MILLIAMPERE_PER_AMPERE
+
+
+EMS_CURRENT_AMPERES = vol.All(
+    _whole_amperes,
+    vol.Any(
+        EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
+        vol.Range(
+            min=EMS_MIN_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
+            max=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
+        ),
+    ),
+)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -58,7 +85,8 @@ class EmsSetpointService:
 
     name: str
     field: str
-    options: Mapping[str, int]
+    value_schema: Callable[[Any], Any]
+    to_register: Callable[[Any], int]
     is_current: bool = False
 
 
@@ -66,28 +94,33 @@ EMS_SETPOINT_SERVICES = (
     EmsSetpointService(
         name=SERVICE_SET_RELAY_MATRIX,
         field="relay_matrix",
-        options=EMS_RELAY_MATRIX_OPTIONS,
+        value_schema=vol.In(list(EMS_RELAY_MATRIX_OPTIONS)),
+        to_register=EMS_RELAY_MATRIX_OPTIONS.__getitem__,
     ),
     EmsSetpointService(
         name=SERVICE_SET_CHARGING_CURRENT,
         field="charging_current",
-        options=EMS_CHARGING_CURRENT_OPTIONS,
+        value_schema=EMS_CURRENT_AMPERES,
+        to_register=_milliamperes,
         is_current=True,
     ),
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_PERIOD,
         field="timeout_period",
-        options=EMS_TIMEOUT_PERIOD_OPTIONS,
+        value_schema=vol.In(list(EMS_TIMEOUT_PERIOD_OPTIONS)),
+        to_register=EMS_TIMEOUT_PERIOD_OPTIONS.__getitem__,
     ),
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
         field="timeout_fallback_relay_matrix",
-        options=EMS_RELAY_MATRIX_OPTIONS,
+        value_schema=vol.In(list(EMS_RELAY_MATRIX_OPTIONS)),
+        to_register=EMS_RELAY_MATRIX_OPTIONS.__getitem__,
     ),
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
         field="timeout_fallback_current",
-        options=EMS_CHARGING_CURRENT_OPTIONS,
+        value_schema=EMS_CURRENT_AMPERES,
+        to_register=_milliamperes,
         is_current=True,
     ),
 )
@@ -132,7 +165,7 @@ def _setpoint_handler(
 
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
-        value = service.options[call.data[ATTR_VALUE]]
+        value = service.to_register(call.data[ATTR_VALUE])
         if (
             service.is_current
             and coordinator.identity.is_11_kw
@@ -175,7 +208,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             schema=vol.Schema(
                 {
                     vol.Required(ATTR_ENTRY_ID): str,
-                    vol.Required(ATTR_VALUE): vol.In(list(service.options)),
+                    vol.Required(ATTR_VALUE): service.value_schema,
                 }
             ),
         )
