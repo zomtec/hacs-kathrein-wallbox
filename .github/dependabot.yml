@@ -9,8 +9,11 @@ updates:
       - dependencies
     commit-message:
       prefix: chore(deps)
+    # pytest is pinned by pytest-homeassistant-custom-component, pymodbus by Home Assistant
+    ignore:
+      - dependency-name: pytest
+      - dependency-name: pymodbus
     groups:
-      # pytest-homeassistant-custom-component pins pytest and pymodbus exactly
       python-dependencies:
         patterns:
           - "*"
