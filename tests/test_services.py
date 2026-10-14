@@ -58,6 +58,9 @@ async def _async_call(hass, entry, service, service_data) -> None:
         (SERVICE_SET_RELAY_MATRIX, {"value": "three_phases"}, 0x00A1, 7),
         (SERVICE_SET_CHARGING_CURRENT, {"value": "20"}, 0x00A2, 20000),
         (SERVICE_SET_CHARGING_CURRENT, {"value": "0"}, 0x00A2, 0),
+        (SERVICE_SET_CHARGING_CURRENT, {"value": 6}, 0x00A2, 6000),
+        (SERVICE_SET_CHARGING_CURRENT, {"value": 13}, 0x00A2, 13000),
+        (SERVICE_SET_CHARGING_CURRENT, {"value": 32.0}, 0x00A2, 32000),
         (SERVICE_SET_TIMEOUT_PERIOD, {"value": "60"}, 0x00A3, 60),
         (
             SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
@@ -66,6 +69,7 @@ async def _async_call(hass, entry, service, service_data) -> None:
             7,
         ),
         (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, {"value": "0"}, 0x00A5, 0),
+        (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, {"value": 7}, 0x00A5, 7000),
     ],
 )
 async def test_ems_services_write_expected_register(
@@ -86,7 +90,10 @@ async def test_ems_services_write_expected_register(
         (SERVICE_SET_RELAY_MATRIX, "phase_2"),
         (SERVICE_SET_RELAY_MATRIX, "three_lines"),
         (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "phase_3"),
-        (SERVICE_SET_CHARGING_CURRENT, "17"),
+        (SERVICE_SET_CHARGING_CURRENT, 5),
+        (SERVICE_SET_CHARGING_CURRENT, 33),
+        (SERVICE_SET_CHARGING_CURRENT, 16.5),
+        (SERVICE_SET_CHARGING_CURRENT, "fast"),
         (SERVICE_SET_TIMEOUT_PERIOD, "45"),
         (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, "40"),
     ],

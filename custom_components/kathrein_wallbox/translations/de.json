@@ -6,19 +6,6 @@
         "three_phases": "3 Phasen"
       }
     },
-    "ems_charging_current": {
-      "options": {
-        "0": "0 A",
-        "6": "6 A",
-        "8": "8 A",
-        "10": "10 A",
-        "12": "12 A",
-        "16": "16 A",
-        "20": "20 A",
-        "24": "24 A",
-        "32": "32 A"
-      }
-    },
     "ems_timeout_period": {
       "options": {
         "0": "Aus",
@@ -28,19 +15,6 @@
         "180": "3 Min",
         "300": "5 Min",
         "600": "10 Min"
-      }
-    },
-    "ems_timeout_fallback_current": {
-      "options": {
-        "0": "0 A",
-        "6": "6 A",
-        "8": "8 A",
-        "10": "10 A",
-        "12": "12 A",
-        "16": "16 A",
-        "20": "20 A",
-        "24": "24 A",
-        "32": "32 A"
       }
     }
   },
@@ -66,7 +40,7 @@
       "description": "Den von der EMS angeforderten Ladestrom einstellen.",
       "fields": {
         "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
-        "value": {"name": "Ladestrom Vorgabe", "description": "EMS Ladestrom in Ampere. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+        "value": {"name": "Ladestrom Vorgabe", "description": "EMS Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
       }
     },
     "set_timeout_period": {
@@ -90,7 +64,7 @@
       "description": "Fallback-Ladestrom nach Ablauf des EMS Timeouts einstellen.",
       "fields": {
         "entry_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox-Konfiguration."},
-        "value": {"name": "Fallback Ladestrom", "description": "Fallback-Ladestrom in Ampere. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+        "value": {"name": "Fallback Ladestrom", "description": "Fallback-Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
       }
     }
   },

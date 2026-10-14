@@ -60,10 +60,10 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | --- | --- | --- |
 | `set_ems_control_enabled` | `0x00A0` | `enabled`: `true` or `false` |
 | `set_relay_matrix` | `0x00A1` | `value`: `phase_1` or `three_phases` |
-| `set_charging_current` | `0x00A2` | `value`: `0`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, or `32` A |
+| `set_charging_current` | `0x00A2` | `value`: `0` or `6` to `32` A in 1 A steps |
 | `set_timeout_period` | `0x00A3` | `value`: `0` (off), `30`, `60`, `120`, `180`, `300`, or `600` seconds |
 | `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
-| `set_timeout_fallback_current` | `0x00A5` | `value`: `0`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, or `32` A |
+| `set_timeout_fallback_current` | `0x00A5` | `value`: `0` or `6` to `32` A in 1 A steps |
 
 For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The relay-matrix sensors report `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
@@ -75,7 +75,7 @@ Example service call to request `16 A` (replace the placeholder with the Wallbox
 service: kathrein_wallbox.set_charging_current
 data:
   entry_id: "<config-entry-id>"
-  value: "16"
+  value: 16
 ```
 
 These services write directly to the Wallbox. Check the phase selection, current, timeout, fallback behavior, and Wallbox rating before using them in automations. The integration does not write authentication tags or tariff registers.

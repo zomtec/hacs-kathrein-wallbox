@@ -6,19 +6,6 @@
         "three_phases": "3 Phases"
       }
     },
-    "ems_charging_current": {
-      "options": {
-        "0": "0 A",
-        "6": "6 A",
-        "8": "8 A",
-        "10": "10 A",
-        "12": "12 A",
-        "16": "16 A",
-        "20": "20 A",
-        "24": "24 A",
-        "32": "32 A"
-      }
-    },
     "ems_timeout_period": {
       "options": {
         "0": "Off",
@@ -28,19 +15,6 @@
         "180": "3 min",
         "300": "5 min",
         "600": "10 min"
-      }
-    },
-    "ems_timeout_fallback_current": {
-      "options": {
-        "0": "0 A",
-        "6": "6 A",
-        "8": "8 A",
-        "10": "10 A",
-        "12": "12 A",
-        "16": "16 A",
-        "20": "20 A",
-        "24": "24 A",
-        "32": "32 A"
       }
     }
   },
@@ -66,7 +40,7 @@
       "description": "Set the charging current requested from the EMS.",
       "fields": {
         "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
-        "value": {"name": "Current setpoint", "description": "EMS charging current in amps. 0 A pauses charging and grants no charging current."}
+        "value": {"name": "Current setpoint", "description": "EMS charging current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
       }
     },
     "set_timeout_period": {
@@ -90,7 +64,7 @@
       "description": "Set the fallback charging current used when the EMS timeout expires.",
       "fields": {
         "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
-        "value": {"name": "Fallback current", "description": "Fallback current in amps. 0 A pauses charging and grants no charging current."}
+        "value": {"name": "Fallback current", "description": "Fallback current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
       }
     }
   },

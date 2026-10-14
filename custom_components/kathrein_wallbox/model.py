@@ -12,8 +12,11 @@ MAINS_FREQUENCY_RANGE_HZ = (45, 65)
 # Currents are reported and written in mA.
 MILLIAMPERE_PER_AMPERE = 1000
 MAX_CURRENT_11_KW_MA = 16000
-# EMS setpoints offered by the services; 0 pauses charging or disables the timeout.
-EMS_CHARGING_CURRENTS_MA = (0, 6000, 8000, 10000, 12000, 16000, 20000, 24000, 32000)
+# EMS current setpoints accept 0 (pause) or 6000 ... 32000 mA.
+EMS_CHARGING_PAUSED_MA = 0
+EMS_MIN_CHARGING_CURRENT_MA = 6000
+EMS_MAX_CHARGING_CURRENT_MA = 32000
+# EMS timeout periods offered by the services; 0 disables the timeout.
 EMS_TIMEOUT_PERIODS_S = (0, 30, 60, 120, 180, 300, 600)
 
 # Bit 15 of the EMS control register switches EMS control on.
