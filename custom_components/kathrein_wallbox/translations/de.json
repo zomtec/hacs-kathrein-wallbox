@@ -120,7 +120,6 @@
   "exceptions": {
     "entry_not_found": {"message": "Für {entry_id} wurde keine Kathrein-Wallbox-Konfiguration gefunden."},
     "entry_not_loaded": {"message": "Die Wallbox {title} ist nicht aktiv."},
-    "current_limit_11_kw": {"message": "Wallboxen mit 11 kW unterstützen einen EMS Ladestrom von höchstens {max_current} A."},
     "write_failed": {"message": "Schreiben auf die Wallbox nicht möglich: {error}"}
   },
   "entity": {

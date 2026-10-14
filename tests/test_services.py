@@ -134,20 +134,24 @@ async def test_11_kw_wallbox_accepts_maximum_ems_current(
 
 
 @pytest.mark.parametrize(
-    "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
+    ("service", "address"),
+    [
+        (SERVICE_SET_CHARGING_CURRENT, 0x00A2),
+        (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, 0x00A5),
+    ],
 )
-async def test_11_kw_wallbox_rejects_ems_current_above_limit(
-    hass, mock_modbus_unit, ems_entry, service
+async def test_11_kw_wallbox_limits_ems_current_to_maximum(
+    hass, mock_modbus_unit, ems_entry, service, address
 ) -> None:
-    """Reject current values above 16 A without writing a register."""
+    """Write 16 A when an 11 kW wallbox is asked for more."""
     mock_modbus_unit.holding[DEVICE_INFO_ADDRESS] = DEVICE_INFO_11_KW
     await ems_entry.runtime_data.coordinator.identity.async_update()
 
-    with pytest.raises(ServiceValidationError) as error:
-        await _async_call(hass, ems_entry, service, {"value": "20"})
+    await _async_call(hass, ems_entry, service, {"value": "20"})
 
-    assert error.value.translation_key == "current_limit_11_kw"
-    assert mock_modbus_unit.write_events == []
+    assert [
+        (event.address, event.values) for event in mock_modbus_unit.write_events
+    ] == [(address, [16000])]
 
 
 async def test_ems_service_rejects_unknown_config_entry(

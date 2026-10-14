@@ -78,7 +78,7 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
 | `set_timeout_fallback_current` | `0x00A5` | `value`: `0` or `6` to `32` A in 1 A steps |
 
-For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The relay-matrix sensors report `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
+For an 11 kW Wallbox, requests above `16 A` are limited to `16 A` for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The relay-matrix sensors report `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
 Unsupported values and unknown or inactive Wallbox entries are rejected with a validation error before anything is written. A failed register write is reported as an error.
 

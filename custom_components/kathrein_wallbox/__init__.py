@@ -147,18 +147,8 @@ def _setpoint_handler(
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
         value = service.to_register(call.data[ATTR_VALUE])
-        if (
-            service.is_current
-            and coordinator.identity.is_11_kw
-            and value > MAX_CURRENT_11_KW_MA
-        ):
-            raise ServiceValidationError(
-                translation_domain=DOMAIN,
-                translation_key="current_limit_11_kw",
-                translation_placeholders={
-                    "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
-                },
-            )
+        if service.is_current and coordinator.identity.is_11_kw:
+            value = min(value, MAX_CURRENT_11_KW_MA)
         await coordinator.async_write_ems(service.field, value)
 
     return _async_handle
