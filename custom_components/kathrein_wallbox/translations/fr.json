@@ -30,6 +30,9 @@
     "write_failed": {"message": "Impossible d’écrire sur la wallbox : {error}"}
   },
   "entity": {
+    "number": {"ems_charging_current": {"name": "Courant de charge"}},
+    "select": {"ems_relay_matrix": {"name": "Phases", "state": {"phase_1": "Phase 1", "three_phases": "3 phases"}}},
+    "switch": {"ems_control": {"name": "Commande EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Tension L1"}, "voltage_l2": {"name": "Tension L2"}, "voltage_l3": {"name": "Tension L3"},
       "current_l1": {"name": "Courant L1"}, "current_l2": {"name": "Courant L2"}, "current_l3": {"name": "Courant L3"},

@@ -124,6 +124,21 @@
     "write_failed": {"message": "Schreiben auf die Wallbox nicht möglich: {error}"}
   },
   "entity": {
+    "number": {
+      "ems_charging_current": {"name": "Ladestrom"}
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "name": "Phasen",
+        "state": {
+          "phase_1": "Phase 1",
+          "three_phases": "3 Phasen"
+        }
+      }
+    },
+    "switch": {
+      "ems_control": {"name": "EMS Steuerung"}
+    },
     "sensor": {
       "voltage_l1": {"name": "Spannung L1"},
       "voltage_l2": {"name": "Spannung L2"},

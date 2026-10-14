@@ -30,6 +30,9 @@
     "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"}
   },
   "entity": {
+    "number": {"ems_charging_current": {"name": "Laadstroom"}},
+    "select": {"ems_relay_matrix": {"name": "Fasen", "state": {"phase_1": "Fase 1", "three_phases": "3 fasen"}}},
+    "switch": {"ems_control": {"name": "EMS-regeling"}},
     "sensor": {
       "voltage_l1": {"name": "Spanning L1"}, "voltage_l2": {"name": "Spanning L2"}, "voltage_l3": {"name": "Spanning L3"},
       "current_l1": {"name": "Stroom L1"}, "current_l2": {"name": "Stroom L2"}, "current_l3": {"name": "Stroom L3"},

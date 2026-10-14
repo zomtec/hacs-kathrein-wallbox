@@ -9,10 +9,10 @@ from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
-from modbus_connection import ModbusError, ModbusTcpParams
+from modbus_connection import ModbusTcpParams
 
 from .const import CONF_UNIT_ID, DOMAIN, PLATFORMS, get_scan_interval
 from .coordinator import KathreinConfigEntry, KathreinCoordinator, WallboxRuntimeData
@@ -22,10 +22,10 @@ from .model import (
     EMS_CONTROL_ENABLED,
     EMS_MAX_CHARGING_CURRENT_MA,
     EMS_MIN_CHARGING_CURRENT_MA,
+    EMS_RELAY_MATRIX_OPTIONS,
     EMS_TIMEOUT_PERIODS_S,
     MAX_CURRENT_11_KW_MA,
     MILLIAMPERE_PER_AMPERE,
-    RelayMatrix,
 )
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -41,11 +41,6 @@ SERVICE_SET_TIMEOUT_PERIOD = "set_timeout_period"
 SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX = "set_timeout_fallback_relay_matrix"
 SERVICE_SET_TIMEOUT_FALLBACK_CURRENT = "set_timeout_fallback_current"
 
-# Service option -> register value; the manual reserves phases 2 and 3 for future use.
-EMS_RELAY_MATRIX_OPTIONS = {
-    "phase_1": RelayMatrix.PHASE_1,
-    "three_phases": RelayMatrix.THREE_PHASES,
-}
 EMS_TIMEOUT_PERIOD_OPTIONS = {
     str(seconds): seconds for seconds in EMS_TIMEOUT_PERIODS_S
 }
@@ -144,20 +139,6 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
     return entry.runtime_data.coordinator
 
 
-async def _async_write_ems_register(
-    coordinator: KathreinCoordinator, field: str, value: int
-) -> None:
-    """Write an EMS control field and report device failures."""
-    try:
-        await coordinator.ems_control.write(field, value)
-    except ModbusError as err:
-        raise HomeAssistantError(
-            translation_domain=DOMAIN,
-            translation_key="write_failed",
-            translation_placeholders={"error": str(err)},
-        ) from err
-
-
 def _setpoint_handler(
     hass: HomeAssistant, service: EmsSetpointService
 ) -> Callable[[ServiceCall], Awaitable[None]]:
@@ -178,7 +159,7 @@ def _setpoint_handler(
                     "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
                 },
             )
-        await _async_write_ems_register(coordinator, service.field, value)
+        await coordinator.async_write_ems(service.field, value)
 
     return _async_handle
 
@@ -190,7 +171,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         """Enable or disable the EMS control register."""
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
         value = EMS_CONTROL_ENABLED if call.data[ATTR_ENABLED] else EMS_CONTROL_DISABLED
-        await _async_write_ems_register(coordinator, "control_register", value)
+        await coordinator.async_write_ems("control_register", value)
 
     hass.services.async_register(
         DOMAIN,

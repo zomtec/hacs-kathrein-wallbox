@@ -48,9 +48,22 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 | Charging | Charging state, session duration and energy, granted current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | EMS enabled state and readbacks for relay matrix, current, timeout, and timeout fallback values. |
+| EMS controls | `EMS control` switch, `Charging current` number (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
+
+## EMS controls
+
+The switch, number, and select entities write the same EMS registers as the services below and can be used on dashboards or by tools such as evcc:
+
+| Entity | Register | Values |
+| --- | --- | --- |
+| `EMS control` switch | `0x00A0` | On enables EMS control, off disables it. |
+| `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
+| `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
+
+After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
 
 ## EMS control services
 

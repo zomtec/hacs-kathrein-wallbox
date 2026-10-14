@@ -136,6 +136,13 @@ class RelayState(IntFlag):
     RELAY_L3 = 0x0004
 
 
+# Selectable relay matrix setpoints; the manual reserves phases 2 and 3 for future use.
+EMS_RELAY_MATRIX_OPTIONS = {
+    "phase_1": RelayMatrix.PHASE_1,
+    "three_phases": RelayMatrix.THREE_PHASES,
+}
+
+
 class WallboxIdentity(Component):
     """The compact identity range read during config flow validation."""
 
