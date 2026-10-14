@@ -6,13 +6,14 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
 from modbus_connection import ModbusError, ModbusUnit
 
-from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME
+from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN
 from .model import (
     WallboxEMSControl,
     WallboxEVSE,
@@ -94,6 +95,18 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             evse=self.evse,
             ems_control=self.ems_control,
         )
+
+    async def async_write_ems(self, field: str, value: int) -> None:
+        """Write an EMS control field, report device failures and refresh."""
+        try:
+            await self.ems_control.write(field, value)
+        except ModbusError as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="write_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+        await self.async_request_refresh()
 
 
 @dataclass(slots=True)

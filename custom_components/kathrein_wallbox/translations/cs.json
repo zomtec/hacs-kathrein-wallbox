@@ -30,6 +30,9 @@
     "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"}
   },
   "entity": {
+    "number": {"ems_charging_current": {"name": "Nabíjecí proud"}},
+    "select": {"ems_relay_matrix": {"name": "Fáze", "state": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}}},
+    "switch": {"ems_control": {"name": "Řízení EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Napětí L1"}, "voltage_l2": {"name": "Napětí L2"}, "voltage_l3": {"name": "Napětí L3"},
       "current_l1": {"name": "Proud L1"}, "current_l2": {"name": "Proud L2"}, "current_l3": {"name": "Proud L3"},

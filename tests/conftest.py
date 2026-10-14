@@ -1,5 +1,7 @@
 """Shared test fixtures for the Kathrein Wallbox integration."""
 
+from collections.abc import AsyncGenerator
+
 import pytest
 from modbus_connection.mock import (
     MockModbusConnection,
@@ -34,10 +36,12 @@ def mock_modbus_unit() -> RecordingMockModbusUnit:
 
 
 @pytest.fixture
-async def coordinator(hass, mock_modbus_unit) -> KathreinCoordinator:
+async def coordinator(hass, mock_modbus_unit) -> AsyncGenerator[KathreinCoordinator]:
     """Create a coordinator with a read identity on an in-memory config entry."""
     entry = MockConfigEntry(domain=DOMAIN)
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
     await coordinator.identity.async_update()
-    return coordinator
+    yield coordinator
+    # Writes schedule a debounced refresh that must not outlive the test.
+    await coordinator.async_shutdown()

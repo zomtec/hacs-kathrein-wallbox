@@ -1,5 +1,7 @@
 """Tests for the Kathrein Wallbox EMS services."""
 
+from collections.abc import AsyncGenerator
+
 import pytest
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntryState
@@ -27,7 +29,7 @@ DEVICE_INFO_11_KW = 0x0001
 
 
 @pytest.fixture
-async def ems_entry(hass, mock_modbus_unit) -> MockConfigEntry:
+async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
     """Add a loaded config entry connected to the in-memory unit."""
     entry = MockConfigEntry(domain=DOMAIN, title="Wallbox")
     entry.add_to_hass(hass)
@@ -36,7 +38,9 @@ async def ems_entry(hass, mock_modbus_unit) -> MockConfigEntry:
     entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
     entry.mock_state(hass, ConfigEntryState.LOADED)
     await async_setup(hass, {})
-    return entry
+    yield entry
+    # Writes schedule a debounced refresh that must not outlive the test.
+    await coordinator.async_shutdown()
 
 
 async def _async_call(hass, entry, service, service_data) -> None:

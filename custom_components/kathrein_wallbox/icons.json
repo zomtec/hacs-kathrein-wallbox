@@ -1,5 +1,15 @@
 {
   "entity": {
+    "number": {
+      "ems_charging_current": {
+        "default": "mdi:current-ac"
+      }
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "default": "mdi:electric-switch"
+      }
+    },
     "sensor": {
       "granted_current": {
         "default": "mdi:current-ac"
@@ -18,6 +28,11 @@
       },
       "timeout_fallback_relay_matrix": {
         "default": "mdi:electric-switch"
+      }
+    },
+    "switch": {
+      "ems_control": {
+        "default": "mdi:home-lightning-bolt-outline"
       }
     }
   }

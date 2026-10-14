@@ -22,7 +22,13 @@ MAX_SCAN_INTERVAL_SECONDS = 300
 # Register mapping version this integration supports.
 EXPECTED_MAPPING_VERSION = 0x0002
 
-PLATFORMS = (Platform.SENSOR, Platform.BINARY_SENSOR)
+PLATFORMS = (
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SWITCH,
+)
 
 CONF_UNIT_ID = "unit_id"
 
