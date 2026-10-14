@@ -1,7 +1,7 @@
 """Tests for the EMS number, select and switch entities."""
 
 import pytest
-from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError
 from modbus_connection import ModbusError
 
 from custom_components.kathrein_wallbox.number import KathreinChargingCurrentNumber
@@ -74,15 +74,16 @@ async def test_charging_current_number_pauses_at_zero(
 
 
 @pytest.mark.parametrize("value", [1, 5])
-async def test_charging_current_number_rejects_gap_below_minimum(
+async def test_charging_current_number_pauses_below_minimum(
     coordinator, mock_modbus_unit, value
 ) -> None:
-    """Reject 1 to 5 A, which the Wallbox does not accept, without writing."""
-    with pytest.raises(ServiceValidationError) as error:
-        await KathreinChargingCurrentNumber(coordinator).async_set_native_value(value)
+    """Pause charging for 1 to 5 A, which the Wallbox cannot charge with."""
+    number = KathreinChargingCurrentNumber(coordinator)
 
-    assert error.value.translation_key == "charging_current_out_of_range"
-    assert mock_modbus_unit.write_events == []
+    await number.async_set_native_value(value)
+
+    assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [0])]
+    assert number.native_value == 0
 
 
 @pytest.mark.parametrize(

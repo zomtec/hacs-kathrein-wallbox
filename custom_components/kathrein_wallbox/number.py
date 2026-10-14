@@ -8,10 +8,8 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import UnitOfElectricCurrent
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import KathreinWallboxEntity
 from .model import (
@@ -69,16 +67,11 @@ class KathreinChargingCurrentNumber(KathreinWallboxEntity, NumberEntity):
         return current_ma / MILLIAMPERE_PER_AMPERE
 
     async def async_set_native_value(self, value: float) -> None:
-        """Write the new setpoint to the EMS charging current register."""
+        """Write the setpoint; values below the minimum current pause charging."""
         current_ma = round(value) * MILLIAMPERE_PER_AMPERE
-        if not _is_valid_setpoint(current_ma):
-            raise ServiceValidationError(
-                translation_domain=DOMAIN,
-                translation_key="charging_current_out_of_range",
-                translation_placeholders={
-                    "max_current": str(round(self.native_max_value))
-                },
-            )
+        # The Wallbox cannot charge below 6 A, so 1 to 5 A means no charging.
+        if current_ma < EMS_MIN_CHARGING_CURRENT_MA:
+            current_ma = EMS_CHARGING_PAUSED_MA
         await self.coordinator.async_write_ems("charging_current", current_ma)
 
 

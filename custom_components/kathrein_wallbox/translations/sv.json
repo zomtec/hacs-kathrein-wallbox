@@ -27,7 +27,6 @@
     "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},
     "entry_not_loaded": {"message": "Laddboxen {title} är inte aktiv."},
     "current_limit_11_kw": {"message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."},
-    "charging_current_out_of_range": {"message": "Laddströmmen måste vara 0 A (paus) eller mellan 6 och {max_current} A."},
     "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"}
   },
   "entity": {

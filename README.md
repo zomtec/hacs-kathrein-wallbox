@@ -60,7 +60,7 @@ The switch, number, and select entities write the same EMS registers as the serv
 | Entity | Register | Values |
 | --- | --- | --- |
 | `EMS control` switch | `0x00A0` | On enables EMS control, off disables it. |
-| `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A are rejected because the Wallbox does not accept them. |
+| `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.

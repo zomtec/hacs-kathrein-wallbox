@@ -27,7 +27,6 @@
     "entry_not_found": {"message": "Nie znaleziono konfiguracji wallboxa Kathrein dla {entry_id}."},
     "entry_not_loaded": {"message": "Wallbox {title} nie jest aktywny."},
     "current_limit_11_kw": {"message": "Wallboxy 11 kW obsługują maksymalny prąd ładowania EMS wynoszący {max_current} A."},
-    "charging_current_out_of_range": {"message": "Prąd ładowania musi wynosić 0 A (pauza) lub mieścić się w zakresie od 6 do {max_current} A."},
     "write_failed": {"message": "Nie można zapisać do wallboxa: {error}"}
   },
   "entity": {
