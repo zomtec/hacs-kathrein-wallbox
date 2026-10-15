@@ -161,4 +161,4 @@ The Home Assistant brand images are sourced from the official Kathrein website:
 - Icon: [Kathrein favicon](https://www.kathrein-ds.com/wp-content/uploads/2026/04/kathrein_favicon.webp)
 - Logo: [Kathrein Digital Systems](https://www.kathrein-ds.com/wp-content/uploads/2026/04/kathrein_logo_600px.webp)
 
-Home Assistant shows these images on the integration and device pages. HACS currently does not display the brand icon of custom integrations; this is a known HACS issue ([hacs/integration#5171](https://github.com/hacs/integration/issues/5171)) and cannot be fixed in this repository.
+Home Assistant shows these images on the integration and device pages.
