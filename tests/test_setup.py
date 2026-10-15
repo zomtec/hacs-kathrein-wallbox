@@ -46,8 +46,13 @@ async def test_setup_entry_initializes_coordinator_before_platforms(
         Mock(return_value=mock_modbus_unit),
     )
     first_refresh = AsyncMock()
+
+    async def _async_first_refresh(coordinator: KathreinCoordinator) -> None:
+        await first_refresh()
+        await coordinator.identity.async_update()
+
     monkeypatch.setattr(
-        KathreinCoordinator, "async_config_entry_first_refresh", first_refresh
+        KathreinCoordinator, "async_config_entry_first_refresh", _async_first_refresh
     )
     forward_platforms = AsyncMock()
     monkeypatch.setattr(

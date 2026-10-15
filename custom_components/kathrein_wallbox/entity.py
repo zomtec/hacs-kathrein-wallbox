@@ -16,6 +16,11 @@ def always_available(coordinator: KathreinCoordinator) -> bool:
     return True
 
 
+def wallbox_unique_id(serial: str, key: str) -> str:
+    """Build the unique ID of a Wallbox entity from the serial number and key."""
+    return f"{serial}_{key}"
+
+
 class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
     """Represent an entity backed by the shared Wallbox coordinator."""
 
@@ -26,7 +31,7 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
         serial = coordinator.identity.serial
         # The coordinator refuses to publish data without a serial number.
         assert serial is not None
-        self._attr_unique_id = f"{serial}_{key}"
+        self._attr_unique_id = wallbox_unique_id(serial, key)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, serial)},
             manufacturer=MANUFACTURER,
@@ -38,6 +43,10 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
 
 class KathreinControlEntity(KathreinWallboxEntity):
     """Represent a control that the user must allow Home Assistant to use."""
+
+    def __init__(self, coordinator: KathreinCoordinator, key: str) -> None:
+        super().__init__(coordinator, key)
+        self._attr_entity_registry_enabled_default = coordinator.control_allowed
 
     @property
     def available(self) -> bool:

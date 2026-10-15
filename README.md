@@ -63,11 +63,13 @@ Home Assistant only reads the Wallbox until you turn on **Allow control by Home 
 While control is not allowed:
 
 - all sensors and binary sensors keep updating;
-- the `EMS control` switch, the `Charging current` number, and the `Phases` select are unavailable;
+- the `EMS control` switch, the `Charging current` number, and the `Phases` select are disabled by the integration;
 - every EMS service is rejected with an error and writes nothing;
 - the EMS keep-alive does not run.
 
 Leave the option off if another energy manager controls the Wallbox. Turn it on if Home Assistant should control charging.
+
+When you allow control again, the integration enables only the control entities it disabled itself; entities you disabled yourself stay disabled. Home Assistant reloads the integration a second time about 30 seconds after re-enabling them.
 
 ## EMS controls
 
@@ -79,7 +81,7 @@ The switch, number, and select entities write the same EMS registers as the serv
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
-These entities are only available while control by Home Assistant is allowed. While EMS control is off, the `Charging current` and `Phases` entities are also unavailable and cannot be changed; the `EMS control` switch itself stays available.
+These entities are only enabled while control by Home Assistant is allowed. While EMS control is off, the `Charging current` and `Phases` entities are also unavailable and cannot be changed; the `EMS control` switch itself stays available.
 
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
 
