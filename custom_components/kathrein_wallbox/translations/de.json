@@ -80,6 +80,9 @@
           "allow_control": "Steuerung durch Home Assistant erlauben"
         },
         "data_description": {
+          "host": "IP-Adresse oder Hostname der Wallbox in deinem lokalen Netzwerk.",
+          "port": "Modbus-TCP-Port der Wallbox. Standard ist 502.",
+          "unit_id": "Modbus-Unit-ID der Wallbox. Die Wallbox ignoriert sie derzeit; behalte den empfohlenen Wert 0 bei.",
           "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Fallback-Werte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       },
@@ -89,6 +92,11 @@
           "host": "Host / IP-Adresse",
           "port": "Port",
           "unit_id": "Modbus-Unit-ID"
+        },
+        "data_description": {
+          "host": "IP-Adresse oder Hostname der Wallbox in deinem lokalen Netzwerk.",
+          "port": "Modbus-TCP-Port der Wallbox. Standard ist 502.",
+          "unit_id": "Modbus-Unit-ID der Wallbox. Die Wallbox ignoriert sie derzeit; behalte den empfohlenen Wert 0 bei."
         }
       }
     },

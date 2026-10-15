@@ -62,3 +62,13 @@ def test_translation_has_same_keys_and_placeholders_as_strings(path: Path) -> No
         assert sorted(PLACEHOLDER.findall(text)) == sorted(
             PLACEHOLDER.findall(reference[key])
         ), key
+
+
+@pytest.mark.parametrize("step", ["user", "reconfigure"])
+def test_config_flow_fields_have_descriptions(step: str) -> None:
+    """Explain every connection field shown in the config flow."""
+    form = STRINGS["config"]["step"][step]
+
+    for field in ("host", "port", "unit_id"):
+        assert field in form["data"]
+        assert form["data_description"][field]
