@@ -41,9 +41,7 @@
       "charging_state": {"name": "Stan ładowania", "state": {"idle": "Bezczynny", "ev_connected": "Podłączono pojazd", "authentication_waiting": "Oczekiwanie na autoryzację", "authentication_confirmed": "Autoryzacja potwierdzona", "charging_active": "Ładowanie aktywne", "charging_paused": "Ładowanie wstrzymane", "charging_completed": "Ładowanie zakończone", "rfid_pairing": "Parowanie RFID", "error": "Błąd", "unknown": "Nieznany"}},
       "pp_state": {"name": "Pilot zbliżeniowy (PP)", "state": {"not_connected_or_fixed_cable": "Przewód niepodłączony lub zamontowany na stałe", "cable_not_connected": "Przewód niepodłączony", "fixed_cable_mounted": "Przewód zamontowany na stałe", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Błąd", "unknown": "Nieznany"}},
       "cp_state": {"name": "Pilot sterujący (CP)", "state": {"state_a": "A: nie wykryto pojazdu", "state_b": "B: wykryto pojazd", "state_c": "C: pojazd ładuje się", "state_d": "D: ładowanie z wentylacją", "state_e": "E: zwarcie CP", "state_f": "F: EVSE niedostępny", "unknown": "Nieznany"}},
-      "granted_current": {"name": "Udostępniony prąd ładowania"}, "granted_power": {"name": "Udostępniona moc ładowania"}, "charging_duration": {"name": "Czas ładowania"}, "charging_energy": {"name": "Naładowana energia"},
-      "relay_matrix": {"name": "Konfiguracja przekaźników EMS", "state": {"phase_1": "Faza 1", "phase_2": "Faza 2", "phase_3": "Faza 3", "three_phases": "3 fazy", "unknown": "Nieznany"}},
-      "charging_current": {"name": "Zadany prąd ładowania EMS"}, "timeout_period": {"name": "Limit czasu EMS"},
+      "granted_current": {"name": "Udostępniony prąd ładowania"}, "granted_power": {"name": "Udostępniona moc ładowania"}, "charging_duration": {"name": "Czas ładowania"}, "charging_energy": {"name": "Naładowana energia"}, "timeout_period": {"name": "Limit czasu EMS"},
       "timeout_fallback_relay_matrix": {"name": "Zapasowa konfiguracja przekaźników EMS", "state": {"phase_1": "Faza 1", "phase_2": "Faza 2", "phase_3": "Faza 3", "three_phases": "3 fazy", "unknown": "Nieznany"}},
       "timeout_fallback_current": {"name": "Zapasowy prąd EMS"}
     },
@@ -58,7 +56,7 @@
       "pp_short_circuit": {"name": "Zwarcie PP", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "internal_error": {"name": "Błąd wewnętrzny", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "relay_l1": {"name": "Przekaźnik L1"}, "relay_l2": {"name": "Przekaźnik L2"}, "relay_l3": {"name": "Przekaźnik L3"},
-      "ems_control_enabled": {"name": "Sterowanie EMS włączone", "state": {"on": "Włączone", "off": "Wyłączone"}}, "meter_available": {"name": "Licznik energii dostępny"}
+      "meter_available": {"name": "Licznik energii dostępny"}
     }
   }
 }
