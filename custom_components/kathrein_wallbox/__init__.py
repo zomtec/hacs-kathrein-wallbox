@@ -136,6 +136,15 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
     return entry.runtime_data.coordinator
 
 
+def _validate_ems_enabled(coordinator: KathreinCoordinator) -> None:
+    """Reject EMS setpoints while EMS control is off."""
+    if not coordinator.ems_control.is_enabled:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="ems_control_disabled",
+        )
+
+
 def _validate_ems_current(coordinator: KathreinCoordinator, current_ma: int) -> None:
     """Reject EMS currents the Wallbox cannot charge with."""
     if EMS_CHARGING_PAUSED_MA < current_ma < EMS_MIN_CHARGING_CURRENT_MA:
@@ -165,6 +174,7 @@ def _setpoint_handler(
 
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        _validate_ems_enabled(coordinator)
         value = service.to_register(call.data[ATTR_VALUE])
         if service.is_current:
             _validate_ems_current(coordinator, value)

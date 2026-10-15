@@ -27,6 +27,9 @@
     "switch": {
       "ems_control": {
         "default": "mdi:home-lightning-bolt-outline"
+      },
+      "ems_keep_alive": {
+        "default": "mdi:heart-pulse"
       }
     }
   }

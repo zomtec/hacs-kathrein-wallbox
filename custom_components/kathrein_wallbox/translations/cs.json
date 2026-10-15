@@ -25,6 +25,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Pro {entry_id} nebyla nalezena žádná konfigurace nabíjecí stanice Kathrein."},
     "entry_not_loaded": {"message": "Nabíjecí stanice {title} není aktivní."},
+    "ems_control_disabled": {"message": "Řízení EMS je vypnuté. Před změnou žádaných hodnot EMS zapněte řízení EMS."},
     "current_below_minimum": {"message": "Nabíjecí proud EMS musí být 0 A (pozastavení nabíjení) nebo alespoň {min_current} A."},
     "current_limit_11_kw": {"message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."},
     "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"},
@@ -34,7 +35,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Nabíjecí proud"}},
     "select": {"ems_relay_matrix": {"name": "Fáze", "state": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}}},
-    "switch": {"ems_control": {"name": "Řízení EMS"}},
+    "switch": {"ems_control": {"name": "Řízení EMS"}, "ems_keep_alive": {"name": "Udržování EMS (keep-alive)"}},
     "sensor": {
       "voltage_l1": {"name": "Napětí L1"}, "voltage_l2": {"name": "Napětí L2"}, "voltage_l3": {"name": "Napětí L3"},
       "current_l1": {"name": "Proud L1"}, "current_l2": {"name": "Proud L2"}, "current_l3": {"name": "Proud L3"},

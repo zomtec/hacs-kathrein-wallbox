@@ -25,6 +25,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Der blev ikke fundet nogen Kathrein-ladeboks-konfiguration for {entry_id}."},
     "entry_not_loaded": {"message": "Ladeboksen {title} er ikke aktiv."},
+    "ems_control_disabled": {"message": "EMS-styring er slået fra. Slå EMS-styring til, før du ændrer EMS-sætpunkter."},
     "current_below_minimum": {"message": "EMS-ladestrømmen skal være 0 A (pause opladning) eller mindst {min_current} A."},
     "current_limit_11_kw": {"message": "Ladebokse på 11 kW understøtter en maksimal EMS-ladestrøm på {max_current} A."},
     "write_failed": {"message": "Kunne ikke skrive til ladeboksen: {error}"},
@@ -34,7 +35,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Ladestrøm"}},
     "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fase 1", "three_phases": "3 faser"}}},
-    "switch": {"ems_control": {"name": "EMS-styring"}},
+    "switch": {"ems_control": {"name": "EMS-styring"}, "ems_keep_alive": {"name": "EMS-keep-alive"}},
     "sensor": {
       "voltage_l1": {"name": "Spænding L1"}, "voltage_l2": {"name": "Spænding L2"}, "voltage_l3": {"name": "Spænding L3"},
       "current_l1": {"name": "Strøm L1"}, "current_l2": {"name": "Strøm L2"}, "current_l3": {"name": "Strøm L3"},

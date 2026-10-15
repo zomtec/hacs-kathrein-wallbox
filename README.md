@@ -50,7 +50,7 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 | Charging | Charging state, session duration and energy, granted current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
-| EMS controls | `EMS control` switch, `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
+| EMS controls | `EMS control` switch, `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps), `Phases` select (`Phase 1` or `3 Phases`), and `EMS keep-alive` configuration switch. |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
@@ -65,7 +65,15 @@ The switch, number, and select entities write the same EMS registers as the serv
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
+While EMS control is off, the `Charging current`, `Phases`, and `EMS keep-alive` entities are unavailable and cannot be changed; the `EMS control` switch itself stays available.
+
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
+
+### EMS keep-alive
+
+With an EMS timeout period above `0 s` (register `0x00A3`), the Wallbox falls back to the timeout fallback phases and current unless a setpoint is written again before the timeout expires. The `EMS keep-alive` switch lets the integration do this: while it is on and EMS control is enabled, the integration rewrites the current charging-current setpoint (`0x00A2`) every half timeout period, for example every 30 s for a 60 s timeout.
+
+The switch is off by default, so the keep-alive is a deliberate choice. Leave it off if another energy manager such as evcc already writes the setpoints, so that two systems do not keep the timeout alive at the same time. While the Wallbox reports a timeout of `0 s`, the switch is off and unavailable; while EMS control is off, it is unavailable but keeps its state; after a timeout above `0 s` is set, it becomes available and has to be turned on again. The switch state is kept across Home Assistant restarts.
 
 ## EMS control services
 
@@ -79,6 +87,8 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | `set_timeout_period` | `0x00A3` | `value`: `0` (off), `30`, `60`, `120`, `180`, `300`, or `600` seconds |
 | `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
 | `set_timeout_fallback_current` | `0x00A5` | `value`: `0` or `6` to `32` A in 1 A steps |
+
+While EMS control is off, all services except `set_ems_control_enabled` are rejected with an error and write nothing.
 
 Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 

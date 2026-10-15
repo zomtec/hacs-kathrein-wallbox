@@ -26,6 +26,7 @@ from custom_components.kathrein_wallbox.coordinator import (
 
 DEVICE_INFO_ADDRESS = 0x0019
 DEVICE_INFO_11_KW = 0x0001
+EMS_CONTROL_ADDRESS = 0x00A0
 
 
 @pytest.fixture
@@ -35,6 +36,8 @@ async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
     await coordinator.identity.async_update()
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
+    await coordinator.ems_control.async_update()
     entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
     entry.mock_state(hass, ConfigEntryState.LOADED)
     await async_setup(hass, {})
@@ -208,3 +211,45 @@ async def test_ems_service_reports_device_write_failure(
         )
 
     assert error.value.translation_key == "write_failed"
+
+
+@pytest.mark.parametrize(
+    ("service", "value"),
+    [
+        (SERVICE_SET_RELAY_MATRIX, "phase_1"),
+        (SERVICE_SET_CHARGING_CURRENT, 13),
+        (SERVICE_SET_TIMEOUT_PERIOD, "60"),
+        (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "three_phases"),
+        (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, 7),
+    ],
+)
+async def test_ems_setpoint_services_reject_disabled_ems_control(
+    hass, mock_modbus_unit, ems_entry, service, value
+) -> None:
+    """Reject setpoints without writing while EMS control is off."""
+    coordinator = ems_entry.runtime_data.coordinator
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
+    await coordinator.ems_control.async_update()
+
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_call(hass, ems_entry, service, {"value": value})
+
+    assert error.value.translation_key == "ems_control_disabled"
+    assert mock_modbus_unit.write_events == []
+
+
+async def test_ems_control_service_enables_disabled_ems_control(
+    hass, mock_modbus_unit, ems_entry
+) -> None:
+    """Keep EMS control itself switchable while it is off."""
+    coordinator = ems_entry.runtime_data.coordinator
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
+    await coordinator.ems_control.async_update()
+
+    await _async_call(
+        hass, ems_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True}
+    )
+
+    assert [
+        (event.address, event.values) for event in mock_modbus_unit.write_events
+    ] == [(EMS_CONTROL_ADDRESS, [0x8000])]

@@ -25,6 +25,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},
     "entry_not_loaded": {"message": "Laddboxen {title} är inte aktiv."},
+    "ems_control_disabled": {"message": "EMS-styrning är avstängd. Slå på EMS-styrning innan du ändrar EMS-börvärden."},
     "current_below_minimum": {"message": "EMS-laddströmmen måste vara 0 A (pausa laddningen) eller minst {min_current} A."},
     "current_limit_11_kw": {"message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."},
     "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"},
@@ -34,7 +35,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Laddström"}},
     "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fas 1", "three_phases": "3 faser"}}},
-    "switch": {"ems_control": {"name": "EMS-styrning"}},
+    "switch": {"ems_control": {"name": "EMS-styrning"}, "ems_keep_alive": {"name": "EMS-keep-alive"}},
     "sensor": {
       "voltage_l1": {"name": "Spänning L1"}, "voltage_l2": {"name": "Spänning L2"}, "voltage_l3": {"name": "Spänning L3"},
       "current_l1": {"name": "Ström L1"}, "current_l2": {"name": "Ström L2"}, "current_l3": {"name": "Ström L3"},

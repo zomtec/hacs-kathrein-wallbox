@@ -25,6 +25,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Nessuna configurazione di wallbox Kathrein trovata per {entry_id}."},
     "entry_not_loaded": {"message": "La wallbox {title} non è attiva."},
+    "ems_control_disabled": {"message": "Il controllo EMS è disattivato. Attiva il controllo EMS prima di modificare i setpoint EMS."},
     "current_below_minimum": {"message": "La corrente di carica EMS deve essere 0 A (pausa della ricarica) o almeno {min_current} A."},
     "current_limit_11_kw": {"message": "Le wallbox da 11 kW supportano una corrente di carica EMS massima di {max_current} A."},
     "write_failed": {"message": "Impossibile scrivere sulla wallbox: {error}"},
@@ -34,7 +35,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Corrente di carica"}},
     "select": {"ems_relay_matrix": {"name": "Fasi", "state": {"phase_1": "Fase 1", "three_phases": "3 fasi"}}},
-    "switch": {"ems_control": {"name": "Controllo EMS"}},
+    "switch": {"ems_control": {"name": "Controllo EMS"}, "ems_keep_alive": {"name": "Keep-alive EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Tensione L1"}, "voltage_l2": {"name": "Tensione L2"}, "voltage_l3": {"name": "Tensione L3"},
       "current_l1": {"name": "Corrente L1"}, "current_l2": {"name": "Corrente L2"}, "current_l3": {"name": "Corrente L3"},

@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
-from .entity import KathreinWallboxEntity
+from .entity import KathreinEmsSetpointEntity
 from .model import EMS_RELAY_MATRIX_OPTIONS
 
 PARALLEL_UPDATES = 1
@@ -31,7 +31,7 @@ async def async_setup_entry(
     async_add_entities([KathreinRelayMatrixSelect(coordinator)])
 
 
-class KathreinRelayMatrixSelect(KathreinWallboxEntity, SelectEntity):
+class KathreinRelayMatrixSelect(KathreinEmsSetpointEntity, SelectEntity):
     """Choose between single-phase and three-phase EMS charging."""
 
     def __init__(self, coordinator: KathreinCoordinator) -> None:
