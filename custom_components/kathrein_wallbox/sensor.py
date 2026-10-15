@@ -307,23 +307,6 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         available_fn=_session_energy_available,
     ),
     KathreinSensorDescription(
-        key="relay_matrix",
-        translation_key="relay_matrix",
-        device_class=SensorDeviceClass.ENUM,
-        options=[*RELAY_MATRIX_STATES.values(), STATE_UNKNOWN],
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: _state(c.ems_control.relay_matrix, RELAY_MATRIX_STATES),
-    ),
-    KathreinSensorDescription(
-        key="charging_current",
-        translation_key="charging_current",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=0,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: _amperes(c.ems_control.charging_current),
-    ),
-    KathreinSensorDescription(
         key="timeout_period",
         translation_key="timeout_period",
         native_unit_of_measurement=UnitOfTime.SECONDS,

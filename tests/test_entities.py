@@ -52,8 +52,6 @@ def test_entity_keys_are_stable() -> None:
         "granted_power",
         "charging_duration",
         "charging_energy",
-        "relay_matrix",
-        "charging_current",
         "timeout_period",
         "timeout_fallback_relay_matrix",
         "timeout_fallback_current",
@@ -71,7 +69,6 @@ def test_entity_keys_are_stable() -> None:
         "relay_l1",
         "relay_l2",
         "relay_l3",
-        "ems_control_enabled",
         "meter_available",
     }
 
@@ -95,13 +92,11 @@ async def test_entity_identifies_device_by_serial(coordinator) -> None:
         ("cp_state", 0x0063, 2, "evse", "state_c"),
         ("granted_current", 0x0065, 6000, "evse", 6),
         ("granted_power", 0x0066, 4140, "evse", 4140),
-        ("charging_current", 0x00A2, 8000, "ems_control", 8),
         ("timeout_fallback_current", 0x00A5, 16000, "ems_control", 16),
         ("timeout_period", 0x00A3, 60, "ems_control", 60),
-        ("relay_matrix", 0x00A1, 1, "ems_control", "phase_1"),
-        ("relay_matrix", 0x00A1, 7, "ems_control", "three_phases"),
         ("timeout_fallback_relay_matrix", 0x00A4, 4, "ems_control", "phase_3"),
-        ("relay_matrix", 0x00A1, 5, "ems_control", STATE_UNKNOWN),
+        ("timeout_fallback_relay_matrix", 0x00A4, 7, "ems_control", "three_phases"),
+        ("timeout_fallback_relay_matrix", 0x00A4, 5, "ems_control", STATE_UNKNOWN),
     ],
 )
 async def test_sensor_maps_register_values(
@@ -188,18 +183,15 @@ async def test_restored_sensor_stays_available_across_meter_gaps(
     assert not entity.available
 
 
-async def test_binary_sensors_decode_fault_relay_and_ems_bits(
+async def test_binary_sensors_decode_fault_and_relay_bits(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Expose fault, relay, and EMS-enabled register bits as booleans."""
+    """Expose fault and relay register bits as booleans."""
     mock_modbus_unit.holding[0x0061] = 0x0001
     mock_modbus_unit.holding[0x0064] = 0x0004
-    mock_modbus_unit.holding[0x00A0] = 0x8000
     await coordinator.evse.async_update()
-    await coordinator.ems_control.async_update()
 
     assert _binary_sensor(coordinator, "relay_welded").is_on is True
     assert _binary_sensor(coordinator, "internal_error").is_on is False
     assert _binary_sensor(coordinator, "relay_l3").is_on is True
     assert _binary_sensor(coordinator, "relay_l1").is_on is False
-    assert _binary_sensor(coordinator, "ems_control_enabled").is_on is True

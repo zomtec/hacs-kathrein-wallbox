@@ -197,17 +197,6 @@
       "granted_power": {"name": "Freigegebene Ladeleistung"},
       "charging_duration": {"name": "Ladedauer"},
       "charging_energy": {"name": "Geladene Energie"},
-      "relay_matrix": {
-        "name": "EMS Phasen",
-        "state": {
-          "phase_1": "Phase 1",
-          "phase_2": "Phase 2",
-          "phase_3": "Phase 3",
-          "three_phases": "3 Phasen",
-          "unknown": "Unbekannt"
-        }
-      },
-      "charging_current": {"name": "EMS Ladestrom Vorgabe"},
       "timeout_period": {"name": "EMS Timeoutdauer"},
       "timeout_fallback_relay_matrix": {
         "name": "EMS Timeout Fallback Phasen",
@@ -261,10 +250,6 @@
       "relay_l1": {"name": "Relais L1"},
       "relay_l2": {"name": "Relais L2"},
       "relay_l3": {"name": "Relais L3"},
-      "ems_control_enabled": {
-        "name": "EMS Steuerung aktiviert",
-        "state": {"on": "Aktiviert", "off": "Deaktiviert"}
-      },
       "meter_available": {"name": "Energiezähler verfügbar"}
     }
   }

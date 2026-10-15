@@ -197,17 +197,6 @@
       "granted_power": {"name": "Granted charging power"},
       "charging_duration": {"name": "Charging duration"},
       "charging_energy": {"name": "Energy charged"},
-      "relay_matrix": {
-        "name": "EMS relay matrix",
-        "state": {
-          "phase_1": "Phase 1",
-          "phase_2": "Phase 2",
-          "phase_3": "Phase 3",
-          "three_phases": "3 Phases",
-          "unknown": "Unknown"
-        }
-      },
-      "charging_current": {"name": "EMS charging current setpoint"},
       "timeout_period": {"name": "EMS timeout period"},
       "timeout_fallback_relay_matrix": {
         "name": "EMS timeout fallback relay matrix",
@@ -261,10 +250,6 @@
       "relay_l1": {"name": "Relay L1"},
       "relay_l2": {"name": "Relay L2"},
       "relay_l3": {"name": "Relay L3"},
-      "ems_control_enabled": {
-        "name": "EMS control enabled",
-        "state": {"on": "Enabled", "off": "Disabled"}
-      },
       "meter_available": {"name": "Energy meter available"}
     }
   }
