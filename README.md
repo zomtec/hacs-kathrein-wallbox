@@ -59,7 +59,7 @@ Meter readings are optional and do not prevent EVSE and charging data from updat
 
 ## Control by Home Assistant
 
-Home Assistant only reads the Wallbox until you turn on **Allow control by Home Assistant** during setup or later in the integration options (**Configure**). Control has to be allowed explicitly because many Wallboxes are already controlled by an energy manager such as evcc. If Home Assistant wrote setpoints or kept the EMS timeout alive at the same time, the two systems would overwrite each other.
+Home Assistant only reads the Wallbox until you turn on **Allow control by Home Assistant** during setup or later in the integration options (**Configure**). Control has to be allowed explicitly because many Wallboxes are already controlled by an energy manager such as evcc. If Home Assistant wrote charging current or phases at the same time, the two systems would overwrite each other.
 
 While control is not allowed:
 

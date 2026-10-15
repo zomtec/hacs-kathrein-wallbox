@@ -13,14 +13,14 @@
   },
   "config": {
     "step": {
-      "user": {"title": "Verbinden met een Kathrein-wallbox", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"allow_control": "Laat Home Assistant de EMS-regeling, laadstroom en fasen van de wallbox via entiteiten en acties wijzigen en de EMS-time-out actief houden. Standaard uit om conflicten met een bestaand energiebeheersysteem zoals evcc te voorkomen. U kunt dit later wijzigen in de opties van de integratie."}},
+      "user": {"title": "Verbinden met een Kathrein-wallbox", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}},
       "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID"}}
     },
     "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
     "abort": {"already_configured": "Deze wallbox is al geconfigureerd.", "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
   },
   "options": {
-    "step": {"init": {"title": "Poll- en regelinstellingen", "data": {"scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"allow_control": "Laat Home Assistant de EMS-regeling, laadstroom en fasen van de wallbox via entiteiten en acties wijzigen en de EMS-time-out actief houden. Standaard uit om conflicten met een bestaand energiebeheersysteem zoals evcc te voorkomen. U kunt dit later wijzigen in de opties van de integratie."}}}
+    "step": {"init": {"title": "Poll- en regelinstellingen", "data": {"scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Er is geen Kathrein-wallboxconfiguratie gevonden voor {entry_id}."},

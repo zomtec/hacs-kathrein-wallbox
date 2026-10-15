@@ -13,14 +13,14 @@
   },
   "config": {
     "step": {
-      "user": {"title": "Připojit nabíjecí stanici Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"allow_control": "Umožní Home Assistantu měnit řízení EMS, nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí a udržovat časový limit EMS aktivní. Ve výchozím stavu vypnuto, aby nedošlo ke konfliktu s existujícím energetickým manažerem, jako je evcc. Nastavení lze později změnit v možnostech integrace."}},
+      "user": {"title": "Připojit nabíjecí stanici Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}},
       "reconfigure": {"title": "Upravit připojení nabíjecí stanice Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus"}}
     },
     "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je v easyOperate povolen server Modbus.", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."},
     "abort": {"already_configured": "Tato nabíjecí stanice je již nakonfigurována.", "reconfigure_successful": "Nastavení připojení bylo aktualizováno.", "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."}
   },
   "options": {
-    "step": {"init": {"title": "Nastavení dotazování a řízení", "data": {"scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"allow_control": "Umožní Home Assistantu měnit řízení EMS, nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí a udržovat časový limit EMS aktivní. Ve výchozím stavu vypnuto, aby nedošlo ke konfliktu s existujícím energetickým manažerem, jako je evcc. Nastavení lze později změnit v možnostech integrace."}}}
+    "step": {"init": {"title": "Nastavení dotazování a řízení", "data": {"scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Pro {entry_id} nebyla nalezena žádná konfigurace nabíjecí stanice Kathrein."},
