@@ -48,7 +48,7 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 | Charging | Charging state, session duration and energy, granted current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
-| EMS controls | `EMS control` switch, `Charging current` number (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
+| EMS controls | `EMS control` switch, `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
