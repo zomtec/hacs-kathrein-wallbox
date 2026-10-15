@@ -3,6 +3,7 @@
 from collections.abc import AsyncGenerator
 
 import pytest
+from homeassistant.const import CONF_HOST
 from modbus_connection.mock import (
     MockModbusConnection,
     MockModbusUnit,
@@ -14,6 +15,7 @@ from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
 from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
 from custom_components.kathrein_wallbox.model import SERIAL_ADDRESS
 
+HOST = "192.0.2.10"
 SERIAL_REGISTERS = [0x4730, 0x5231, 0x3233, 0x3435, 0x3637, 0, 0, 0]
 
 
@@ -39,7 +41,11 @@ async def _async_coordinator(
     hass, unit, allow_control: bool
 ) -> AsyncGenerator[KathreinCoordinator]:
     """Create a coordinator with a read identity on an in-memory config entry."""
-    entry = MockConfigEntry(domain=DOMAIN, options={CONF_ALLOW_CONTROL: allow_control})
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: HOST},
+        options={CONF_ALLOW_CONTROL: allow_control},
+    )
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, unit)
     await coordinator.identity.async_update()

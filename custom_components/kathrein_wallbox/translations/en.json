@@ -23,7 +23,7 @@
       "name": "Set EMS control state",
       "description": "Enable or disable EMS control for this Wallbox.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "enabled": {"name": "Enabled", "description": "Whether EMS control is enabled."}
       }
     },
@@ -31,7 +31,7 @@
       "name": "Set relay matrix",
       "description": "Choose the relay matrix for EMS control.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "value": {"name": "Phase selection", "description": "Relay phases to enable."}
       }
     },
@@ -39,7 +39,7 @@
       "name": "Set charging current setpoint",
       "description": "Set the charging current requested from the EMS.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "value": {"name": "Current setpoint", "description": "EMS charging current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
       }
     },
@@ -47,7 +47,7 @@
       "name": "Set EMS timeout period",
       "description": "Set how long the EMS override remains active.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "value": {"name": "Timeout period", "description": "Timeout in seconds, or off."}
       }
     },
@@ -55,7 +55,7 @@
       "name": "Set EMS timeout fallback relay matrix",
       "description": "Choose the relay matrix used when the EMS timeout expires.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "value": {"name": "Fallback relay matrix", "description": "Relay phases to use after timeout."}
       }
     },
@@ -63,7 +63,7 @@
       "name": "Set EMS timeout fallback current",
       "description": "Set the fallback charging current used when the EMS timeout expires.",
       "fields": {
-        "entry_id": {"name": "Wallbox", "description": "Wallbox configuration to control."},
+        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
         "value": {"name": "Fallback current", "description": "Fallback current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
       }
     }
@@ -80,6 +80,9 @@
           "allow_control": "Allow control by Home Assistant"
         },
         "data_description": {
+          "host": "IP address or hostname of the Wallbox in your local network.",
+          "port": "Modbus TCP port of the Wallbox. The default is 502.",
+          "unit_id": "Modbus unit ID of the Wallbox. The Wallbox currently ignores it; keep the recommended value 0.",
           "allow_control": "Lets Home Assistant change the charging current and phases of the Wallbox through entities and actions. If an EMS timeout is set on the Wallbox, Home Assistant repeats the setpoints regularly so the Wallbox does not drop back to its fallback values. Off by default so Home Assistant does not interfere with another energy manager such as evcc. You can change this later in the integration options."
         }
       },
@@ -89,6 +92,11 @@
           "host": "Host",
           "port": "Port",
           "unit_id": "Modbus unit ID"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the Wallbox in your local network.",
+          "port": "Modbus TCP port of the Wallbox. The default is 502.",
+          "unit_id": "Modbus unit ID of the Wallbox. The Wallbox currently ignores it; keep the recommended value 0."
         }
       }
     },
@@ -117,7 +125,7 @@
     }
   },
   "exceptions": {
-    "entry_not_found": {"message": "No Kathrein Wallbox configuration found for {entry_id}."},
+    "device_not_found": {"message": "The selected device is not a Kathrein Wallbox."},
     "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
     "ems_control_disabled": {"message": "EMS control is off. Turn on EMS control before changing EMS setpoints."},
     "control_not_allowed": {"message": "Control by Home Assistant is not allowed. Allow it in the integration options first."},

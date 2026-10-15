@@ -2,8 +2,10 @@
 
 from collections.abc import Callable
 
+from homeassistant.const import CONF_HOST
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from yarl import URL
 
 from .const import DEVICE_NAME, DOMAIN, MANUFACTURER
 from .coordinator import KathreinCoordinator
@@ -36,8 +38,13 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
             identifiers={(DOMAIN, serial)},
             manufacturer=MANUFACTURER,
             model=coordinator.identity.device_type,
+            model_id=coordinator.identity.device_number,
             serial_number=serial,
             name=DEVICE_NAME,
+            # The easyOperate web interface is served on the Modbus host.
+            configuration_url=str(
+                URL.build(scheme="http", host=coordinator.config_entry.data[CONF_HOST])
+            ),
         )
 
 

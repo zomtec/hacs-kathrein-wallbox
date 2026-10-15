@@ -41,7 +41,7 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 
 To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval and **Allow control by Home Assistant** are changed in the integration options (**Configure**).
 
-The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries.
+The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries. The device page shows the device number as model ID and links to the easyOperate web interface at `http://<host>`.
 
 ## What it provides
 
@@ -95,7 +95,7 @@ With a timeout of `0 s`, or while control is not allowed, no keep-alive is writt
 
 ## EMS control services
 
-These Home Assistant services write EMS setpoints to Modbus holding registers. Every service requires `entry_id`, which selects the Wallbox configuration entry.
+These Home Assistant services write EMS setpoints to Modbus holding registers. Every service requires `device_id`, which selects the Wallbox device.
 
 | Service | Register | Additional field and allowed values |
 | --- | --- | --- |
@@ -110,14 +110,14 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 
 Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
-Unsupported values and unknown or inactive Wallbox entries are rejected with a validation error before anything is written. A failed register write is reported as an error.
+Unsupported values, devices that are not a Kathrein Wallbox, and inactive Wallboxes are rejected with a validation error before anything is written. A failed register write is reported as an error.
 
-Example service call to request `16 A` (replace the placeholder with the Wallbox's config entry ID):
+Example service call to request `16 A` (replace the placeholder with the Wallbox's device ID; in the automation editor, pick the Wallbox from the device list instead):
 
 ```yaml
 service: kathrein_wallbox.set_charging_current
 data:
-  entry_id: "<config-entry-id>"
+  device_id: "<device-id>"
   value: 16
 ```
 
@@ -141,6 +141,14 @@ The register manual describes FLOAT32 values as IEEE 754 but does not specify wo
 ## Diagnostics and privacy
 
 Downloaded config-entry diagnostics include model and mapping information, meter availability, and register snapshots from the identity, EVSE, meter, and session-energy blocks. Serial-number registers `0x0011`-`0x0018` are removed. EMS control registers are not included. Review diagnostics before sharing them publicly.
+
+## Removing the integration
+
+1. Open **Settings > Devices & services**, select **Kathrein Wallbox**, open the menu (⋮) of the entry, and choose **Delete**.
+2. Optionally, remove **Kathrein Wallbox** in HACS (or delete `custom_components/kathrein_wallbox` for a manual installation).
+3. Restart Home Assistant.
+
+Removing the integration does not reset anything on the Wallbox. EMS control and the last setpoint stay as they were last written, see [EMS controls](#ems-controls). To hand the Wallbox back to its own control, call `set_ems_control_enabled` with `enabled: false` before removing the integration.
 
 ## Support
 
