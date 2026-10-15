@@ -8,14 +8,15 @@ import voluptuous as vol
 from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 from modbus_connection import ModbusTcpParams
 
 from .const import CONF_UNIT_ID, DOMAIN, PLATFORMS, get_scan_interval
 from .coordinator import KathreinConfigEntry, KathreinCoordinator, WallboxRuntimeData
+from .entity import wallbox_unique_id
 from .model import (
     EMS_CHARGING_PAUSED_MA,
     EMS_MAX_CHARGING_CURRENT_MA,
@@ -25,6 +26,8 @@ from .model import (
     MAX_CURRENT_11_KW_MA,
     MILLIAMPERE_PER_AMPERE,
 )
+from .number import CHARGING_CURRENT_DESCRIPTION
+from .select import RELAY_MATRIX_DESCRIPTION
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -38,6 +41,11 @@ SERVICE_SET_CHARGING_CURRENT = "set_charging_current"
 SERVICE_SET_TIMEOUT_PERIOD = "set_timeout_period"
 SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX = "set_timeout_fallback_relay_matrix"
 SERVICE_SET_TIMEOUT_FALLBACK_CURRENT = "set_timeout_fallback_current"
+
+CONTROL_ENTITY_KEYS = (
+    CHARGING_CURRENT_DESCRIPTION.key,
+    RELAY_MATRIX_DESCRIPTION.key,
+)
 
 EMS_TIMEOUT_PERIOD_OPTIONS = {
     str(seconds): seconds for seconds in EMS_TIMEOUT_PERIODS_S
@@ -219,6 +227,23 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
+@callback
+def _async_sync_control_entities(
+    hass: HomeAssistant, entry: KathreinConfigEntry, serial: str, allowed: bool
+) -> None:
+    """Disable control entities unless control is allowed, sparing user choices."""
+    registry = er.async_get(hass)
+    control_unique_ids = {wallbox_unique_id(serial, key) for key in CONTROL_ENTITY_KEYS}
+    by_integration = er.RegistryEntryDisabler.INTEGRATION
+    current, target = (by_integration, None) if allowed else (None, by_integration)
+    for entity_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if (
+            entity_entry.unique_id in control_unique_ids
+            and entity_entry.disabled_by is current
+        ):
+            registry.async_update_entity(entity_entry.entity_id, disabled_by=target)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> bool:
     """Set up a Wallbox config entry."""
     params = ModbusTcpParams(
@@ -234,6 +259,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> 
     )
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
+    serial = coordinator.identity.serial
+    # The coordinator refuses to publish data without a serial number.
+    assert serial is not None
+    _async_sync_control_entities(hass, entry, serial, coordinator.control_allowed)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
