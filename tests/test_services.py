@@ -94,7 +94,6 @@ async def test_ems_services_write_expected_register(
         (SERVICE_SET_RELAY_MATRIX, "phase_2"),
         (SERVICE_SET_RELAY_MATRIX, "three_lines"),
         (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "phase_3"),
-        (SERVICE_SET_CHARGING_CURRENT, 5),
         (SERVICE_SET_CHARGING_CURRENT, 33),
         (SERVICE_SET_CHARGING_CURRENT, 16.5),
         (SERVICE_SET_CHARGING_CURRENT, "fast"),
@@ -109,6 +108,22 @@ async def test_ems_services_reject_unsupported_values(
     with pytest.raises(vol.Invalid):
         await _async_call(hass, ems_entry, service, {"value": value})
 
+    assert mock_modbus_unit.write_events == []
+
+
+@pytest.mark.parametrize(
+    "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
+)
+@pytest.mark.parametrize("value", [1, "5"])
+async def test_ems_services_reject_current_below_minimum(
+    hass, mock_modbus_unit, ems_entry, service, value
+) -> None:
+    """Reject 1 to 5 A with a clear error instead of writing a register."""
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_call(hass, ems_entry, service, {"value": value})
+
+    assert error.value.translation_key == "current_below_minimum"
+    assert error.value.translation_placeholders == {"min_current": "6"}
     assert mock_modbus_unit.write_events == []
 
 

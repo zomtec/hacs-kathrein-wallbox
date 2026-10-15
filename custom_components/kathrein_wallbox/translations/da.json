@@ -26,6 +26,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Der blev ikke fundet nogen Kathrein-ladeboks-konfiguration for {entry_id}."},
     "entry_not_loaded": {"message": "Ladeboksen {title} er ikke aktiv."},
+    "current_below_minimum": {"message": "EMS-ladestrømmen skal være 0 A (pause opladning) eller mindst {min_current} A."},
     "current_limit_11_kw": {"message": "Ladebokse på 11 kW understøtter en maksimal EMS-ladestrøm på {max_current} A."},
     "write_failed": {"message": "Kunne ikke skrive til ladeboksen: {error}"}
   },
