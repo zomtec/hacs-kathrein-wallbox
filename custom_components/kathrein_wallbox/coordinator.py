@@ -133,7 +133,8 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
                 translation_key="write_failed",
                 translation_placeholders={"error": str(err)},
             ) from err
-        await self.async_request_refresh()
+        # A debounced refresh would delay the read-back of a quick second write.
+        await self.async_refresh()
 
     @property
     def keep_alive_supported(self) -> bool:
