@@ -24,7 +24,7 @@
         "default": "mdi:electric-switch"
       }
     },
-    "switch": {
+    "binary_sensor": {
       "ems_control": {
         "default": "mdi:home-lightning-bolt-outline"
       }

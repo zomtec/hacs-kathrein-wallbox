@@ -30,7 +30,6 @@ PLATFORMS = (
     Platform.BINARY_SENSOR,
     Platform.NUMBER,
     Platform.SELECT,
-    Platform.SWITCH,
 )
 
 CONF_UNIT_ID = "unit_id"

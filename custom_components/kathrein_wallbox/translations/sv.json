@@ -36,7 +36,6 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Laddström"}},
     "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fas 1", "three_phases": "3 faser"}}},
-    "switch": {"ems_control": {"name": "EMS-styrning"}},
     "sensor": {
       "voltage_l1": {"name": "Spänning L1"}, "voltage_l2": {"name": "Spänning L2"}, "voltage_l3": {"name": "Spänning L3"},
       "current_l1": {"name": "Ström L1"}, "current_l2": {"name": "Ström L2"}, "current_l3": {"name": "Ström L3"},
@@ -60,6 +59,7 @@
       "pp_short_circuit": {"name": "Kortslutning i PP", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
       "internal_error": {"name": "Internt fel", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
       "relay_l1": {"name": "Relä L1"}, "relay_l2": {"name": "Relä L2"}, "relay_l3": {"name": "Relä L3"},
+      "ems_control": {"name": "EMS-styrning", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energimätare tillgänglig"}
     }
   }

@@ -18,8 +18,6 @@ from .const import CONF_UNIT_ID, DOMAIN, PLATFORMS, get_scan_interval
 from .coordinator import KathreinConfigEntry, KathreinCoordinator, WallboxRuntimeData
 from .model import (
     EMS_CHARGING_PAUSED_MA,
-    EMS_CONTROL_DISABLED,
-    EMS_CONTROL_ENABLED,
     EMS_MAX_CHARGING_CURRENT_MA,
     EMS_MIN_CHARGING_CURRENT_MA,
     EMS_RELAY_MATRIX_OPTIONS,
@@ -80,6 +78,7 @@ class EmsSetpointService:
     value_schema: Callable[[Any], Any]
     to_register: Callable[[Any], int]
     is_current: bool = False
+    enables_ems: bool = False
 
 
 EMS_SETPOINT_SERVICES = (
@@ -88,6 +87,7 @@ EMS_SETPOINT_SERVICES = (
         field="relay_matrix",
         value_schema=vol.In(list(EMS_RELAY_MATRIX_OPTIONS)),
         to_register=EMS_RELAY_MATRIX_OPTIONS.__getitem__,
+        enables_ems=True,
     ),
     EmsSetpointService(
         name=SERVICE_SET_CHARGING_CURRENT,
@@ -95,6 +95,7 @@ EMS_SETPOINT_SERVICES = (
         value_schema=EMS_CURRENT_AMPERES,
         to_register=_milliamperes,
         is_current=True,
+        enables_ems=True,
     ),
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_PERIOD,
@@ -137,7 +138,7 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
 
 
 def _validate_ems_enabled(coordinator: KathreinCoordinator) -> None:
-    """Reject EMS setpoints while EMS control is off."""
+    """Reject EMS timeout settings while EMS control is off."""
     if not coordinator.ems_control.is_enabled:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
@@ -175,11 +176,14 @@ def _setpoint_handler(
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
         coordinator.validate_control_allowed()
-        _validate_ems_enabled(coordinator)
+        if not service.enables_ems:
+            _validate_ems_enabled(coordinator)
         value = service.to_register(call.data[ATTR_VALUE])
         if service.is_current:
             _validate_ems_current(coordinator, value)
-        await coordinator.async_write_ems(service.field, value)
+        await coordinator.async_write_ems(
+            service.field, value, enable_ems=service.enables_ems
+        )
 
     return _async_handle
 
@@ -190,9 +194,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def _async_set_ems_control_enabled(call: ServiceCall) -> None:
         """Enable or disable the EMS control register."""
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
-        coordinator.validate_control_allowed()
-        value = EMS_CONTROL_ENABLED if call.data[ATTR_ENABLED] else EMS_CONTROL_DISABLED
-        await coordinator.async_write_ems("control_register", value)
+        await coordinator.async_set_ems_control(call.data[ATTR_ENABLED])
 
     hass.services.async_register(
         DOMAIN,

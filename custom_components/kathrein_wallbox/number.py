@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
-from .entity import KathreinEmsSetpointEntity
+from .entity import KathreinControlEntity
 from .model import (
     EMS_CHARGING_PAUSED_MA,
     EMS_MAX_CHARGING_CURRENT_MA,
@@ -44,7 +44,7 @@ async def async_setup_entry(
     async_add_entities([KathreinChargingCurrentNumber(coordinator)])
 
 
-class KathreinChargingCurrentNumber(KathreinEmsSetpointEntity, NumberEntity):
+class KathreinChargingCurrentNumber(KathreinControlEntity, NumberEntity):
     """Set the EMS charging current in whole amperes; 0 A pauses charging."""
 
     def __init__(self, coordinator: KathreinCoordinator) -> None:
@@ -67,12 +67,14 @@ class KathreinChargingCurrentNumber(KathreinEmsSetpointEntity, NumberEntity):
         return current_ma / MILLIAMPERE_PER_AMPERE
 
     async def async_set_native_value(self, value: float) -> None:
-        """Write the setpoint; values below the minimum current pause charging."""
+        """Enable EMS control and write the setpoint; below 6 A pauses charging."""
         current_ma = round(value) * MILLIAMPERE_PER_AMPERE
         # The Wallbox cannot charge below 6 A, so 1 to 5 A means no charging.
         if current_ma < EMS_MIN_CHARGING_CURRENT_MA:
             current_ma = EMS_CHARGING_PAUSED_MA
-        await self.coordinator.async_write_ems("charging_current", current_ma)
+        await self.coordinator.async_write_ems(
+            "charging_current", current_ma, enable_ems=True
+        )
 
 
 def _is_valid_setpoint(current_ma: int) -> bool:
