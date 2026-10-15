@@ -1,4 +1,4 @@
-"""Tests for the EMS number, select and switch entities."""
+"""Tests for the EMS number and select entities."""
 
 import pytest
 from homeassistant.components.number import NumberMode
@@ -7,13 +7,13 @@ from modbus_connection import ModbusError
 
 from custom_components.kathrein_wallbox.number import KathreinChargingCurrentNumber
 from custom_components.kathrein_wallbox.select import KathreinRelayMatrixSelect
-from custom_components.kathrein_wallbox.switch import KathreinEmsControlSwitch
 
 DEVICE_INFO_ADDRESS = 0x0019
 DEVICE_INFO_11_KW = 0x0001
 EMS_CONTROL_ADDRESS = 0x00A0
 EMS_RELAY_MATRIX_ADDRESS = 0x00A1
 EMS_CHARGING_CURRENT_ADDRESS = 0x00A2
+ENABLE_EMS = (EMS_CONTROL_ADDRESS, [0x8000])
 
 
 def _writes(unit) -> list[tuple[int, list[int]]]:
@@ -66,7 +66,10 @@ async def test_charging_current_number_writes_milliamperes(
 
     await number.async_set_native_value(13)
 
-    assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [13000])]
+    assert _writes(mock_modbus_unit) == [
+        ENABLE_EMS,
+        (EMS_CHARGING_CURRENT_ADDRESS, [13000]),
+    ]
     assert number.native_value == 13
 
 
@@ -76,7 +79,10 @@ async def test_charging_current_number_pauses_at_zero(
     """Pause charging by writing 0 mA."""
     await KathreinChargingCurrentNumber(coordinator).async_set_native_value(0)
 
-    assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [0])]
+    assert _writes(mock_modbus_unit) == [
+        ENABLE_EMS,
+        (EMS_CHARGING_CURRENT_ADDRESS, [0]),
+    ]
 
 
 @pytest.mark.parametrize("value", [1, 5])
@@ -88,7 +94,10 @@ async def test_charging_current_number_pauses_below_minimum(
 
     await number.async_set_native_value(value)
 
-    assert _writes(mock_modbus_unit) == [(EMS_CHARGING_CURRENT_ADDRESS, [0])]
+    assert _writes(mock_modbus_unit) == [
+        ENABLE_EMS,
+        (EMS_CHARGING_CURRENT_ADDRESS, [0]),
+    ]
     assert number.native_value == 0
 
 
@@ -114,47 +123,10 @@ async def test_relay_matrix_select_writes_phases(
     """Write the selected phases to the relay matrix register."""
     await KathreinRelayMatrixSelect(coordinator).async_select_option(option)
 
-    assert _writes(mock_modbus_unit) == [(EMS_RELAY_MATRIX_ADDRESS, [value])]
-
-
-@pytest.mark.parametrize(("register", "expected"), [(0x8000, True), (0, False)])
-async def test_ems_control_switch_reads_control_bit(
-    coordinator, mock_modbus_unit, register, expected
-) -> None:
-    """Report EMS control from bit 15 of the control register."""
-    await _set_ems_register(
-        coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, register
-    )
-
-    assert KathreinEmsControlSwitch(coordinator).is_on is expected
-
-
-async def test_ems_control_switch_writes_control_register(
-    coordinator, mock_modbus_unit
-) -> None:
-    """Turn EMS control on and off through the control register."""
-    switch = KathreinEmsControlSwitch(coordinator)
-
-    await switch.async_turn_on()
-    await switch.async_turn_off()
-
     assert _writes(mock_modbus_unit) == [
-        (EMS_CONTROL_ADDRESS, [0x8000]),
-        (EMS_CONTROL_ADDRESS, [0]),
+        ENABLE_EMS,
+        (EMS_RELAY_MATRIX_ADDRESS, [value]),
     ]
-
-
-async def test_ems_control_switch_reads_back_quick_toggle(
-    coordinator, mock_modbus_unit
-) -> None:
-    """Show the new state right after toggling twice in quick succession."""
-    switch = KathreinEmsControlSwitch(coordinator)
-
-    await switch.async_turn_off()
-    assert switch.is_on is False
-
-    await switch.async_turn_on()
-    assert switch.is_on is True
 
 
 async def test_control_reports_device_write_failure(
@@ -164,41 +136,31 @@ async def test_control_reports_device_write_failure(
     mock_modbus_unit.fail_write(EMS_CONTROL_ADDRESS, ModbusError("write rejected"))
 
     with pytest.raises(HomeAssistantError) as error:
-        await KathreinEmsControlSwitch(coordinator).async_turn_on()
+        await KathreinRelayMatrixSelect(coordinator).async_select_option("phase_1")
 
     assert error.value.translation_key == "write_failed"
 
 
-@pytest.mark.parametrize(
-    "entity_class",
-    [
-        KathreinChargingCurrentNumber,
-        KathreinRelayMatrixSelect,
-    ],
-)
-@pytest.mark.parametrize(("control", "available"), [(0x8000, True), (0, False)])
-async def test_controls_need_ems_control(
-    coordinator, mock_modbus_unit, entity_class, control, available
-) -> None:
-    """Allow the other controls only while EMS control is on."""
-    await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, control)
-
-    assert entity_class(coordinator).available is available
-
-
-async def test_ems_control_switch_stays_available_while_off(
+async def test_charging_current_number_enables_disabled_ems_control(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Keep EMS control itself switchable while it is off."""
+    """Stay available while EMS control is off and enable it before the setpoint."""
     await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, 0)
+    number = KathreinChargingCurrentNumber(coordinator)
+    assert number.available
 
-    assert KathreinEmsControlSwitch(coordinator).available
+    await number.async_set_native_value(10)
+
+    assert _writes(mock_modbus_unit) == [
+        ENABLE_EMS,
+        (EMS_CHARGING_CURRENT_ADDRESS, [10000]),
+    ]
+    assert coordinator.ems_control.is_enabled
 
 
 @pytest.mark.parametrize(
     "entity_class",
     [
-        KathreinEmsControlSwitch,
         KathreinChargingCurrentNumber,
         KathreinRelayMatrixSelect,
     ],
@@ -219,7 +181,9 @@ async def test_write_is_rejected_without_control_allowed(
 ) -> None:
     """Refuse to write while control by Home Assistant is not allowed."""
     with pytest.raises(ServiceValidationError) as error:
-        await KathreinEmsControlSwitch(read_only_coordinator).async_turn_on()
+        await KathreinChargingCurrentNumber(
+            read_only_coordinator
+        ).async_set_native_value(10)
 
     assert error.value.translation_key == "control_not_allowed"
     assert _writes(mock_modbus_unit) == []

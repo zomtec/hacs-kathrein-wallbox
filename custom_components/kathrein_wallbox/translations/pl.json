@@ -36,7 +36,6 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Prąd ładowania"}},
     "select": {"ems_relay_matrix": {"name": "Fazy", "state": {"phase_1": "Faza 1", "three_phases": "3 fazy"}}},
-    "switch": {"ems_control": {"name": "Sterowanie EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Napięcie L1"}, "voltage_l2": {"name": "Napięcie L2"}, "voltage_l3": {"name": "Napięcie L3"},
       "current_l1": {"name": "Prąd L1"}, "current_l2": {"name": "Prąd L2"}, "current_l3": {"name": "Prąd L3"},
@@ -60,6 +59,7 @@
       "pp_short_circuit": {"name": "Zwarcie PP", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "internal_error": {"name": "Błąd wewnętrzny", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "relay_l1": {"name": "Przekaźnik L1"}, "relay_l2": {"name": "Przekaźnik L2"}, "relay_l3": {"name": "Przekaźnik L3"},
+      "ems_control": {"name": "Sterowanie EMS", "state": {"on": "Aktywne", "off": "Nieaktywne"}},
       "meter_available": {"name": "Licznik energii dostępny"}
     }
   }

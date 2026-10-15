@@ -140,9 +140,6 @@
         }
       }
     },
-    "switch": {
-      "ems_control": {"name": "EMS Steuerung"}
-    },
     "sensor": {
       "voltage_l1": {"name": "Spannung L1"},
       "voltage_l2": {"name": "Spannung L2"},
@@ -254,6 +251,7 @@
       "relay_l1": {"name": "Relais L1"},
       "relay_l2": {"name": "Relais L2"},
       "relay_l3": {"name": "Relais L3"},
+      "ems_control": {"name": "EMS Steuerung", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energiezähler verfügbar"}
     }
   }
