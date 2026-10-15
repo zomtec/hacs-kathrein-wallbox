@@ -41,7 +41,7 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 
 To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval and **Allow control by Home Assistant** are changed in the integration options (**Configure**).
 
-The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries.
+The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries. The device page shows the device number as model ID and links to the easyOperate web interface at `http://<host>`.
 
 ## What it provides
 
