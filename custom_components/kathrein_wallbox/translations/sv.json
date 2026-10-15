@@ -13,14 +13,14 @@
   },
   "config": {
     "step": {
-      "user": {"title": "Anslut en Kathrein-laddbox", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)", "allow_control": "Tillåt styrning från Home Assistant"}, "data_description": {"allow_control": "Låter Home Assistant ändra EMS-styrning, laddström och faser på laddboxen via entiteter och åtgärder samt hålla EMS-tidsgränsen aktiv. Avstängt som standard för att undvika konflikter med en befintlig energistyrning som evcc. Du kan ändra detta senare i integrationens alternativ."}},
+      "user": {"title": "Anslut en Kathrein-laddbox", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)", "allow_control": "Tillåt styrning från Home Assistant"}, "data_description": {"allow_control": "Låter Home Assistant ändra laddström och faser på laddboxen via entiteter och åtgärder. Om en EMS-tidsgräns är inställd på laddboxen upprepar Home Assistant börvärdena regelbundet så att laddboxen inte faller tillbaka till sina reservvärden. Avstängt som standard så att Home Assistant inte kommer i konflikt med en annan energistyrning som evcc. Du kan ändra detta senare i integrationens alternativ."}},
       "reconfigure": {"title": "Ändra anslutningen till Kathrein-laddboxen", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID"}}
     },
     "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."},
     "abort": {"already_configured": "Den här laddboxen är redan konfigurerad.", "reconfigure_successful": "Anslutningsinställningarna har uppdaterats.", "unique_id_mismatch": "Enheten på den här adressen är en annan laddbox än den som konfigureras om."}
   },
   "options": {
-    "step": {"init": {"title": "Inställningar för avläsning och styrning", "data": {"scan_interval": "Avläsningsintervall (sekunder)", "allow_control": "Tillåt styrning från Home Assistant"}, "data_description": {"allow_control": "Låter Home Assistant ändra EMS-styrning, laddström och faser på laddboxen via entiteter och åtgärder samt hålla EMS-tidsgränsen aktiv. Avstängt som standard för att undvika konflikter med en befintlig energistyrning som evcc. Du kan ändra detta senare i integrationens alternativ."}}}
+    "step": {"init": {"title": "Inställningar för avläsning och styrning", "data": {"scan_interval": "Avläsningsintervall (sekunder)", "allow_control": "Tillåt styrning från Home Assistant"}, "data_description": {"allow_control": "Låter Home Assistant ändra laddström och faser på laddboxen via entiteter och åtgärder. Om en EMS-tidsgräns är inställd på laddboxen upprepar Home Assistant börvärdena regelbundet så att laddboxen inte faller tillbaka till sina reservvärden. Avstängt som standard så att Home Assistant inte kommer i konflikt med en annan energistyrning som evcc. Du kan ändra detta senare i integrationens alternativ."}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},

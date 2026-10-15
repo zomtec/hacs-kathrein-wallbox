@@ -80,7 +80,7 @@
           "allow_control": "Allow control by Home Assistant"
         },
         "data_description": {
-          "allow_control": "Lets Home Assistant change EMS control, charging current and phases of the Wallbox through entities and actions, and keep the EMS timeout alive. Off by default to avoid conflicts with an existing energy manager such as evcc. You can change this later in the integration options."
+          "allow_control": "Lets Home Assistant change the charging current and phases of the Wallbox through entities and actions. If an EMS timeout is set on the Wallbox, Home Assistant repeats the setpoints regularly so the Wallbox does not drop back to its fallback values. Off by default so Home Assistant does not interfere with another energy manager such as evcc. You can change this later in the integration options."
         }
       },
       "reconfigure": {
@@ -111,7 +111,7 @@
           "allow_control": "Allow control by Home Assistant"
         },
         "data_description": {
-          "allow_control": "Lets Home Assistant change EMS control, charging current and phases of the Wallbox through entities and actions, and keep the EMS timeout alive. Off by default to avoid conflicts with an existing energy manager such as evcc. You can change this later in the integration options."
+          "allow_control": "Lets Home Assistant change the charging current and phases of the Wallbox through entities and actions. If an EMS timeout is set on the Wallbox, Home Assistant repeats the setpoints regularly so the Wallbox does not drop back to its fallback values. Off by default so Home Assistant does not interfere with another energy manager such as evcc. You can change this later in the integration options."
         }
       }
     }
