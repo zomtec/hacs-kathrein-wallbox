@@ -14,14 +14,13 @@
   "config": {
     "step": {
       "user": {"title": "Verbinden met een Kathrein-wallbox", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)"}},
-      "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)"}}
+      "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID"}}
     },
     "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
     "abort": {"already_configured": "Deze wallbox is al geconfigureerd.", "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
   },
   "options": {
-    "step": {"init": {"title": "Verbindingsinstellingen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)"}}},
-    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
+    "step": {"init": {"title": "Pollinstellingen", "data": {"scan_interval": "Pollinterval (seconden)"}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Er is geen Kathrein-wallboxconfiguratie gevonden voor {entry_id}."},

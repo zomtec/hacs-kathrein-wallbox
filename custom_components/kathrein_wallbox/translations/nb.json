@@ -14,14 +14,13 @@
   "config": {
     "step": {
       "user": {"title": "Koble til en Kathrein-ladeboks", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)"}},
-      "reconfigure": {"title": "Oppdater tilkoblingen til Kathrein-ladeboksen", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)"}}
+      "reconfigure": {"title": "Oppdater tilkoblingen til Kathrein-ladeboksen", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID"}}
     },
     "error": {"cannot_connect": "Kan ikke koble til. Kontroller adressen og at Modbus-serveren er aktivert i easyOperate.", "unsupported_device": "Enheten rapporterte verken mappingversjon 2 eller et serienummer."},
     "abort": {"already_configured": "Denne ladeboksen er allerede konfigurert.", "reconfigure_successful": "Tilkoblingsinnstillingene er oppdatert.", "unique_id_mismatch": "Enheten på denne adressen er en annen ladeboks enn den som rekonfigureres."}
   },
   "options": {
-    "step": {"init": {"title": "Tilkoblingsinnstillinger", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)"}}},
-    "error": {"cannot_connect": "Kan ikke koble til. Kontroller adressen og at Modbus-serveren er aktivert i easyOperate.", "unsupported_device": "Enheten rapporterte verken mappingversjon 2 eller et serienummer.", "unique_id_mismatch": "Enheten på denne adressen er en annen ladeboks enn den som rekonfigureres."}
+    "step": {"init": {"title": "Innstillinger for avspørring", "data": {"scan_interval": "Avspørringsintervall (sekunder)"}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Fant ingen Kathrein-ladeboks-konfigurasjon for {entry_id}."},

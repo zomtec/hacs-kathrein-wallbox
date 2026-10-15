@@ -16,7 +16,7 @@ from custom_components.kathrein_wallbox.const import DOMAIN
 async def test_user_flow_creates_entry_with_normalized_connection_data(
     hass, monkeypatch, enable_custom_integrations
 ) -> None:
-    """Normalize selector values after validating and identifying the device."""
+    """Store connection data and the polling interval option as whole numbers."""
     monkeypatch.setattr(
         config_flow,
         "_async_validate_input",
@@ -42,8 +42,8 @@ async def test_user_flow_creates_entry_with_normalized_connection_data(
         "host": "wallbox.local",
         "port": 502,
         "unit_id": 1,
-        "scan_interval": 20,
     }
+    assert result["options"] == {"scan_interval": 20}
 
 
 @pytest.mark.parametrize(
@@ -80,8 +80,8 @@ CONNECTION = {
     "host": "wallbox.local",
     "port": 502,
     "unit_id": 1,
-    "scan_interval": 20,
 }
+OPTIONS = {"scan_interval": 20}
 NEW_CONNECTION = {**CONNECTION, "host": "new-wallbox.local"}
 
 
@@ -89,7 +89,11 @@ NEW_CONNECTION = {**CONNECTION, "host": "new-wallbox.local"}
 def wallbox_entry(hass, enable_custom_integrations) -> MockConfigEntry:
     """Add a configured Wallbox entry whose setup is not exercised."""
     entry = MockConfigEntry(
-        domain=DOMAIN, unique_id="SERIAL123", data=CONNECTION, title="Kathrein"
+        domain=DOMAIN,
+        unique_id="SERIAL123",
+        data=CONNECTION,
+        options=OPTIONS,
+        title="Kathrein",
     )
     entry.add_to_hass(hass)
     return entry
@@ -130,7 +134,7 @@ async def test_user_flow_aborts_for_already_configured_wallbox(
 async def test_reconfigure_updates_connection_data(
     hass, monkeypatch, wallbox_entry
 ) -> None:
-    """Store the new connection settings for the same Wallbox."""
+    """Store the new connection settings and keep the polling interval."""
     monkeypatch.setattr(
         config_flow,
         "_async_validate_input",
@@ -145,6 +149,7 @@ async def test_reconfigure_updates_connection_data(
     assert result["type"] == "abort"
     assert result["reason"] == "reconfigure_successful"
     assert wallbox_entry.data == NEW_CONNECTION
+    assert wallbox_entry.options == OPTIONS
     assert wallbox_entry.title == "Kathrein 22 kW"
 
 
@@ -197,45 +202,26 @@ async def test_reconfigure_reports_validation_errors(
 
 
 @pytest.mark.asyncio
-async def test_options_flow_updates_connection_data(
-    hass, monkeypatch, wallbox_entry
+async def test_options_flow_offers_only_the_polling_interval(
+    hass, wallbox_entry
 ) -> None:
-    """Store connection settings changed through the options menu."""
-    monkeypatch.setattr(
-        config_flow,
-        "_async_validate_input",
-        AsyncMock(return_value=("SERIAL123", "Kathrein 11 kW")),
-    )
+    """Leave connection settings to reconfigure and prefill the current interval."""
+    result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
+
+    assert result["type"] == "form"
+    assert list(result["data_schema"].schema) == ["scan_interval"]
+    assert result["data_schema"]({}) == OPTIONS
+
+
+@pytest.mark.asyncio
+async def test_options_flow_updates_polling_interval(hass, wallbox_entry) -> None:
+    """Store the new interval without touching the connection data."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
 
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], NEW_CONNECTION
+        result["flow_id"], {"scan_interval": 30.0}
     )
 
     assert result["type"] == "create_entry"
-    assert wallbox_entry.data == NEW_CONNECTION
-    assert wallbox_entry.options == {}
-
-
-@pytest.mark.parametrize(
-    ("validation", "expected_error"),
-    [
-        (AsyncMock(return_value=("OTHER", "Kathrein 11 kW")), "unique_id_mismatch"),
-        (AsyncMock(side_effect=ModbusError("test failure")), "cannot_connect"),
-    ],
-)
-@pytest.mark.asyncio
-async def test_options_flow_rejects_invalid_connection(
-    hass, monkeypatch, wallbox_entry, validation, expected_error
-) -> None:
-    """Keep the stored settings when the new connection is not the same Wallbox."""
-    monkeypatch.setattr(config_flow, "_async_validate_input", validation)
-    result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
-
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"], NEW_CONNECTION
-    )
-
-    assert result["type"] == "form"
-    assert result["errors"] == {"base": expected_error}
+    assert wallbox_entry.options == {"scan_interval": 30}
     assert wallbox_entry.data == CONNECTION

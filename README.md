@@ -36,7 +36,9 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 
 1. In Home Assistant, open **Settings > Devices & services > Add integration** and search for **Kathrein Wallbox**, or use the setup button above after installation.
 2. Enter the Wallbox host or IP address. The default Modbus TCP port is `502`; the default unit ID is `0` (recommended by the register manual).
-3. Choose a polling interval. It defaults to `15` seconds and can be set from `5` to `300` seconds. These connection settings can be changed later through **Reconfigure** or the integration options; both refuse a device with a different serial number.
+3. Choose a polling interval. It defaults to `15` seconds and can be set from `5` to `300` seconds.
+
+To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval is changed in the integration options (**Configure**).
 
 The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries.
 

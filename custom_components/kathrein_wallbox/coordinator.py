@@ -51,12 +51,10 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.meter_available = False
         self.session_energy_available = False
 
-    async def _async_update_data(self) -> WallboxData:
-        """Read essential registers and isolate the optional energy meter."""
+    async def _async_setup(self) -> None:
+        """Read the static device identity once before the first poll."""
         try:
             await self.identity.async_update()
-            await self.evse.async_update()
-            await self.ems_control.async_update()
         except ModbusError as err:
             raise UpdateFailed(
                 translation_domain=DOMAIN,
@@ -69,6 +67,18 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
                 translation_domain=DOMAIN,
                 translation_key="missing_serial_number",
             )
+
+    async def _async_update_data(self) -> WallboxData:
+        """Read essential registers and isolate the optional energy meter."""
+        try:
+            await self.evse.async_update()
+            await self.ems_control.async_update()
+        except ModbusError as err:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
 
         try:
             await self.meter.async_update()

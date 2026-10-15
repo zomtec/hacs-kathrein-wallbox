@@ -14,14 +14,13 @@
   "config": {
     "step": {
       "user": {"title": "Conectar una wallbox Kathrein", "data": {"host": "Host / dirección IP", "port": "Puerto", "unit_id": "ID de unidad Modbus", "scan_interval": "Intervalo de consulta (segundos)"}},
-      "reconfigure": {"title": "Actualizar la conexión de la wallbox Kathrein", "data": {"host": "Host / dirección IP", "port": "Puerto", "unit_id": "ID de unidad Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}
+      "reconfigure": {"title": "Actualizar la conexión de la wallbox Kathrein", "data": {"host": "Host / dirección IP", "port": "Puerto", "unit_id": "ID de unidad Modbus"}}
     },
     "error": {"cannot_connect": "No se puede conectar. Comprueba la dirección y que el servidor Modbus esté habilitado en easyOperate.", "unsupported_device": "El dispositivo no ha comunicado la versión 2 del mapa ni un número de serie."},
     "abort": {"already_configured": "Esta wallbox ya está configurada.", "reconfigure_successful": "Los ajustes de conexión se han actualizado.", "unique_id_mismatch": "El dispositivo de esta dirección es una wallbox distinta de la que se está reconfigurando."}
   },
   "options": {
-    "step": {"init": {"title": "Ajustes de conexión", "data": {"host": "Host / dirección IP", "port": "Puerto", "unit_id": "ID de unidad Modbus", "scan_interval": "Intervalo de consulta (segundos)"}}},
-    "error": {"cannot_connect": "No se puede conectar. Comprueba la dirección y que el servidor Modbus esté habilitado en easyOperate.", "unsupported_device": "El dispositivo no ha comunicado la versión 2 del mapa ni un número de serie.", "unique_id_mismatch": "El dispositivo de esta dirección es una wallbox distinta de la que se está reconfigurando."}
+    "step": {"init": {"title": "Ajustes de consulta", "data": {"scan_interval": "Intervalo de consulta (segundos)"}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "No se ha encontrado ninguna configuración de wallbox Kathrein para {entry_id}."},

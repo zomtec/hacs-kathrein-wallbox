@@ -24,31 +24,56 @@ async def test_missing_meter_does_not_fail_wallbox_poll(
 
 
 @pytest.mark.asyncio
-async def test_required_register_failure_fails_wallbox_poll(
+async def test_identity_failure_fails_coordinator_setup(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Surface identity-register failures as coordinator update failures."""
+    """Surface identity-register failures as coordinator setup failures."""
     mock_modbus_unit.fail_read(0x0000, IllegalDataAddressError())
 
     with pytest.raises(UpdateFailed) as err:
-        await coordinator._async_update_data()
+        await coordinator._async_setup()
 
     assert err.value.translation_domain == DOMAIN
     assert err.value.translation_key == "update_failed"
 
 
 @pytest.mark.asyncio
-async def test_missing_serial_number_fails_wallbox_poll(
+async def test_missing_serial_number_fails_coordinator_setup(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Refuse to publish data for a device that reports no serial number."""
+    """Refuse to set up a device that reports no serial number."""
     mock_modbus_unit.holding[SERIAL_ADDRESS] = [0] * 8
+
+    with pytest.raises(UpdateFailed) as err:
+        await coordinator._async_setup()
+
+    assert err.value.translation_domain == DOMAIN
+    assert err.value.translation_key == "missing_serial_number"
+
+
+@pytest.mark.asyncio
+async def test_poll_does_not_read_identity_again(coordinator, mock_modbus_unit) -> None:
+    """Read the static identity once during setup, not on every poll."""
+    await coordinator._async_setup()
+    mock_modbus_unit.fail_read(0x0000, IllegalDataAddressError())
+
+    data = await coordinator._async_update_data()
+
+    assert data.identity.serial == "G0R1234567"
+
+
+@pytest.mark.asyncio
+async def test_required_register_failure_fails_wallbox_poll(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Surface EVSE-register failures as coordinator update failures."""
+    mock_modbus_unit.fail_read(0x0060, IllegalDataAddressError())
 
     with pytest.raises(UpdateFailed) as err:
         await coordinator._async_update_data()
 
     assert err.value.translation_domain == DOMAIN
-    assert err.value.translation_key == "missing_serial_number"
+    assert err.value.translation_key == "update_failed"
 
 
 @pytest.mark.asyncio

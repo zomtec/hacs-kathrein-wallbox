@@ -14,14 +14,13 @@
   "config": {
     "step": {
       "user": {"title": "Anslut en Kathrein-laddbox", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}},
-      "reconfigure": {"title": "Ändra anslutningen till Kathrein-laddboxen", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}
+      "reconfigure": {"title": "Ändra anslutningen till Kathrein-laddboxen", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID"}}
     },
     "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer."},
     "abort": {"already_configured": "Den här laddboxen är redan konfigurerad.", "reconfigure_successful": "Anslutningsinställningarna har uppdaterats.", "unique_id_mismatch": "Enheten på den här adressen är en annan laddbox än den som konfigureras om."}
   },
   "options": {
-    "step": {"init": {"title": "Anslutningsinställningar", "data": {"host": "Värd / IP-adress", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avläsningsintervall (sekunder)"}}},
-    "error": {"cannot_connect": "Det går inte att ansluta. Kontrollera adressen och att Modbus-servern är aktiverad i easyOperate.", "unsupported_device": "Enheten rapporterade varken mappningsversion 2 eller ett serienummer.", "unique_id_mismatch": "Enheten på den här adressen är en annan laddbox än den som konfigureras om."}
+    "step": {"init": {"title": "Avläsningsinställningar", "data": {"scan_interval": "Avläsningsintervall (sekunder)"}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},

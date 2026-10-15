@@ -84,8 +84,7 @@
         "data": {
           "host": "Host / IP-Adresse",
           "port": "Port",
-          "unit_id": "Modbus-Unit-ID",
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "unit_id": "Modbus-Unit-ID"
         }
       }
     },
@@ -102,19 +101,11 @@
   "options": {
     "step": {
       "init": {
-        "title": "Verbindungseinstellungen",
+        "title": "Abfrageeinstellungen",
         "data": {
-          "host": "Host / IP-Adresse",
-          "port": "Port",
-          "unit_id": "Modbus-Unit-ID",
           "scan_interval": "Abfrageintervall (Sekunden)"
         }
       }
-    },
-    "error": {
-      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
-      "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer.",
-      "unique_id_mismatch": "Das Gerät unter dieser Adresse ist eine andere Wallbox als die, die neu konfiguriert wird."
     }
   },
   "exceptions": {
