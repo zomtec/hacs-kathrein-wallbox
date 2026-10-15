@@ -34,3 +34,12 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
             serial_number=serial,
             name=DEVICE_NAME,
         )
+
+
+class KathreinEmsSetpointEntity(KathreinWallboxEntity):
+    """Represent a control that only takes effect while EMS control is on."""
+
+    @property
+    def available(self) -> bool:
+        """Allow control only while EMS control is enabled."""
+        return super().available and self.coordinator.ems_control.is_enabled

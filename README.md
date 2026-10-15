@@ -63,13 +63,15 @@ The switch, number, and select entities write the same EMS registers as the serv
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
+While EMS control is off, the `Charging current`, `Phases`, and `EMS keep-alive` entities are unavailable and cannot be changed; the `EMS control` switch itself stays available.
+
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
 
 ### EMS keep-alive
 
 With an EMS timeout period above `0 s` (register `0x00A3`), the Wallbox falls back to the timeout fallback phases and current unless a setpoint is written again before the timeout expires. The `EMS keep-alive` switch lets the integration do this: while it is on and EMS control is enabled, the integration rewrites the current charging-current setpoint (`0x00A2`) every half timeout period, for example every 30 s for a 60 s timeout.
 
-The switch is off by default, so the keep-alive is a deliberate choice. Leave it off if another energy manager such as evcc already writes the setpoints, so that two systems do not keep the timeout alive at the same time. While the Wallbox reports a timeout of `0 s`, the switch is off and unavailable; after a timeout above `0 s` is set, it becomes available and has to be turned on again. The switch state is kept across Home Assistant restarts.
+The switch is off by default, so the keep-alive is a deliberate choice. Leave it off if another energy manager such as evcc already writes the setpoints, so that two systems do not keep the timeout alive at the same time. While the Wallbox reports a timeout of `0 s`, the switch is off and unavailable; while EMS control is off, it is unavailable but keeps its state; after a timeout above `0 s` is set, it becomes available and has to be turned on again. The switch state is kept across Home Assistant restarts.
 
 ## EMS control services
 

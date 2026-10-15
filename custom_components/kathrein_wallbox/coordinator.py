@@ -16,7 +16,6 @@ from modbus_connection import ModbusError, ModbusUnit
 
 from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN
 from .model import (
-    EMS_CONTROL_ENABLED,
     WallboxEMSControl,
     WallboxEVSE,
     WallboxIdentity,
@@ -166,9 +165,8 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
     async def _async_keep_alive(self, _now: datetime) -> None:
         """Rewrite the charging current setpoint to reset the EMS timeout."""
-        control = self.ems_control.control_register
         current = self.ems_control.charging_current
-        if control is None or not control & EMS_CONTROL_ENABLED or current is None:
+        if not self.ems_control.is_enabled or current is None:
             return
         try:
             await self.ems_control.write("charging_current", current)

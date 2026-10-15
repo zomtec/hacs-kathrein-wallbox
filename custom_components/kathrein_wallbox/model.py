@@ -241,3 +241,10 @@ class WallboxEMSControl(Component):
     timeout_fallback_current = integer(
         EMS_TIMEOUT_FALLBACK_CURRENT_ADDRESS, signed=False, writable=True, unit="mA"
     )
+
+    @property
+    def is_enabled(self) -> bool:
+        """Return whether the control register has EMS control switched on."""
+        return self.control_register is not None and bool(
+            self.control_register & EMS_CONTROL_ENABLED
+        )

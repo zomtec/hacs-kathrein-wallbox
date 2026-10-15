@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
-from .entity import KathreinWallboxEntity
+from .entity import KathreinEmsSetpointEntity, KathreinWallboxEntity
 from .model import EMS_CONTROL_DISABLED, EMS_CONTROL_ENABLED
 
 PARALLEL_UPDATES = 1
@@ -65,7 +65,9 @@ class KathreinEmsControlSwitch(KathreinWallboxEntity, SwitchEntity):
         await self.coordinator.async_write_ems("control_register", EMS_CONTROL_DISABLED)
 
 
-class KathreinEmsKeepAliveSwitch(KathreinWallboxEntity, SwitchEntity, RestoreEntity):
+class KathreinEmsKeepAliveSwitch(
+    KathreinEmsSetpointEntity, SwitchEntity, RestoreEntity
+):
     """Let the integration reset the EMS timeout by rewriting the setpoint."""
 
     def __init__(self, coordinator: KathreinCoordinator) -> None:
@@ -81,7 +83,7 @@ class KathreinEmsKeepAliveSwitch(KathreinWallboxEntity, SwitchEntity, RestoreEnt
 
     @property
     def available(self) -> bool:
-        """Allow control only while the Wallbox has an EMS timeout configured."""
+        """Allow control only with EMS control on and an EMS timeout configured."""
         return super().available and self.coordinator.keep_alive_supported
 
     @property

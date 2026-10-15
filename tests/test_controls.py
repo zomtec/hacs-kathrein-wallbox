@@ -168,6 +168,7 @@ async def test_keep_alive_switch_needs_ems_timeout(
     coordinator, mock_modbus_unit, timeout_s, available
 ) -> None:
     """Start off and allow control only with an EMS timeout above 0 s."""
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
     await _set_ems_register(
         coordinator, mock_modbus_unit, EMS_TIMEOUT_PERIOD_ADDRESS, timeout_s
     )
@@ -210,3 +211,31 @@ async def test_keep_alive_switch_restores_state(
     await switch.async_added_to_hass()
 
     assert switch.is_on is restored
+
+
+@pytest.mark.parametrize(
+    "entity_class",
+    [
+        KathreinChargingCurrentNumber,
+        KathreinRelayMatrixSelect,
+        KathreinEmsKeepAliveSwitch,
+    ],
+)
+@pytest.mark.parametrize(("control", "available"), [(0x8000, True), (0, False)])
+async def test_controls_need_ems_control(
+    coordinator, mock_modbus_unit, entity_class, control, available
+) -> None:
+    """Allow the other controls only while EMS control is on."""
+    mock_modbus_unit.holding[EMS_TIMEOUT_PERIOD_ADDRESS] = 60
+    await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, control)
+
+    assert entity_class(coordinator).available is available
+
+
+async def test_ems_control_switch_stays_available_while_off(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Keep EMS control itself switchable while it is off."""
+    await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, 0)
+
+    assert KathreinEmsControlSwitch(coordinator).available
