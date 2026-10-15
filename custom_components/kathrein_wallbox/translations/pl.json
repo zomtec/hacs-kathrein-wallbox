@@ -14,14 +14,13 @@
   "config": {
     "step": {
       "user": {"title": "Połącz z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}},
-      "reconfigure": {"title": "Zmień połączenie z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}}
+      "reconfigure": {"title": "Zmień połączenie z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus"}}
     },
     "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."},
     "abort": {"already_configured": "Ten wallbox jest już skonfigurowany.", "reconfigure_successful": "Ustawienia połączenia zostały zaktualizowane.", "unique_id_mismatch": "Urządzenie pod tym adresem to inny wallbox niż ten, który jest ponownie konfigurowany."}
   },
   "options": {
-    "step": {"init": {"title": "Ustawienia połączenia", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}}},
-    "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego.", "unique_id_mismatch": "Urządzenie pod tym adresem to inny wallbox niż ten, który jest ponownie konfigurowany."}
+    "step": {"init": {"title": "Ustawienia odpytywania", "data": {"scan_interval": "Interwał odpytywania (sekundy)"}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Nie znaleziono konfiguracji wallboxa Kathrein dla {entry_id}."},
