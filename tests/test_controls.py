@@ -151,6 +151,19 @@ async def test_ems_control_switch_writes_control_register(
     ]
 
 
+async def test_ems_control_switch_reads_back_quick_toggle(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Show the new state right after toggling twice in quick succession."""
+    switch = KathreinEmsControlSwitch(coordinator)
+
+    await switch.async_turn_off()
+    assert switch.is_on is False
+
+    await switch.async_turn_on()
+    assert switch.is_on is True
+
+
 async def test_control_reports_device_write_failure(
     coordinator, mock_modbus_unit
 ) -> None:

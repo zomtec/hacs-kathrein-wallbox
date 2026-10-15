@@ -43,5 +43,5 @@ async def coordinator(hass, mock_modbus_unit) -> AsyncGenerator[KathreinCoordina
     coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
     await coordinator.identity.async_update()
     yield coordinator
-    # Writes schedule a debounced refresh that must not outlive the test.
+    # Stop the poll and keep-alive timers so they do not outlive the test.
     await coordinator.async_shutdown()
