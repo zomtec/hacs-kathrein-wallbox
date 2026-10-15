@@ -1,6 +1,7 @@
 """Tests for the EMS number, select and switch entities."""
 
 import pytest
+from homeassistant.components.number import NumberMode
 from homeassistant.exceptions import HomeAssistantError
 from modbus_connection import ModbusError
 
@@ -50,6 +51,11 @@ async def test_charging_current_number_limits_11_kw_wallbox(
     await coordinator.identity.async_update()
 
     assert number.native_max_value == 16
+
+
+async def test_charging_current_number_is_input_box(coordinator) -> None:
+    """Show the setpoint as a numeric input box instead of a slider."""
+    assert KathreinChargingCurrentNumber(coordinator).mode == NumberMode.BOX
 
 
 async def test_charging_current_number_writes_milliamperes(

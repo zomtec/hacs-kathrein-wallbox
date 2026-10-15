@@ -30,7 +30,7 @@ CHARGING_CURRENT_DESCRIPTION = NumberEntityDescription(
     native_min_value=EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
     native_max_value=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
     native_step=1,
-    mode=NumberMode.SLIDER,
+    mode=NumberMode.BOX,
 )
 
 
