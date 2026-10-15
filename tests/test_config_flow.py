@@ -1,15 +1,27 @@
 """Tests for the Kathrein Wallbox config flow."""
 
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from conftest import SERIAL_REGISTERS, RecordingMockModbusUnit
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.exceptions import HomeAssistantError
 from modbus_connection import ModbusError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import config_flow
-from custom_components.kathrein_wallbox.const import DOMAIN
+from custom_components.kathrein_wallbox.const import (
+    DEVICE_NAME,
+    DOMAIN,
+    EXPECTED_MAPPING_VERSION,
+)
+from custom_components.kathrein_wallbox.model import (
+    DEVICE_TYPE_ADDRESS,
+    MAPPING_VERSION_ADDRESS,
+    SERIAL_ADDRESS,
+)
 
 
 @pytest.mark.asyncio
@@ -236,3 +248,154 @@ async def test_options_flow_updates_options(hass, wallbox_entry) -> None:
     assert result["type"] == "create_entry"
     assert wallbox_entry.options == {"scan_interval": 30, "allow_control": False}
     assert wallbox_entry.data == CONNECTION
+
+
+DEVICE_TYPE_REGISTERS = [0x4B57, 0x422D, 0x4143, 0x3131]
+DEVICE_SERIAL = "G0R1234567"
+
+
+@pytest.fixture
+def wallbox_unit(mock_modbus_unit) -> RecordingMockModbusUnit:
+    """Serve a supported Wallbox through the flow's temporary Modbus unit."""
+    mock_modbus_unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION]
+    mock_modbus_unit.holding[DEVICE_TYPE_ADDRESS] = DEVICE_TYPE_REGISTERS
+
+    @asynccontextmanager
+    async def temporary_unit(
+        hass, params, unit_id
+    ) -> AsyncIterator[RecordingMockModbusUnit]:
+        assert (params.host, params.port, unit_id) == ("wallbox.local", 502, 1)
+        yield mock_modbus_unit
+
+    with patch.object(config_flow, "async_get_temporary_unit", temporary_unit):
+        yield mock_modbus_unit
+
+
+def _report_wrong_mapping(unit: RecordingMockModbusUnit) -> None:
+    unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION + 1]
+
+
+def _report_no_serial(unit: RecordingMockModbusUnit) -> None:
+    unit.holding[SERIAL_ADDRESS] = [0] * len(SERIAL_REGISTERS)
+
+
+def _fail_requests(unit: RecordingMockModbusUnit) -> None:
+    unit.fail_requests(ModbusError("connection refused"))
+
+
+def _repair(unit: RecordingMockModbusUnit) -> None:
+    unit.fail_requests(None)
+    unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION]
+    unit.holding[SERIAL_ADDRESS] = SERIAL_REGISTERS
+
+
+DEVICE_FAILURES = pytest.mark.parametrize(
+    ("break_device", "expected_error"),
+    [
+        (_report_wrong_mapping, "unsupported_device"),
+        (_report_no_serial, "unsupported_device"),
+        (_fail_requests, "cannot_connect"),
+    ],
+)
+
+
+@pytest.mark.asyncio
+async def test_user_flow_reads_the_device_identity(
+    hass, enable_custom_integrations, wallbox_unit
+) -> None:
+    """Use the serial as unique ID and the reported device type as title."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+
+    assert result["type"] == "create_entry"
+    assert result["title"] == "KWB-AC11"
+    assert result["result"].unique_id == DEVICE_SERIAL
+
+
+@pytest.mark.asyncio
+async def test_user_flow_falls_back_to_the_default_title(
+    hass, enable_custom_integrations, wallbox_unit
+) -> None:
+    """Name the entry generically when the device reports no type."""
+    del wallbox_unit.holding[DEVICE_TYPE_ADDRESS]
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+
+    assert result["type"] == "create_entry"
+    assert result["title"] == DEVICE_NAME
+
+
+@DEVICE_FAILURES
+@pytest.mark.asyncio
+async def test_user_flow_recovers_after_device_error(
+    hass,
+    enable_custom_integrations,
+    wallbox_unit,
+    break_device: Callable[[RecordingMockModbusUnit], None],
+    expected_error: str,
+) -> None:
+    """Show the error, then create the entry once the device answers correctly."""
+    break_device(wallbox_unit)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+    assert result["type"] == "form"
+    assert result["errors"] == {"base": expected_error}
+
+    _repair(wallbox_unit)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+
+    assert result["type"] == "create_entry"
+    assert result["result"].unique_id == DEVICE_SERIAL
+
+
+@DEVICE_FAILURES
+@pytest.mark.asyncio
+async def test_reconfigure_recovers_after_device_error(
+    hass,
+    enable_custom_integrations,
+    wallbox_unit,
+    break_device: Callable[[RecordingMockModbusUnit], None],
+    expected_error: str,
+) -> None:
+    """Show the error, then update the entry once the device answers correctly."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=DEVICE_SERIAL,
+        data={**CONNECTION, "host": "old-wallbox.local"},
+        options=OPTIONS,
+        title="Kathrein",
+    )
+    entry.add_to_hass(hass)
+    break_device(wallbox_unit)
+    result = await entry.start_reconfigure_flow(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+    assert result["type"] == "form"
+    assert result["errors"] == {"base": expected_error}
+
+    _repair(wallbox_unit)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONNECTION
+    )
+
+    assert result["type"] == "abort"
+    assert result["reason"] == "reconfigure_successful"
+    assert entry.data == CONNECTION
+    assert entry.title == "KWB-AC11"
