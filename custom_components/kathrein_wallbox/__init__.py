@@ -64,12 +64,9 @@ def _milliamperes(amperes: int) -> int:
 
 EMS_CURRENT_AMPERES = vol.All(
     _whole_amperes,
-    vol.Any(
-        EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
-        vol.Range(
-            min=EMS_MIN_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
-            max=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
-        ),
+    vol.Range(
+        min=EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
+        max=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
     ),
 )
 
@@ -139,6 +136,28 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
     return entry.runtime_data.coordinator
 
 
+def _validate_ems_current(coordinator: KathreinCoordinator, current_ma: int) -> None:
+    """Reject EMS currents the Wallbox cannot charge with."""
+    if EMS_CHARGING_PAUSED_MA < current_ma < EMS_MIN_CHARGING_CURRENT_MA:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="current_below_minimum",
+            translation_placeholders={
+                "min_current": str(
+                    EMS_MIN_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE
+                )
+            },
+        )
+    if coordinator.identity.is_11_kw and current_ma > MAX_CURRENT_11_KW_MA:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="current_limit_11_kw",
+            translation_placeholders={
+                "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
+            },
+        )
+
+
 def _setpoint_handler(
     hass: HomeAssistant, service: EmsSetpointService
 ) -> Callable[[ServiceCall], Awaitable[None]]:
@@ -147,18 +166,8 @@ def _setpoint_handler(
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
         value = service.to_register(call.data[ATTR_VALUE])
-        if (
-            service.is_current
-            and coordinator.identity.is_11_kw
-            and value > MAX_CURRENT_11_KW_MA
-        ):
-            raise ServiceValidationError(
-                translation_domain=DOMAIN,
-                translation_key="current_limit_11_kw",
-                translation_placeholders={
-                    "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
-                },
-            )
+        if service.is_current:
+            _validate_ems_current(coordinator, value)
         await coordinator.async_write_ems(service.field, value)
 
     return _async_handle
