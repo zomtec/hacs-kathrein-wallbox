@@ -84,8 +84,7 @@
         "data": {
           "host": "Host",
           "port": "Port",
-          "unit_id": "Modbus unit ID",
-          "scan_interval": "Polling interval (seconds)"
+          "unit_id": "Modbus unit ID"
         }
       }
     },
@@ -102,19 +101,11 @@
   "options": {
     "step": {
       "init": {
-        "title": "Connection settings",
+        "title": "Polling settings",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "unit_id": "Modbus unit ID",
           "scan_interval": "Polling interval (seconds)"
         }
       }
-    },
-    "error": {
-      "cannot_connect": "Unable to connect. Check the address and ensure the Modbus server is enabled in easyOperate.",
-      "unsupported_device": "The device did not report mapping version 2 or a serial number.",
-      "unique_id_mismatch": "The device at this address is a different Wallbox than the one being reconfigured."
     }
   },
   "exceptions": {

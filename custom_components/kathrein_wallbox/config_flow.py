@@ -37,7 +37,6 @@ _LOGGER = logging.getLogger(__name__)
 
 ERROR_CANNOT_CONNECT = "cannot_connect"
 ERROR_UNSUPPORTED_DEVICE = "unsupported_device"
-ERROR_UNIQUE_ID_MISMATCH = "unique_id_mismatch"
 
 
 def _number_selector(minimum: int, maximum: int) -> selector.NumberSelector:
@@ -65,22 +64,19 @@ def _connection_schema(defaults: Mapping[str, Any]) -> vol.Schema:
             vol.Optional(
                 CONF_UNIT_ID, default=defaults.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)
             ): _number_selector(MIN_UNIT_ID, MAX_UNIT_ID),
-            vol.Optional(
-                CONF_SCAN_INTERVAL,
-                default=defaults.get(
-                    CONF_SCAN_INTERVAL, int(DEFAULT_SCAN_INTERVAL.total_seconds())
-                ),
-            ): _number_selector(MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS),
         }
     )
 
 
-def _entry_defaults(entry: ConfigEntry) -> dict[str, Any]:
-    """Return the form defaults for an existing config entry."""
-    return {
-        **entry.data,
-        CONF_SCAN_INTERVAL: int(get_scan_interval(entry).total_seconds()),
-    }
+def _scan_interval_schema(default_seconds: int) -> vol.Schema:
+    """Build the polling interval form schema with the given default."""
+    return vol.Schema(
+        {
+            vol.Optional(CONF_SCAN_INTERVAL, default=default_seconds): (
+                _number_selector(MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS)
+            ),
+        }
+    )
 
 
 class InvalidWallbox(Exception):
@@ -139,7 +135,7 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: ConfigEntry,
     ) -> config_entries.OptionsFlow:
-        """Return the options flow for adjusting the connection settings."""
+        """Return the options flow for adjusting the polling interval."""
         return KathreinWallboxOptionsFlowHandler()
 
     async def async_step_user(
@@ -153,16 +149,20 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 serial, device_type = identity
                 await self.async_set_unique_id(serial)
                 self._abort_if_unique_id_configured()
+                data = _normalize_connection_data(user_input)
                 return self.async_create_entry(
                     title=device_type,
-                    data=_normalize_connection_data(user_input),
+                    data=data,
+                    options={CONF_SCAN_INTERVAL: data.pop(CONF_SCAN_INTERVAL)},
                 )
             if error is not None:
                 errors["base"] = error
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_connection_schema({}),
+            data_schema=_connection_schema({}).extend(
+                _scan_interval_schema(int(DEFAULT_SCAN_INTERVAL.total_seconds())).schema
+            ),
             errors=errors,
         )
 
@@ -182,7 +182,6 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_update_reload_and_abort(
                     entry,
                     data_updates=_normalize_connection_data(user_input),
-                    options={},
                     title=device_type,
                 )
             if error is not None:
@@ -190,37 +189,26 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_connection_schema(_entry_defaults(entry)),
+            data_schema=_connection_schema(entry.data),
             errors=errors,
         )
 
 
-class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle connection settings after initial setup."""
+class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlowWithReload):
+    """Handle the polling interval after initial setup."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Edit and validate all connection settings from the options menu."""
-        errors: dict[str, str] = {}
+        """Edit the polling interval; connection settings belong to reconfigure."""
         if user_input is not None:
-            identity, error = await _async_validate_or_error(self.hass, user_input)
-            if identity is not None and identity[0] != self.config_entry.unique_id:
-                error = ERROR_UNIQUE_ID_MISMATCH
-            if error is None:
-                self.hass.config_entries.async_update_entry(
-                    self.config_entry,
-                    data=_normalize_connection_data(user_input),
-                    options={},
-                )
-                self.hass.config_entries.async_schedule_reload(
-                    self.config_entry.entry_id
-                )
-                return self.async_create_entry(title="", data={})
-            errors["base"] = error
+            return self.async_create_entry(
+                data={CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL])}
+            )
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_connection_schema(_entry_defaults(self.config_entry)),
-            errors=errors,
+            data_schema=_scan_interval_schema(
+                int(get_scan_interval(self.config_entry).total_seconds())
+            ),
         )
