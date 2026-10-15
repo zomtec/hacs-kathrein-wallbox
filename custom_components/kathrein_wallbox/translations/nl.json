@@ -28,7 +28,9 @@
     "entry_not_loaded": {"message": "De wallbox {title} is niet actief."},
     "current_below_minimum": {"message": "De EMS-laadstroom moet 0 A (laden pauzeren) of minimaal {min_current} A zijn."},
     "current_limit_11_kw": {"message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."},
-    "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"}
+    "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"},
+    "missing_serial_number": {"message": "De wallbox heeft geen serienummer doorgegeven."},
+    "update_failed": {"message": "Lezen van de wallbox is mislukt: {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Laadstroom"}},

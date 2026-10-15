@@ -58,10 +58,17 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             await self.evse.async_update()
             await self.ems_control.async_update()
         except ModbusError as err:
-            raise UpdateFailed(f"Unable to read Kathrein Wallbox: {err}") from err
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
 
         if not self.identity.serial:
-            raise UpdateFailed("Kathrein Wallbox did not report a serial number")
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="missing_serial_number",
+            )
 
         try:
             await self.meter.async_update()

@@ -28,7 +28,9 @@
     "entry_not_loaded": {"message": "Nabíjecí stanice {title} není aktivní."},
     "current_below_minimum": {"message": "Nabíjecí proud EMS musí být 0 A (pozastavení nabíjení) nebo alespoň {min_current} A."},
     "current_limit_11_kw": {"message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."},
-    "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"}
+    "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"},
+    "missing_serial_number": {"message": "Nabíjecí stanice neposkytla sériové číslo."},
+    "update_failed": {"message": "Čtení z nabíjecí stanice se nezdařilo: {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Nabíjecí proud"}},
