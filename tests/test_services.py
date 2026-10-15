@@ -6,6 +6,7 @@ import pytest
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.helpers import device_registry as dr
 from modbus_connection import ModbusError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -33,6 +34,19 @@ def _writes(unit) -> list[tuple[int, list[int]]]:
     return [(event.address, event.values) for event in unit.write_events]
 
 
+def _async_add_device(hass, entry: MockConfigEntry) -> dr.DeviceEntry:
+    """Register a device for the given config entry."""
+    return dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id, identifiers={(entry.domain, entry.entry_id)}
+    )
+
+
+def _device_id(hass, entry: MockConfigEntry) -> str:
+    """Return the ID of the device registered for the given config entry."""
+    [device] = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+    return device.id
+
+
 async def _async_ems_entry(
     hass, mock_modbus_unit, allow_control: bool
 ) -> AsyncGenerator[MockConfigEntry]:
@@ -47,6 +61,7 @@ async def _async_ems_entry(
     await coordinator.ems_control.async_update()
     entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
     entry.mock_state(hass, ConfigEntryState.LOADED)
+    _async_add_device(hass, entry)
     await async_setup(hass, {})
     yield entry
     # Writes schedule a debounced refresh that must not outlive the test.
@@ -68,11 +83,11 @@ async def read_only_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEn
 
 
 async def _async_call(hass, entry, service, service_data) -> None:
-    """Call a Wallbox service for the given config entry."""
+    """Call a Wallbox service for the device of the given config entry."""
     await hass.services.async_call(
         DOMAIN,
         service,
-        {"entry_id": entry.entry_id, **service_data},
+        {"device_id": _device_id(hass, entry), **service_data},
         blocking=True,
     )
 
@@ -209,19 +224,31 @@ async def test_11_kw_wallbox_rejects_ems_current_above_limit(
     assert mock_modbus_unit.write_events == []
 
 
-async def test_ems_service_rejects_unknown_config_entry(
-    hass, mock_modbus_unit, ems_entry
+def _other_device_id(hass) -> str:
+    """Return the ID of a device that belongs to another integration."""
+    entry = MockConfigEntry(domain="other")
+    entry.add_to_hass(hass)
+    return _async_add_device(hass, entry).id
+
+
+@pytest.mark.parametrize(
+    "device_id",
+    [lambda hass: "missing-device", _other_device_id],
+    ids=["unknown", "other_integration"],
+)
+async def test_ems_service_rejects_device_that_is_no_wallbox(
+    hass, mock_modbus_unit, ems_entry, device_id
 ) -> None:
-    """Reject service calls that do not refer to a wallbox entry."""
+    """Reject service calls that do not refer to a wallbox device."""
     with pytest.raises(ServiceValidationError) as error:
         await hass.services.async_call(
             DOMAIN,
             SERVICE_SET_RELAY_MATRIX,
-            {"entry_id": "missing-entry", "value": "phase_1"},
+            {"device_id": device_id(hass), "value": "phase_1"},
             blocking=True,
         )
 
-    assert error.value.translation_key == "entry_not_found"
+    assert error.value.translation_key == "device_not_found"
     assert mock_modbus_unit.write_events == []
 
 

@@ -95,7 +95,7 @@ With a timeout of `0 s`, or while control is not allowed, no keep-alive is writt
 
 ## EMS control services
 
-These Home Assistant services write EMS setpoints to Modbus holding registers. Every service requires `entry_id`, which selects the Wallbox configuration entry.
+These Home Assistant services write EMS setpoints to Modbus holding registers. Every service requires `device_id`, which selects the Wallbox device.
 
 | Service | Register | Additional field and allowed values |
 | --- | --- | --- |
@@ -110,14 +110,14 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 
 Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
-Unsupported values and unknown or inactive Wallbox entries are rejected with a validation error before anything is written. A failed register write is reported as an error.
+Unsupported values, devices that are not a Kathrein Wallbox, and inactive Wallboxes are rejected with a validation error before anything is written. A failed register write is reported as an error.
 
-Example service call to request `16 A` (replace the placeholder with the Wallbox's config entry ID):
+Example service call to request `16 A` (replace the placeholder with the Wallbox's device ID; in the automation editor, pick the Wallbox from the device list instead):
 
 ```yaml
 service: kathrein_wallbox.set_charging_current
 data:
-  entry_id: "<config-entry-id>"
+  device_id: "<device-id>"
   value: 16
 ```
 
