@@ -10,7 +10,11 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers import (
+    config_validation as cv,
+    device_registry as dr,
+    entity_registry as er,
+)
 from homeassistant.helpers.typing import ConfigType
 from modbus_connection import ModbusTcpParams
 
@@ -31,7 +35,7 @@ from .select import RELAY_MATRIX_DESCRIPTION
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-ATTR_ENTRY_ID = "entry_id"
+ATTR_DEVICE_ID = "device_id"
 ATTR_ENABLED = "enabled"
 ATTR_VALUE = "value"
 
@@ -127,14 +131,21 @@ EMS_SETPOINT_SERVICES = (
 )
 
 
-def _get_coordinator(hass: HomeAssistant, entry_id: str) -> KathreinCoordinator:
-    """Return the coordinator of a loaded Wallbox config entry."""
-    entry = hass.config_entries.async_get_entry(entry_id)
-    if entry is None or entry.domain != DOMAIN:
+def _get_coordinator(hass: HomeAssistant, device_id: str) -> KathreinCoordinator:
+    """Return the coordinator of the loaded config entry behind a Wallbox device."""
+    device = dr.async_get(hass).async_get(device_id)
+    entries = (
+        hass.config_entries.async_get_entry(entry_id)
+        for entry_id in (device.config_entries if device else ())
+    )
+    entry = next(
+        (entry for entry in entries if entry is not None and entry.domain == DOMAIN),
+        None,
+    )
+    if entry is None:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
-            translation_key="entry_not_found",
-            translation_placeholders={"entry_id": entry_id},
+            translation_key="device_not_found",
         )
     if entry.state is not ConfigEntryState.LOADED:
         raise ServiceValidationError(
@@ -182,7 +193,7 @@ def _setpoint_handler(
     """Create the handler writing one validated setpoint."""
 
     async def _async_handle(call: ServiceCall) -> None:
-        coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        coordinator = _get_coordinator(hass, call.data[ATTR_DEVICE_ID])
         coordinator.validate_control_allowed()
         if not service.enables_ems:
             _validate_ems_enabled(coordinator)
@@ -201,7 +212,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     async def _async_set_ems_control_enabled(call: ServiceCall) -> None:
         """Enable or disable the EMS control register."""
-        coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        coordinator = _get_coordinator(hass, call.data[ATTR_DEVICE_ID])
         await coordinator.async_set_ems_control(call.data[ATTR_ENABLED])
 
     hass.services.async_register(
@@ -209,7 +220,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         SERVICE_SET_EMS_CONTROL_ENABLED,
         _async_set_ems_control_enabled,
         schema=vol.Schema(
-            {vol.Required(ATTR_ENTRY_ID): str, vol.Required(ATTR_ENABLED): bool}
+            {vol.Required(ATTR_DEVICE_ID): str, vol.Required(ATTR_ENABLED): bool}
         ),
     )
     for service in EMS_SETPOINT_SERVICES:
@@ -219,7 +230,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _setpoint_handler(hass, service),
             schema=vol.Schema(
                 {
-                    vol.Required(ATTR_ENTRY_ID): str,
+                    vol.Required(ATTR_DEVICE_ID): str,
                     vol.Required(ATTR_VALUE): service.value_schema,
                 }
             ),
