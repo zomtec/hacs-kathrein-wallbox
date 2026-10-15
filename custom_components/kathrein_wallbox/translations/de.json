@@ -76,7 +76,11 @@
           "host": "Host / IP-Adresse",
           "port": "Port",
           "unit_id": "Modbus-Unit-ID",
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "scan_interval": "Abfrageintervall (Sekunden)",
+          "allow_control": "Steuerung durch Home Assistant erlauben"
+        },
+        "data_description": {
+          "allow_control": "Erlaubt Home Assistant, EMS Steuerung, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern und den EMS Timeout aktiv zu halten. Standardmäßig aus, um Konflikte mit einem vorhandenen Energiemanager wie evcc zu vermeiden. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       },
       "reconfigure": {
@@ -101,9 +105,13 @@
   "options": {
     "step": {
       "init": {
-        "title": "Abfrageeinstellungen",
+        "title": "Abfrage- und Steuerungseinstellungen",
         "data": {
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "scan_interval": "Abfrageintervall (Sekunden)",
+          "allow_control": "Steuerung durch Home Assistant erlauben"
+        },
+        "data_description": {
+          "allow_control": "Erlaubt Home Assistant, EMS Steuerung, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern und den EMS Timeout aktiv zu halten. Standardmäßig aus, um Konflikte mit einem vorhandenen Energiemanager wie evcc zu vermeiden. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       }
     }
@@ -112,6 +120,7 @@
     "entry_not_found": {"message": "Für {entry_id} wurde keine Kathrein-Wallbox-Konfiguration gefunden."},
     "entry_not_loaded": {"message": "Die Wallbox {title} ist nicht aktiv."},
     "ems_control_disabled": {"message": "Die EMS Steuerung ist aus. Vor dem Ändern von EMS Sollwerten muss die EMS Steuerung eingeschaltet werden."},
+    "control_not_allowed": {"message": "Die Steuerung durch Home Assistant ist nicht erlaubt. Sie muss zuerst in den Optionen der Integration erlaubt werden."},
     "current_below_minimum": {"message": "Der EMS Ladestrom muss 0 A (Laden pausieren) oder mindestens {min_current} A betragen."},
     "current_limit_11_kw": {"message": "Wallboxen mit 11 kW unterstützen einen EMS Ladestrom von höchstens {max_current} A."},
     "write_failed": {"message": "Schreiben auf die Wallbox nicht möglich: {error}"},
@@ -132,8 +141,7 @@
       }
     },
     "switch": {
-      "ems_control": {"name": "EMS Steuerung"},
-      "ems_keep_alive": {"name": "EMS Keep-Alive"}
+      "ems_control": {"name": "EMS Steuerung"}
     },
     "sensor": {
       "voltage_l1": {"name": "Spannung L1"},

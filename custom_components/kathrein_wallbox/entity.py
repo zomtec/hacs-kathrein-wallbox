@@ -36,7 +36,16 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
         )
 
 
-class KathreinEmsSetpointEntity(KathreinWallboxEntity):
+class KathreinControlEntity(KathreinWallboxEntity):
+    """Represent a control that the user must allow Home Assistant to use."""
+
+    @property
+    def available(self) -> bool:
+        """Allow control only while control by Home Assistant is allowed."""
+        return super().available and self.coordinator.control_allowed
+
+
+class KathreinEmsSetpointEntity(KathreinControlEntity):
     """Represent a control that only takes effect while EMS control is on."""
 
     @property

@@ -7,12 +7,14 @@ from modbus_connection import IllegalDataAddressError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox.const import (
+    CONF_ALLOW_CONTROL,
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     EXPECTED_MAPPING_VERSION,
     MAX_SCAN_INTERVAL_SECONDS,
     MIN_SCAN_INTERVAL_SECONDS,
+    get_allow_control,
     get_scan_interval,
 )
 from custom_components.kathrein_wallbox.model import (
@@ -124,6 +126,21 @@ def test_get_scan_interval_prefers_options_then_data_then_default(
     entry = MockConfigEntry(domain=DOMAIN, data=data, options=options)
 
     assert get_scan_interval(entry) == expected
+
+
+@pytest.mark.parametrize(
+    ("options", "expected"),
+    [
+        ({}, False),
+        ({CONF_ALLOW_CONTROL: False}, False),
+        ({CONF_ALLOW_CONTROL: True}, True),
+    ],
+)
+def test_get_allow_control_is_opt_in(options, expected) -> None:
+    """Allow control by Home Assistant only after the user turned it on."""
+    entry = MockConfigEntry(domain=DOMAIN, options=options)
+
+    assert get_allow_control(entry) is expected
 
 
 @pytest.mark.asyncio

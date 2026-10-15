@@ -15,8 +15,10 @@ from homeassistant.helpers import selector
 from modbus_connection import ModbusError, ModbusTcpParams
 
 from .const import (
+    CONF_ALLOW_CONTROL,
     CONF_SCAN_INTERVAL,
     CONF_UNIT_ID,
+    DEFAULT_ALLOW_CONTROL,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_UNIT_ID,
@@ -29,6 +31,7 @@ from .const import (
     MIN_PORT,
     MIN_SCAN_INTERVAL_SECONDS,
     MIN_UNIT_ID,
+    get_allow_control,
     get_scan_interval,
 )
 from .model import WallboxIdentity
@@ -68,15 +71,24 @@ def _connection_schema(defaults: Mapping[str, Any]) -> vol.Schema:
     )
 
 
-def _scan_interval_schema(default_seconds: int) -> vol.Schema:
-    """Build the polling interval form schema with the given default."""
+def _options_schema(default_seconds: int, default_allow_control: bool) -> vol.Schema:
+    """Build the polling interval and control form schema with the given defaults."""
     return vol.Schema(
         {
             vol.Optional(CONF_SCAN_INTERVAL, default=default_seconds): (
                 _number_selector(MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS)
             ),
+            vol.Optional(CONF_ALLOW_CONTROL, default=default_allow_control): bool,
         }
     )
+
+
+def _options_data(user_input: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the entry options from a submitted form."""
+    return {
+        CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
+        CONF_ALLOW_CONTROL: user_input[CONF_ALLOW_CONTROL],
+    }
 
 
 class InvalidWallbox(Exception):
@@ -86,7 +98,7 @@ class InvalidWallbox(Exception):
 def _normalize_connection_data(user_input: dict[str, Any]) -> dict[str, Any]:
     """Normalize numeric connection settings returned by number selectors."""
     normalized = dict(user_input)
-    for key in (CONF_PORT, CONF_UNIT_ID, CONF_SCAN_INTERVAL):
+    for key in (CONF_PORT, CONF_UNIT_ID):
         if key in normalized:
             normalized[key] = int(normalized[key])
     return normalized
@@ -135,7 +147,7 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: ConfigEntry,
     ) -> config_entries.OptionsFlow:
-        """Return the options flow for adjusting the polling interval."""
+        """Return the options flow for the polling interval and control permission."""
         return KathreinWallboxOptionsFlowHandler()
 
     async def async_step_user(
@@ -149,11 +161,16 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 serial, device_type = identity
                 await self.async_set_unique_id(serial)
                 self._abort_if_unique_id_configured()
-                data = _normalize_connection_data(user_input)
+                options = _options_data(user_input)
+                data = _normalize_connection_data(
+                    {
+                        key: value
+                        for key, value in user_input.items()
+                        if key not in options
+                    }
+                )
                 return self.async_create_entry(
-                    title=device_type,
-                    data=data,
-                    options={CONF_SCAN_INTERVAL: data.pop(CONF_SCAN_INTERVAL)},
+                    title=device_type, data=data, options=options
                 )
             if error is not None:
                 errors["base"] = error
@@ -161,7 +178,9 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=_connection_schema({}).extend(
-                _scan_interval_schema(int(DEFAULT_SCAN_INTERVAL.total_seconds())).schema
+                _options_schema(
+                    int(DEFAULT_SCAN_INTERVAL.total_seconds()), DEFAULT_ALLOW_CONTROL
+                ).schema
             ),
             errors=errors,
         )
@@ -195,20 +214,19 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlowWithReload):
-    """Handle the polling interval after initial setup."""
+    """Handle the polling interval and control permission after initial setup."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Edit the polling interval; connection settings belong to reconfigure."""
+        """Edit the options; connection settings belong to reconfigure."""
         if user_input is not None:
-            return self.async_create_entry(
-                data={CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL])}
-            )
+            return self.async_create_entry(data=_options_data(user_input))
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_scan_interval_schema(
-                int(get_scan_interval(self.config_entry).total_seconds())
+            data_schema=_options_schema(
+                int(get_scan_interval(self.config_entry).total_seconds()),
+                get_allow_control(self.config_entry),
             ),
         )

@@ -19,6 +19,9 @@ CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=15)
 MIN_SCAN_INTERVAL_SECONDS = 5
 MAX_SCAN_INTERVAL_SECONDS = 300
+CONF_ALLOW_CONTROL = "allow_control"
+# Off by default so Home Assistant does not fight an existing energy manager.
+DEFAULT_ALLOW_CONTROL = False
 # Register mapping version this integration supports.
 EXPECTED_MAPPING_VERSION = 0x0002
 
@@ -43,3 +46,8 @@ def get_scan_interval(entry: ConfigEntry) -> timedelta:
     )
     seconds = max(MIN_SCAN_INTERVAL_SECONDS, min(seconds, MAX_SCAN_INTERVAL_SECONDS))
     return timedelta(seconds=seconds)
+
+
+def get_allow_control(entry: ConfigEntry) -> bool:
+    """Return whether the user allows Home Assistant to write to the Wallbox."""
+    return bool(entry.options.get(CONF_ALLOW_CONTROL, DEFAULT_ALLOW_CONTROL))

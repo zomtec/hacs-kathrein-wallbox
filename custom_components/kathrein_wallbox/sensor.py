@@ -278,7 +278,6 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: _amperes(c.evse.granted_current),
     ),
     KathreinSensorDescription(
@@ -287,7 +286,6 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: c.evse.granted_power,
     ),
     KathreinSensorDescription(

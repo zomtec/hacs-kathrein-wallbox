@@ -76,7 +76,11 @@
           "host": "Host",
           "port": "Port",
           "unit_id": "Modbus unit ID",
-          "scan_interval": "Polling interval (seconds)"
+          "scan_interval": "Polling interval (seconds)",
+          "allow_control": "Allow control by Home Assistant"
+        },
+        "data_description": {
+          "allow_control": "Lets Home Assistant change EMS control, charging current and phases of the Wallbox through entities and actions, and keep the EMS timeout alive. Off by default to avoid conflicts with an existing energy manager such as evcc. You can change this later in the integration options."
         }
       },
       "reconfigure": {
@@ -101,9 +105,13 @@
   "options": {
     "step": {
       "init": {
-        "title": "Polling settings",
+        "title": "Polling and control settings",
         "data": {
-          "scan_interval": "Polling interval (seconds)"
+          "scan_interval": "Polling interval (seconds)",
+          "allow_control": "Allow control by Home Assistant"
+        },
+        "data_description": {
+          "allow_control": "Lets Home Assistant change EMS control, charging current and phases of the Wallbox through entities and actions, and keep the EMS timeout alive. Off by default to avoid conflicts with an existing energy manager such as evcc. You can change this later in the integration options."
         }
       }
     }
@@ -112,6 +120,7 @@
     "entry_not_found": {"message": "No Kathrein Wallbox configuration found for {entry_id}."},
     "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
     "ems_control_disabled": {"message": "EMS control is off. Turn on EMS control before changing EMS setpoints."},
+    "control_not_allowed": {"message": "Control by Home Assistant is not allowed. Allow it in the integration options first."},
     "current_below_minimum": {"message": "EMS charging current must be 0 A to pause charging or at least {min_current} A."},
     "current_limit_11_kw": {"message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."},
     "write_failed": {"message": "Unable to write to the Wallbox: {error}"},
@@ -132,8 +141,7 @@
       }
     },
     "switch": {
-      "ems_control": {"name": "EMS control"},
-      "ems_keep_alive": {"name": "EMS keep-alive"}
+      "ems_control": {"name": "EMS control"}
     },
     "sensor": {
       "voltage_l1": {"name": "Voltage L1"},

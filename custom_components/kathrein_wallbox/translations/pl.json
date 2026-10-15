@@ -13,19 +13,20 @@
   },
   "config": {
     "step": {
-      "user": {"title": "Połącz z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)"}},
+      "user": {"title": "Połącz z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)", "allow_control": "Zezwól na sterowanie z Home Assistant"}, "data_description": {"allow_control": "Pozwala Home Assistant zmieniać sterowanie EMS, prąd ładowania i fazy wallboxa za pomocą encji i akcji oraz podtrzymywać limit czasu EMS. Domyślnie wyłączone, aby uniknąć konfliktu z istniejącym systemem zarządzania energią, takim jak evcc. Ustawienie można później zmienić w opcjach integracji."}},
       "reconfigure": {"title": "Zmień połączenie z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus"}}
     },
     "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."},
     "abort": {"already_configured": "Ten wallbox jest już skonfigurowany.", "reconfigure_successful": "Ustawienia połączenia zostały zaktualizowane.", "unique_id_mismatch": "Urządzenie pod tym adresem to inny wallbox niż ten, który jest ponownie konfigurowany."}
   },
   "options": {
-    "step": {"init": {"title": "Ustawienia odpytywania", "data": {"scan_interval": "Interwał odpytywania (sekundy)"}}}
+    "step": {"init": {"title": "Ustawienia odpytywania i sterowania", "data": {"scan_interval": "Interwał odpytywania (sekundy)", "allow_control": "Zezwól na sterowanie z Home Assistant"}, "data_description": {"allow_control": "Pozwala Home Assistant zmieniać sterowanie EMS, prąd ładowania i fazy wallboxa za pomocą encji i akcji oraz podtrzymywać limit czasu EMS. Domyślnie wyłączone, aby uniknąć konfliktu z istniejącym systemem zarządzania energią, takim jak evcc. Ustawienie można później zmienić w opcjach integracji."}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Nie znaleziono konfiguracji wallboxa Kathrein dla {entry_id}."},
     "entry_not_loaded": {"message": "Wallbox {title} nie jest aktywny."},
     "ems_control_disabled": {"message": "Sterowanie EMS jest wyłączone. Włącz sterowanie EMS przed zmianą wartości zadanych EMS."},
+    "control_not_allowed": {"message": "Sterowanie z Home Assistant jest niedozwolone. Najpierw zezwól na nie w opcjach integracji."},
     "current_below_minimum": {"message": "Prąd ładowania EMS musi wynosić 0 A (wstrzymanie ładowania) lub co najmniej {min_current} A."},
     "current_limit_11_kw": {"message": "Wallboxy 11 kW obsługują maksymalny prąd ładowania EMS wynoszący {max_current} A."},
     "write_failed": {"message": "Nie można zapisać do wallboxa: {error}"},
@@ -35,7 +36,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Prąd ładowania"}},
     "select": {"ems_relay_matrix": {"name": "Fazy", "state": {"phase_1": "Faza 1", "three_phases": "3 fazy"}}},
-    "switch": {"ems_control": {"name": "Sterowanie EMS"}, "ems_keep_alive": {"name": "Podtrzymanie EMS (keep-alive)"}},
+    "switch": {"ems_control": {"name": "Sterowanie EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Napięcie L1"}, "voltage_l2": {"name": "Napięcie L2"}, "voltage_l3": {"name": "Napięcie L3"},
       "current_l1": {"name": "Prąd L1"}, "current_l2": {"name": "Prąd L2"}, "current_l3": {"name": "Prąd L3"},

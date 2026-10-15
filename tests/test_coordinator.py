@@ -123,45 +123,35 @@ def _setpoint_writes(unit) -> list[list[int]]:
     ]
 
 
+@pytest.mark.parametrize(
+    ("timeout_s", "interval_s"), [(60, 30), (30, 15), (8, 5), (6, 5), (2, 5)]
+)
 async def test_keep_alive_rewrites_setpoint_within_timeout(
-    hass, coordinator, mock_modbus_unit
+    hass, coordinator, mock_modbus_unit, timeout_s, interval_s
 ) -> None:
-    """Rewrite the charging current at half the EMS timeout period."""
-    await _poll_with_ems(coordinator, mock_modbus_unit, 60)
-    coordinator.async_set_keep_alive(True)
+    """Rewrite the setpoint at half the EMS timeout, but at most every 5 s."""
+    await _poll_with_ems(coordinator, mock_modbus_unit, timeout_s)
+    start = dt_util.utcnow()
 
-    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
+    async_fire_time_changed(hass, start + timedelta(seconds=interval_s - 1))
     await hass.async_block_till_done()
+    assert _setpoint_writes(mock_modbus_unit) == []
 
+    async_fire_time_changed(hass, start + timedelta(seconds=interval_s + 0.5))
+    await hass.async_block_till_done()
     assert _setpoint_writes(mock_modbus_unit) == [[13000]]
 
 
-async def test_keep_alive_is_off_by_default(
+async def test_keep_alive_stops_without_timeout(
     hass, coordinator, mock_modbus_unit
 ) -> None:
-    """Leave the EMS timeout alone until the user turns the keep-alive on."""
+    """Write nothing once the Wallbox timeout is set to 0 s."""
     await _poll_with_ems(coordinator, mock_modbus_unit, 60)
-
-    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
-    await hass.async_block_till_done()
-
-    assert not coordinator.keep_alive_enabled
-    assert _setpoint_writes(mock_modbus_unit) == []
-
-
-async def test_keep_alive_turns_off_without_timeout(
-    hass, coordinator, mock_modbus_unit
-) -> None:
-    """Stop the keep-alive when the Wallbox timeout is set to 0 s."""
-    await _poll_with_ems(coordinator, mock_modbus_unit, 60)
-    coordinator.async_set_keep_alive(True)
-
     await _poll_with_ems(coordinator, mock_modbus_unit, 0)
+
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
     await hass.async_block_till_done()
 
-    assert not coordinator.keep_alive_supported
-    assert not coordinator.keep_alive_enabled
     assert _setpoint_writes(mock_modbus_unit) == []
 
 
@@ -170,7 +160,18 @@ async def test_keep_alive_skips_disabled_ems_control(
 ) -> None:
     """Write nothing while EMS control is off."""
     await _poll_with_ems(coordinator, mock_modbus_unit, 60, control=0)
-    coordinator.async_set_keep_alive(True)
+
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
+    await hass.async_block_till_done()
+
+    assert _setpoint_writes(mock_modbus_unit) == []
+
+
+async def test_keep_alive_needs_control_allowed(
+    hass, read_only_coordinator, mock_modbus_unit
+) -> None:
+    """Write nothing while the user does not allow control by Home Assistant."""
+    await _poll_with_ems(read_only_coordinator, mock_modbus_unit, 60)
 
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
     await hass.async_block_till_done()
@@ -183,7 +184,6 @@ async def test_keep_alive_survives_write_failure(
 ) -> None:
     """Log a failed keep-alive write once and keep the timer running."""
     await _poll_with_ems(coordinator, mock_modbus_unit, 60)
-    coordinator.async_set_keep_alive(True)
     mock_modbus_unit.fail_write(
         EMS_CHARGING_CURRENT_ADDRESS, ModbusError("write rejected")
     )

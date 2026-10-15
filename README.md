@@ -37,8 +37,9 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 1. In Home Assistant, open **Settings > Devices & services > Add integration** and search for **Kathrein Wallbox**, or use the setup button above after installation.
 2. Enter the Wallbox host or IP address. The default Modbus TCP port is `502`; the default unit ID is `0` (recommended by the register manual).
 3. Choose a polling interval. It defaults to `15` seconds and can be set from `5` to `300` seconds.
+4. Decide whether to turn on **Allow control by Home Assistant**. It is off by default, see [Control by Home Assistant](#control-by-home-assistant).
 
-To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval is changed in the integration options (**Configure**).
+To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval and **Allow control by Home Assistant** are changed in the integration options (**Configure**).
 
 The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries.
 
@@ -47,13 +48,26 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 | Group | Entities |
 | --- | --- |
 | Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. |
-| Charging | Charging state, session duration and energy, granted current and power. |
+| Charging | Charging state, session duration and energy, granted charging current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
-| EMS controls | `EMS control` switch, `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps), `Phases` select (`Phase 1` or `3 Phases`), and `EMS keep-alive` configuration switch. |
+| EMS controls | `EMS control` switch, `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
+
+## Control by Home Assistant
+
+Home Assistant only reads the Wallbox until you turn on **Allow control by Home Assistant** during setup or later in the integration options (**Configure**). Control has to be allowed explicitly because many Wallboxes are already controlled by an energy manager such as evcc. If Home Assistant wrote setpoints or kept the EMS timeout alive at the same time, the two systems would overwrite each other.
+
+While control is not allowed:
+
+- all sensors and binary sensors keep updating;
+- the `EMS control` switch, the `Charging current` number, and the `Phases` select are unavailable;
+- every EMS service is rejected with an error and writes nothing;
+- the EMS keep-alive does not run.
+
+Leave the option off if another energy manager controls the Wallbox. Turn it on if Home Assistant should control charging.
 
 ## EMS controls
 
@@ -65,15 +79,15 @@ The switch, number, and select entities write the same EMS registers as the serv
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
-While EMS control is off, the `Charging current`, `Phases`, and `EMS keep-alive` entities are unavailable and cannot be changed; the `EMS control` switch itself stays available.
+These entities are only available while control by Home Assistant is allowed. While EMS control is off, the `Charging current` and `Phases` entities are also unavailable and cannot be changed; the `EMS control` switch itself stays available.
 
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
 
 ### EMS keep-alive
 
-With an EMS timeout period above `0 s` (register `0x00A3`), the Wallbox falls back to the timeout fallback phases and current unless a setpoint is written again before the timeout expires. The `EMS keep-alive` switch lets the integration do this: while it is on and EMS control is enabled, the integration rewrites the current charging-current setpoint (`0x00A2`) every half timeout period, for example every 30 s for a 60 s timeout.
+With an EMS timeout period above `0 s` (register `0x00A3`), the Wallbox falls back to the timeout fallback phases and current unless a setpoint is written again before the timeout expires. The integration does this automatically while control by Home Assistant is allowed and EMS control is enabled: it rewrites the current charging-current setpoint (`0x00A2`) every half timeout period, but never more often than every `5 s`. For example, it writes every `30 s` for a `60 s` timeout and every `5 s` for an `8 s` timeout. A timeout of `5 s` or less cannot be kept alive reliably.
 
-The switch is off by default, so the keep-alive is a deliberate choice. Leave it off if another energy manager such as evcc already writes the setpoints, so that two systems do not keep the timeout alive at the same time. While the Wallbox reports a timeout of `0 s`, the switch is off and unavailable; while EMS control is off, it is unavailable but keeps its state; after a timeout above `0 s` is set, it becomes available and has to be turned on again. The switch state is kept across Home Assistant restarts.
+With a timeout of `0 s`, or while control is not allowed, no keep-alive is written.
 
 ## EMS control services
 
@@ -88,7 +102,7 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
 | `set_timeout_fallback_current` | `0x00A5` | `value`: `0` or `6` to `32` A in 1 A steps |
 
-While EMS control is off, all services except `set_ems_control_enabled` are rejected with an error and write nothing.
+While control by Home Assistant is not allowed, all services are rejected with an error and write nothing. While EMS control is off, all services except `set_ems_control_enabled` are rejected with an error and write nothing.
 
 Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 

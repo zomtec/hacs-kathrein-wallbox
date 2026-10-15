@@ -109,6 +109,14 @@ async def test_sensor_maps_register_values(
     assert _sensor(coordinator, key).native_value == expected
 
 
+@pytest.mark.parametrize("key", ["granted_current", "granted_power"])
+def test_granted_charging_sensors_are_not_diagnostic(key) -> None:
+    """List granted charging current and power with the regular sensors."""
+    description = next(item for item in SENSOR_DESCRIPTIONS if item.key == key)
+
+    assert description.entity_category is None
+
+
 async def test_meter_sensor_is_unavailable_without_optional_meter(coordinator) -> None:
     """Disable meter entities until a plausible meter has been detected."""
     entity = _sensor(coordinator, "voltage_l1")

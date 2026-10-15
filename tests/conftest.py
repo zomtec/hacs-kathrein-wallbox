@@ -10,7 +10,7 @@ from modbus_connection.mock import (
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.kathrein_wallbox.const import DOMAIN
+from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
 from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
 from custom_components.kathrein_wallbox.model import SERIAL_ADDRESS
 
@@ -35,13 +35,30 @@ def mock_modbus_unit() -> RecordingMockModbusUnit:
     return unit
 
 
-@pytest.fixture
-async def coordinator(hass, mock_modbus_unit) -> AsyncGenerator[KathreinCoordinator]:
+async def _async_coordinator(
+    hass, unit, allow_control: bool
+) -> AsyncGenerator[KathreinCoordinator]:
     """Create a coordinator with a read identity on an in-memory config entry."""
-    entry = MockConfigEntry(domain=DOMAIN)
+    entry = MockConfigEntry(domain=DOMAIN, options={CONF_ALLOW_CONTROL: allow_control})
     entry.add_to_hass(hass)
-    coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
+    coordinator = KathreinCoordinator(hass, entry, unit)
     await coordinator.identity.async_update()
     yield coordinator
     # Stop the poll and keep-alive timers so they do not outlive the test.
     await coordinator.async_shutdown()
+
+
+@pytest.fixture
+async def coordinator(hass, mock_modbus_unit) -> AsyncGenerator[KathreinCoordinator]:
+    """Create a coordinator that may write to the Wallbox."""
+    async for coordinator in _async_coordinator(hass, mock_modbus_unit, True):
+        yield coordinator
+
+
+@pytest.fixture
+async def read_only_coordinator(
+    hass, mock_modbus_unit
+) -> AsyncGenerator[KathreinCoordinator]:
+    """Create a coordinator whose user did not allow control by Home Assistant."""
+    async for coordinator in _async_coordinator(hass, mock_modbus_unit, False):
+        yield coordinator

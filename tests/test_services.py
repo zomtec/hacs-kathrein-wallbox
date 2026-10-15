@@ -18,7 +18,7 @@ from custom_components.kathrein_wallbox import (
     SERVICE_SET_TIMEOUT_PERIOD,
     async_setup,
 )
-from custom_components.kathrein_wallbox.const import DOMAIN
+from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
 from custom_components.kathrein_wallbox.coordinator import (
     KathreinCoordinator,
     WallboxRuntimeData,
@@ -29,10 +29,13 @@ DEVICE_INFO_11_KW = 0x0001
 EMS_CONTROL_ADDRESS = 0x00A0
 
 
-@pytest.fixture
-async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
+async def _async_ems_entry(
+    hass, mock_modbus_unit, allow_control: bool
+) -> AsyncGenerator[MockConfigEntry]:
     """Add a loaded config entry connected to the in-memory unit."""
-    entry = MockConfigEntry(domain=DOMAIN, title="Wallbox")
+    entry = MockConfigEntry(
+        domain=DOMAIN, title="Wallbox", options={CONF_ALLOW_CONTROL: allow_control}
+    )
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
     await coordinator.identity.async_update()
@@ -44,6 +47,20 @@ async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
     yield entry
     # Writes schedule a debounced refresh that must not outlive the test.
     await coordinator.async_shutdown()
+
+
+@pytest.fixture
+async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
+    """Add a loaded config entry that allows control by Home Assistant."""
+    async for entry in _async_ems_entry(hass, mock_modbus_unit, True):
+        yield entry
+
+
+@pytest.fixture
+async def read_only_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
+    """Add a loaded config entry that does not allow control by Home Assistant."""
+    async for entry in _async_ems_entry(hass, mock_modbus_unit, False):
+        yield entry
 
 
 async def _async_call(hass, entry, service, service_data) -> None:
@@ -88,6 +105,28 @@ async def test_ems_services_write_expected_register(
     assert [
         (event.address, event.values) for event in mock_modbus_unit.write_events
     ] == [(address, [value])]
+
+
+@pytest.mark.parametrize(
+    ("service", "service_data"),
+    [
+        (SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True}),
+        (SERVICE_SET_RELAY_MATRIX, {"value": "phase_1"}),
+        (SERVICE_SET_CHARGING_CURRENT, {"value": 13}),
+        (SERVICE_SET_TIMEOUT_PERIOD, {"value": "60"}),
+        (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, {"value": "three_phases"}),
+        (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, {"value": 7}),
+    ],
+)
+async def test_ems_services_need_control_allowed(
+    hass, mock_modbus_unit, read_only_entry, service, service_data
+) -> None:
+    """Reject every service without writing while control is not allowed."""
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_call(hass, read_only_entry, service, service_data)
+
+    assert error.value.translation_key == "control_not_allowed"
+    assert mock_modbus_unit.write_events == []
 
 
 @pytest.mark.parametrize(

@@ -174,6 +174,7 @@ def _setpoint_handler(
 
     async def _async_handle(call: ServiceCall) -> None:
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        coordinator.validate_control_allowed()
         _validate_ems_enabled(coordinator)
         value = service.to_register(call.data[ATTR_VALUE])
         if service.is_current:
@@ -189,6 +190,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def _async_set_ems_control_enabled(call: ServiceCall) -> None:
         """Enable or disable the EMS control register."""
         coordinator = _get_coordinator(hass, call.data[ATTR_ENTRY_ID])
+        coordinator.validate_control_allowed()
         value = EMS_CONTROL_ENABLED if call.data[ATTR_ENABLED] else EMS_CONTROL_DISABLED
         await coordinator.async_write_ems("control_register", value)
 
