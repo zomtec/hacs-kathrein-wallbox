@@ -72,3 +72,12 @@ def test_config_flow_fields_have_descriptions(step: str) -> None:
     for field in ("host", "port", "unit_id"):
         assert field in form["data"]
         assert form["data_description"][field]
+
+
+@pytest.mark.parametrize(("section", "step"), [("config", "user"), ("options", "init")])
+def test_polling_interval_has_description(section: str, step: str) -> None:
+    """Explain the polling interval in the setup and options forms."""
+    form = STRINGS[section]["step"][step]
+
+    assert "scan_interval" in form["data"]
+    assert form["data_description"]["scan_interval"]
