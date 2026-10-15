@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from modbus_connection import ModbusError, ModbusUnit
 
-from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN
+from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN, get_allow_control
 from .model import (
     WallboxEMSControl,
     WallboxEVSE,
@@ -27,6 +27,8 @@ _LOGGER = logging.getLogger(__name__)
 
 # Rewrite the setpoint twice per timeout period so one missed write is tolerated.
 KEEP_ALIVE_WRITES_PER_TIMEOUT = 2
+# Never rewrite the setpoint more often than this, whatever the EMS timeout.
+KEEP_ALIVE_MIN_INTERVAL = timedelta(seconds=5)
 
 
 class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
@@ -54,7 +56,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.ems_control = WallboxEMSControl(unit)
         self.meter_available = False
         self.session_energy_available = False
-        self.keep_alive_enabled = False
+        self.control_allowed = get_allow_control(entry)
         self._keep_alive_interval: timedelta | None = None
         self._cancel_keep_alive: CALLBACK_TYPE | None = None
         self._keep_alive_failed = False
@@ -125,6 +127,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
     async def async_write_ems(self, field: str, value: int) -> None:
         """Write an EMS control field, report device failures and refresh."""
+        self.validate_control_allowed()
         try:
             await self.ems_control.write(field, value)
         except ModbusError as err:
@@ -136,17 +139,13 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         # A debounced refresh would delay the read-back of a quick second write.
         await self.async_refresh()
 
-    @property
-    def keep_alive_supported(self) -> bool:
-        """Return whether the Wallbox runs an EMS timeout that a keep-alive resets."""
-        return bool(self.ems_control.timeout_period)
-
-    @callback
-    def async_set_keep_alive(self, enabled: bool) -> None:
-        """Turn the EMS timeout keep-alive on or off and notify entities."""
-        self.keep_alive_enabled = enabled
-        self._async_schedule_keep_alive()
-        self.async_update_listeners()
+    def validate_control_allowed(self) -> None:
+        """Reject writes unless the user allowed control by Home Assistant."""
+        if not self.control_allowed:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="control_not_allowed",
+            )
 
     async def async_shutdown(self) -> None:
         """Stop the keep-alive timer together with polling."""
@@ -156,12 +155,12 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     @callback
     def _async_schedule_keep_alive(self) -> None:
         """Run the keep-alive timer at a pace matching the current EMS timeout."""
-        if not self.keep_alive_supported:
-            self.keep_alive_enabled = False
+        timeout_period = self.ems_control.timeout_period
         interval = None
-        if self.keep_alive_enabled:
-            interval = timedelta(
-                seconds=self.ems_control.timeout_period / KEEP_ALIVE_WRITES_PER_TIMEOUT
+        if self.control_allowed and timeout_period:
+            interval = max(
+                KEEP_ALIVE_MIN_INTERVAL,
+                timedelta(seconds=timeout_period / KEEP_ALIVE_WRITES_PER_TIMEOUT),
             )
         if interval == self._keep_alive_interval:
             return

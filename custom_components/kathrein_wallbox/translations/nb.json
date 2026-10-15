@@ -13,19 +13,20 @@
   },
   "config": {
     "step": {
-      "user": {"title": "Koble til en Kathrein-ladeboks", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)"}},
+      "user": {"title": "Koble til en Kathrein-ladeboks", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)", "allow_control": "Tillat styring fra Home Assistant"}, "data_description": {"allow_control": "Lar Home Assistant endre EMS-styring, ladestrøm og faser på ladeboksen via entiteter og handlinger og holde EMS-tidsavbruddet aktivt. Av som standard for å unngå konflikter med en eksisterende energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."}},
       "reconfigure": {"title": "Oppdater tilkoblingen til Kathrein-ladeboksen", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID"}}
     },
     "error": {"cannot_connect": "Kan ikke koble til. Kontroller adressen og at Modbus-serveren er aktivert i easyOperate.", "unsupported_device": "Enheten rapporterte verken mappingversjon 2 eller et serienummer."},
     "abort": {"already_configured": "Denne ladeboksen er allerede konfigurert.", "reconfigure_successful": "Tilkoblingsinnstillingene er oppdatert.", "unique_id_mismatch": "Enheten på denne adressen er en annen ladeboks enn den som rekonfigureres."}
   },
   "options": {
-    "step": {"init": {"title": "Innstillinger for avspørring", "data": {"scan_interval": "Avspørringsintervall (sekunder)"}}}
+    "step": {"init": {"title": "Innstillinger for avspørring og styring", "data": {"scan_interval": "Avspørringsintervall (sekunder)", "allow_control": "Tillat styring fra Home Assistant"}, "data_description": {"allow_control": "Lar Home Assistant endre EMS-styring, ladestrøm og faser på ladeboksen via entiteter og handlinger og holde EMS-tidsavbruddet aktivt. Av som standard for å unngå konflikter med en eksisterende energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."}}}
   },
   "exceptions": {
     "entry_not_found": {"message": "Fant ingen Kathrein-ladeboks-konfigurasjon for {entry_id}."},
     "entry_not_loaded": {"message": "Ladeboksen {title} er ikke aktiv."},
     "ems_control_disabled": {"message": "EMS-styring er slått av. Slå på EMS-styring før du endrer EMS-settpunkter."},
+    "control_not_allowed": {"message": "Styring fra Home Assistant er ikke tillatt. Tillat det først i integrasjonens alternativer."},
     "current_below_minimum": {"message": "EMS-ladestrømmen må være 0 A (pause lading) eller minst {min_current} A."},
     "current_limit_11_kw": {"message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."},
     "write_failed": {"message": "Kan ikke skrive til ladeboksen: {error}"},
@@ -35,7 +36,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Ladestrøm"}},
     "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fase 1", "three_phases": "3 faser"}}},
-    "switch": {"ems_control": {"name": "EMS-styring"}, "ems_keep_alive": {"name": "EMS-keep-alive"}},
+    "switch": {"ems_control": {"name": "EMS-styring"}},
     "sensor": {
       "voltage_l1": {"name": "Spenning L1"}, "voltage_l2": {"name": "Spenning L2"}, "voltage_l3": {"name": "Spenning L3"},
       "current_l1": {"name": "Strøm L1"}, "current_l2": {"name": "Strøm L2"}, "current_l3": {"name": "Strøm L3"},

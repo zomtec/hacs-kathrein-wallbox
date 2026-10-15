@@ -2,25 +2,18 @@
 
 import pytest
 from homeassistant.components.number import NumberMode
-from homeassistant.core import State
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from modbus_connection import ModbusError
-from pytest_homeassistant_custom_component.common import mock_restore_cache
 
 from custom_components.kathrein_wallbox.number import KathreinChargingCurrentNumber
 from custom_components.kathrein_wallbox.select import KathreinRelayMatrixSelect
-from custom_components.kathrein_wallbox.switch import (
-    KathreinEmsControlSwitch,
-    KathreinEmsKeepAliveSwitch,
-)
+from custom_components.kathrein_wallbox.switch import KathreinEmsControlSwitch
 
 DEVICE_INFO_ADDRESS = 0x0019
 DEVICE_INFO_11_KW = 0x0001
 EMS_CONTROL_ADDRESS = 0x00A0
 EMS_RELAY_MATRIX_ADDRESS = 0x00A1
 EMS_CHARGING_CURRENT_ADDRESS = 0x00A2
-EMS_TIMEOUT_PERIOD_ADDRESS = 0x00A3
-KEEP_ALIVE_ENTITY_ID = "switch.kathrein_wallbox_ems_keep_alive"
 
 
 def _writes(unit) -> list[tuple[int, list[int]]]:
@@ -176,62 +169,11 @@ async def test_control_reports_device_write_failure(
     assert error.value.translation_key == "write_failed"
 
 
-@pytest.mark.parametrize(("timeout_s", "available"), [(60, True), (0, False)])
-async def test_keep_alive_switch_needs_ems_timeout(
-    coordinator, mock_modbus_unit, timeout_s, available
-) -> None:
-    """Start off and allow control only with an EMS timeout above 0 s."""
-    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
-    await _set_ems_register(
-        coordinator, mock_modbus_unit, EMS_TIMEOUT_PERIOD_ADDRESS, timeout_s
-    )
-    switch = KathreinEmsKeepAliveSwitch(coordinator)
-
-    assert switch.available is available
-    assert switch.is_on is False
-
-
-async def test_keep_alive_switch_turns_keep_alive_on_and_off(
-    coordinator, mock_modbus_unit
-) -> None:
-    """Switch the keep-alive without writing to the Wallbox."""
-    await _set_ems_register(
-        coordinator, mock_modbus_unit, EMS_TIMEOUT_PERIOD_ADDRESS, 60
-    )
-    switch = KathreinEmsKeepAliveSwitch(coordinator)
-
-    await switch.async_turn_on()
-    assert switch.is_on is True
-
-    await switch.async_turn_off()
-    assert switch.is_on is False
-    assert _writes(mock_modbus_unit) == []
-
-
-@pytest.mark.parametrize(("timeout_s", "restored"), [(60, True), (0, False)])
-async def test_keep_alive_switch_restores_state(
-    hass, coordinator, mock_modbus_unit, timeout_s, restored
-) -> None:
-    """Resume a keep-alive turned on before a restart if a timeout is still set."""
-    await _set_ems_register(
-        coordinator, mock_modbus_unit, EMS_TIMEOUT_PERIOD_ADDRESS, timeout_s
-    )
-    mock_restore_cache(hass, [State(KEEP_ALIVE_ENTITY_ID, "on")])
-    switch = KathreinEmsKeepAliveSwitch(coordinator)
-    switch.hass = hass
-    switch.entity_id = KEEP_ALIVE_ENTITY_ID
-
-    await switch.async_added_to_hass()
-
-    assert switch.is_on is restored
-
-
 @pytest.mark.parametrize(
     "entity_class",
     [
         KathreinChargingCurrentNumber,
         KathreinRelayMatrixSelect,
-        KathreinEmsKeepAliveSwitch,
     ],
 )
 @pytest.mark.parametrize(("control", "available"), [(0x8000, True), (0, False)])
@@ -239,7 +181,6 @@ async def test_controls_need_ems_control(
     coordinator, mock_modbus_unit, entity_class, control, available
 ) -> None:
     """Allow the other controls only while EMS control is on."""
-    mock_modbus_unit.holding[EMS_TIMEOUT_PERIOD_ADDRESS] = 60
     await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, control)
 
     assert entity_class(coordinator).available is available
@@ -252,3 +193,33 @@ async def test_ems_control_switch_stays_available_while_off(
     await _set_ems_register(coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, 0)
 
     assert KathreinEmsControlSwitch(coordinator).available
+
+
+@pytest.mark.parametrize(
+    "entity_class",
+    [
+        KathreinEmsControlSwitch,
+        KathreinChargingCurrentNumber,
+        KathreinRelayMatrixSelect,
+    ],
+)
+async def test_controls_need_control_allowed(
+    read_only_coordinator, mock_modbus_unit, entity_class
+) -> None:
+    """Disable all controls while control by Home Assistant is not allowed."""
+    await _set_ems_register(
+        read_only_coordinator, mock_modbus_unit, EMS_CONTROL_ADDRESS, 0x8000
+    )
+
+    assert entity_class(read_only_coordinator).available is False
+
+
+async def test_write_is_rejected_without_control_allowed(
+    read_only_coordinator, mock_modbus_unit
+) -> None:
+    """Refuse to write while control by Home Assistant is not allowed."""
+    with pytest.raises(ServiceValidationError) as error:
+        await KathreinEmsControlSwitch(read_only_coordinator).async_turn_on()
+
+    assert error.value.translation_key == "control_not_allowed"
+    assert _writes(mock_modbus_unit) == []

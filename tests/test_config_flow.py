@@ -16,7 +16,7 @@ from custom_components.kathrein_wallbox.const import DOMAIN
 async def test_user_flow_creates_entry_with_normalized_connection_data(
     hass, monkeypatch, enable_custom_integrations
 ) -> None:
-    """Store connection data and the polling interval option as whole numbers."""
+    """Store connection data as whole numbers and keep control off by default."""
     monkeypatch.setattr(
         config_flow,
         "_async_validate_input",
@@ -43,7 +43,7 @@ async def test_user_flow_creates_entry_with_normalized_connection_data(
         "port": 502,
         "unit_id": 1,
     }
-    assert result["options"] == {"scan_interval": 20}
+    assert result["options"] == {"scan_interval": 20, "allow_control": False}
 
 
 @pytest.mark.parametrize(
@@ -81,7 +81,7 @@ CONNECTION = {
     "port": 502,
     "unit_id": 1,
 }
-OPTIONS = {"scan_interval": 20}
+OPTIONS = {"scan_interval": 20, "allow_control": True}
 NEW_CONNECTION = {**CONNECTION, "host": "new-wallbox.local"}
 
 
@@ -202,26 +202,37 @@ async def test_reconfigure_reports_validation_errors(
 
 
 @pytest.mark.asyncio
-async def test_options_flow_offers_only_the_polling_interval(
-    hass, wallbox_entry
-) -> None:
-    """Leave connection settings to reconfigure and prefill the current interval."""
+async def test_options_flow_offers_polling_and_control(hass, wallbox_entry) -> None:
+    """Leave connection settings to reconfigure and prefill the current options."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
 
     assert result["type"] == "form"
-    assert list(result["data_schema"].schema) == ["scan_interval"]
+    assert list(result["data_schema"].schema) == ["scan_interval", "allow_control"]
     assert result["data_schema"]({}) == OPTIONS
 
 
 @pytest.mark.asyncio
-async def test_options_flow_updates_polling_interval(hass, wallbox_entry) -> None:
-    """Store the new interval without touching the connection data."""
+async def test_options_flow_defaults_to_no_control(
+    hass, enable_custom_integrations
+) -> None:
+    """Prefill control as not allowed for an entry without that option."""
+    entry = MockConfigEntry(domain=DOMAIN, data=CONNECTION, options={})
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["data_schema"]({})["allow_control"] is False
+
+
+@pytest.mark.asyncio
+async def test_options_flow_updates_options(hass, wallbox_entry) -> None:
+    """Store the new options without touching the connection data."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
 
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {"scan_interval": 30.0}
+        result["flow_id"], {"scan_interval": 30.0, "allow_control": False}
     )
 
     assert result["type"] == "create_entry"
-    assert wallbox_entry.options == {"scan_interval": 30}
+    assert wallbox_entry.options == {"scan_interval": 30, "allow_control": False}
     assert wallbox_entry.data == CONNECTION
