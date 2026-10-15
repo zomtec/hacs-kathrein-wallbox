@@ -15,7 +15,6 @@ from custom_components.kathrein_wallbox.const import (
 
 SERIAL = "G0R1234567"
 CONTROL_ENTITIES = (
-    ("switch", "ems_control"),
     ("number", "ems_charging_current"),
     ("select", "ems_relay_matrix"),
 )
@@ -82,7 +81,7 @@ async def test_controls_follow_allow_control_option(hass, entry) -> None:
     assert set(_disabled_by(hass).values()) == {None}
     assert hass.states.get(
         er.async_get(hass).async_get_entity_id(
-            "switch", DOMAIN, f"{SERIAL}_ems_control"
+            "number", DOMAIN, f"{SERIAL}_ems_charging_current"
         )
     )
 
@@ -96,14 +95,15 @@ async def test_user_disabled_controls_stay_disabled(hass, entry) -> None:
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     registry = er.async_get(hass)
-    switch_id = registry.async_get_entity_id("switch", DOMAIN, f"{SERIAL}_ems_control")
-    registry.async_update_entity(switch_id, disabled_by=er.RegistryEntryDisabler.USER)
+    number_id = registry.async_get_entity_id(
+        "number", DOMAIN, f"{SERIAL}_ems_charging_current"
+    )
+    registry.async_update_entity(number_id, disabled_by=er.RegistryEntryDisabler.USER)
 
     await _async_set_allow_control(hass, entry, False)
     await _async_set_allow_control(hass, entry, True)
 
     assert _disabled_by(hass) == {
-        "ems_control": er.RegistryEntryDisabler.USER,
-        "ems_charging_current": None,
+        "ems_charging_current": er.RegistryEntryDisabler.USER,
         "ems_relay_matrix": None,
     }

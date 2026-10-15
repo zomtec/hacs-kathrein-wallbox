@@ -36,7 +36,6 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Courant de charge"}},
     "select": {"ems_relay_matrix": {"name": "Phases", "state": {"phase_1": "Phase 1", "three_phases": "3 phases"}}},
-    "switch": {"ems_control": {"name": "Commande EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Tension L1"}, "voltage_l2": {"name": "Tension L2"}, "voltage_l3": {"name": "Tension L3"},
       "current_l1": {"name": "Courant L1"}, "current_l2": {"name": "Courant L2"}, "current_l3": {"name": "Courant L3"},
@@ -60,6 +59,7 @@
       "pp_short_circuit": {"name": "Court-circuit du PP", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
       "internal_error": {"name": "Erreur interne", "state": {"on": "Défaut détecté", "off": "Aucun défaut"}},
       "relay_l1": {"name": "Relais L1"}, "relay_l2": {"name": "Relais L2"}, "relay_l3": {"name": "Relais L3"},
+      "ems_control": {"name": "Commande EMS", "state": {"on": "Active", "off": "Inactive"}},
       "meter_available": {"name": "Compteur d’énergie disponible"}
     }
   }

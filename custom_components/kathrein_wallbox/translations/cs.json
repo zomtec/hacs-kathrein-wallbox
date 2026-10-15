@@ -36,7 +36,6 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Nabíjecí proud"}},
     "select": {"ems_relay_matrix": {"name": "Fáze", "state": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}}},
-    "switch": {"ems_control": {"name": "Řízení EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Napětí L1"}, "voltage_l2": {"name": "Napětí L2"}, "voltage_l3": {"name": "Napětí L3"},
       "current_l1": {"name": "Proud L1"}, "current_l2": {"name": "Proud L2"}, "current_l3": {"name": "Proud L3"},
@@ -60,6 +59,7 @@
       "pp_short_circuit": {"name": "Zkrat PP", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
       "internal_error": {"name": "Interní chyba", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
       "relay_l1": {"name": "Relé L1"}, "relay_l2": {"name": "Relé L2"}, "relay_l3": {"name": "Relé L3"},
+      "ems_control": {"name": "Řízení EMS", "state": {"on": "Aktivní", "off": "Neaktivní"}},
       "meter_available": {"name": "Elektroměr je k dispozici"}
     }
   }

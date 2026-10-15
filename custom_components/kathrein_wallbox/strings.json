@@ -140,9 +140,6 @@
         }
       }
     },
-    "switch": {
-      "ems_control": {"name": "EMS control"}
-    },
     "sensor": {
       "voltage_l1": {"name": "Voltage L1"},
       "voltage_l2": {"name": "Voltage L2"},
@@ -254,6 +251,7 @@
       "relay_l1": {"name": "Relay L1"},
       "relay_l2": {"name": "Relay L2"},
       "relay_l3": {"name": "Relay L3"},
+      "ems_control": {"name": "EMS control", "state": {"on": "Active", "off": "Inactive"}},
       "meter_available": {"name": "Energy meter available"}
     }
   }

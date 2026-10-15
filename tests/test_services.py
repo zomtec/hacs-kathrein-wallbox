@@ -29,6 +29,10 @@ DEVICE_INFO_11_KW = 0x0001
 EMS_CONTROL_ADDRESS = 0x00A0
 
 
+def _writes(unit) -> list[tuple[int, list[int]]]:
+    return [(event.address, event.values) for event in unit.write_events]
+
+
 async def _async_ems_entry(
     hass, mock_modbus_unit, allow_control: bool
 ) -> AsyncGenerator[MockConfigEntry]:
@@ -102,15 +106,15 @@ async def test_ems_services_write_expected_register(
     """Write each supported EMS command to its documented register."""
     await _async_call(hass, ems_entry, service, service_data)
 
-    assert [
-        (event.address, event.values) for event in mock_modbus_unit.write_events
-    ] == [(address, [value])]
+    writes = [(address, [value])]
+    if service in (SERVICE_SET_RELAY_MATRIX, SERVICE_SET_CHARGING_CURRENT):
+        writes.insert(0, (EMS_CONTROL_ADDRESS, [0x8000]))
+    assert _writes(mock_modbus_unit) == writes
 
 
 @pytest.mark.parametrize(
     ("service", "service_data"),
     [
-        (SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True}),
         (SERVICE_SET_RELAY_MATRIX, {"value": "phase_1"}),
         (SERVICE_SET_CHARGING_CURRENT, {"value": 13}),
         (SERVICE_SET_TIMEOUT_PERIOD, {"value": "60"}),
@@ -121,7 +125,7 @@ async def test_ems_services_write_expected_register(
 async def test_ems_services_need_control_allowed(
     hass, mock_modbus_unit, read_only_entry, service, service_data
 ) -> None:
-    """Reject every service without writing while control is not allowed."""
+    """Reject setpoint services without writing while control is not allowed."""
     with pytest.raises(ServiceValidationError) as error:
         await _async_call(hass, read_only_entry, service, service_data)
 
@@ -185,9 +189,7 @@ async def test_11_kw_wallbox_accepts_maximum_ems_current(
 
     await _async_call(hass, ems_entry, service, {"value": value})
 
-    assert [
-        (event.address, event.values) for event in mock_modbus_unit.write_events
-    ] == [(address, [16000])]
+    assert _writes(mock_modbus_unit)[-1] == (address, [16000])
 
 
 @pytest.mark.parametrize(
@@ -255,17 +257,15 @@ async def test_ems_service_reports_device_write_failure(
 @pytest.mark.parametrize(
     ("service", "value"),
     [
-        (SERVICE_SET_RELAY_MATRIX, "phase_1"),
-        (SERVICE_SET_CHARGING_CURRENT, 13),
         (SERVICE_SET_TIMEOUT_PERIOD, "60"),
         (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "three_phases"),
         (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, 7),
     ],
 )
-async def test_ems_setpoint_services_reject_disabled_ems_control(
+async def test_ems_timeout_services_reject_disabled_ems_control(
     hass, mock_modbus_unit, ems_entry, service, value
 ) -> None:
-    """Reject setpoints without writing while EMS control is off."""
+    """Reject timeout settings without writing while EMS control is off."""
     coordinator = ems_entry.runtime_data.coordinator
     mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
     await coordinator.ems_control.async_update()
@@ -289,6 +289,39 @@ async def test_ems_control_service_enables_disabled_ems_control(
         hass, ems_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True}
     )
 
-    assert [
-        (event.address, event.values) for event in mock_modbus_unit.write_events
-    ] == [(EMS_CONTROL_ADDRESS, [0x8000])]
+    assert _writes(mock_modbus_unit) == [(EMS_CONTROL_ADDRESS, [0x8000])]
+
+
+@pytest.mark.parametrize(
+    ("service", "value", "address", "register"),
+    [
+        (SERVICE_SET_RELAY_MATRIX, "phase_1", 0x00A1, 1),
+        (SERVICE_SET_CHARGING_CURRENT, 13, 0x00A2, 13000),
+    ],
+)
+async def test_ems_setpoint_services_enable_disabled_ems_control(
+    hass, mock_modbus_unit, ems_entry, service, value, address, register
+) -> None:
+    """Enable EMS control before writing a setpoint while it is off."""
+    coordinator = ems_entry.runtime_data.coordinator
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
+    await coordinator.ems_control.async_update()
+
+    await _async_call(hass, ems_entry, service, {"value": value})
+
+    assert _writes(mock_modbus_unit) == [
+        (EMS_CONTROL_ADDRESS, [0x8000]),
+        (address, [register]),
+    ]
+
+
+@pytest.mark.parametrize(("enabled", "value"), [(True, 0x8000), (False, 0)])
+async def test_ems_control_service_works_without_control_allowed(
+    hass, mock_modbus_unit, read_only_entry, enabled, value
+) -> None:
+    """Switch EMS control even while control by Home Assistant is not allowed."""
+    await _async_call(
+        hass, read_only_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": enabled}
+    )
+
+    assert _writes(mock_modbus_unit) == [(EMS_CONTROL_ADDRESS, [value])]

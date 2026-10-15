@@ -36,7 +36,6 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Laadstroom"}},
     "select": {"ems_relay_matrix": {"name": "Fasen", "state": {"phase_1": "Fase 1", "three_phases": "3 fasen"}}},
-    "switch": {"ems_control": {"name": "EMS-regeling"}},
     "sensor": {
       "voltage_l1": {"name": "Spanning L1"}, "voltage_l2": {"name": "Spanning L2"}, "voltage_l3": {"name": "Spanning L3"},
       "current_l1": {"name": "Stroom L1"}, "current_l2": {"name": "Stroom L2"}, "current_l3": {"name": "Stroom L3"},
@@ -60,6 +59,7 @@
       "pp_short_circuit": {"name": "PP-kortsluiting", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
       "internal_error": {"name": "Interne fout", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
       "relay_l1": {"name": "Relais L1"}, "relay_l2": {"name": "Relais L2"}, "relay_l3": {"name": "Relais L3"},
+      "ems_control": {"name": "EMS-regeling", "state": {"on": "Actief", "off": "Inactief"}},
       "meter_available": {"name": "Energiemeter beschikbaar"}
     }
   }

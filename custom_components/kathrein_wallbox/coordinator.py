@@ -16,6 +16,8 @@ from modbus_connection import ModbusError, ModbusUnit
 
 from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN, get_allow_control
 from .model import (
+    EMS_CONTROL_DISABLED,
+    EMS_CONTROL_ENABLED,
     WallboxEMSControl,
     WallboxEVSE,
     WallboxIdentity,
@@ -125,11 +127,27 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             ems_control=self.ems_control,
         )
 
-    async def async_write_ems(self, field: str, value: int) -> None:
-        """Write an EMS control field, report device failures and refresh."""
+    async def async_write_ems(
+        self, field: str, value: int, *, enable_ems: bool = False
+    ) -> None:
+        """Write an allowed EMS field, optionally enabling EMS control first."""
         self.validate_control_allowed()
+        writes = [(field, value)]
+        if enable_ems:
+            # Setpoints only take effect while EMS control is enabled.
+            writes.insert(0, ("control_register", EMS_CONTROL_ENABLED))
+        await self._async_write_ems_fields(writes)
+
+    async def async_set_ems_control(self, enabled: bool) -> None:
+        """Switch EMS control, even while control by Home Assistant is not allowed."""
+        value = EMS_CONTROL_ENABLED if enabled else EMS_CONTROL_DISABLED
+        await self._async_write_ems_fields([("control_register", value)])
+
+    async def _async_write_ems_fields(self, writes: list[tuple[str, int]]) -> None:
+        """Write EMS fields in order, report device failures and refresh."""
         try:
-            await self.ems_control.write(field, value)
+            for field, value in writes:
+                await self.ems_control.write(field, value)
         except ModbusError as err:
             raise HomeAssistantError(
                 translation_domain=DOMAIN,

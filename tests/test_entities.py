@@ -69,6 +69,7 @@ def test_entity_keys_are_stable() -> None:
         "relay_l1",
         "relay_l2",
         "relay_l3",
+        "ems_control",
         "meter_available",
     }
 
@@ -203,3 +204,14 @@ async def test_binary_sensors_decode_fault_and_relay_bits(
     assert _binary_sensor(coordinator, "internal_error").is_on is False
     assert _binary_sensor(coordinator, "relay_l3").is_on is True
     assert _binary_sensor(coordinator, "relay_l1").is_on is False
+
+
+@pytest.mark.parametrize(("register", "expected"), [(0x8000, True), (0, False)])
+async def test_ems_control_binary_sensor_reads_control_bit(
+    coordinator, mock_modbus_unit, register, expected
+) -> None:
+    """Report EMS control from bit 15 of the control register, even read-only."""
+    mock_modbus_unit.holding[0x00A0] = register
+    await coordinator.ems_control.async_update()
+
+    assert _binary_sensor(coordinator, "ems_control").is_on is expected
