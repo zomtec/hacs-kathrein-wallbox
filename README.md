@@ -142,6 +142,14 @@ The register manual describes FLOAT32 values as IEEE 754 but does not specify wo
 
 Downloaded config-entry diagnostics include model and mapping information, meter availability, and register snapshots from the identity, EVSE, meter, and session-energy blocks. Serial-number registers `0x0011`-`0x0018` are removed. EMS control registers are not included. Review diagnostics before sharing them publicly.
 
+## Removing the integration
+
+1. Open **Settings > Devices & services**, select **Kathrein Wallbox**, open the menu (⋮) of the entry, and choose **Delete**.
+2. Optionally, remove **Kathrein Wallbox** in HACS (or delete `custom_components/kathrein_wallbox` for a manual installation).
+3. Restart Home Assistant.
+
+Removing the integration does not reset anything on the Wallbox. EMS control and the last setpoint stay as they were last written, see [EMS controls](#ems-controls). To hand the Wallbox back to its own control, call `set_ems_control_enabled` with `enabled: false` before removing the integration.
+
 ## Support
 
 Please [open an issue](https://github.com/zomtec/hacs-kathrein-wallbox/issues) for bug reports or feature requests. Include your Home Assistant version, Wallbox model and firmware if known, and relevant diagnostics with personal or network details reviewed.
