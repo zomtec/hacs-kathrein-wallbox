@@ -26,6 +26,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Ingen Kathrein-laddboxkonfiguration hittades för {entry_id}."},
     "entry_not_loaded": {"message": "Laddboxen {title} är inte aktiv."},
+    "ems_control_disabled": {"message": "EMS-styrning är avstängd. Slå på EMS-styrning innan du ändrar EMS-börvärden."},
     "current_below_minimum": {"message": "EMS-laddströmmen måste vara 0 A (pausa laddningen) eller minst {min_current} A."},
     "current_limit_11_kw": {"message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."},
     "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"}

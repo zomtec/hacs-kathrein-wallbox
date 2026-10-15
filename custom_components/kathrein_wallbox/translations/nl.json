@@ -26,6 +26,7 @@
   "exceptions": {
     "entry_not_found": {"message": "Er is geen Kathrein-wallboxconfiguratie gevonden voor {entry_id}."},
     "entry_not_loaded": {"message": "De wallbox {title} is niet actief."},
+    "ems_control_disabled": {"message": "EMS-regeling staat uit. Schakel EMS-regeling in voordat u EMS-setpoints wijzigt."},
     "current_below_minimum": {"message": "De EMS-laadstroom moet 0 A (laden pauzeren) of minimaal {min_current} A zijn."},
     "current_limit_11_kw": {"message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."},
     "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"}
