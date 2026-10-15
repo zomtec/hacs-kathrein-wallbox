@@ -33,7 +33,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Corriente de carga"}},
     "select": {"ems_relay_matrix": {"name": "Fases", "state": {"phase_1": "Fase 1", "three_phases": "3 fases"}}},
-    "switch": {"ems_control": {"name": "Control EMS"}},
+    "switch": {"ems_control": {"name": "Control EMS"}, "ems_keep_alive": {"name": "Keep-alive EMS"}},
     "sensor": {
       "voltage_l1": {"name": "Tensión L1"}, "voltage_l2": {"name": "Tensión L2"}, "voltage_l3": {"name": "Tensión L3"},
       "current_l1": {"name": "Corriente L1"}, "current_l2": {"name": "Corriente L2"}, "current_l3": {"name": "Corriente L3"},

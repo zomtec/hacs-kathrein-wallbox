@@ -33,7 +33,7 @@
   "entity": {
     "number": {"ems_charging_current": {"name": "Laddström"}},
     "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fas 1", "three_phases": "3 faser"}}},
-    "switch": {"ems_control": {"name": "EMS-styrning"}},
+    "switch": {"ems_control": {"name": "EMS-styrning"}, "ems_keep_alive": {"name": "EMS-keep-alive"}},
     "sensor": {
       "voltage_l1": {"name": "Spänning L1"}, "voltage_l2": {"name": "Spänning L2"}, "voltage_l3": {"name": "Spänning L3"},
       "current_l1": {"name": "Ström L1"}, "current_l2": {"name": "Ström L2"}, "current_l3": {"name": "Ström L3"},

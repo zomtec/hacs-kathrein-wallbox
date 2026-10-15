@@ -138,7 +138,8 @@
       }
     },
     "switch": {
-      "ems_control": {"name": "EMS Steuerung"}
+      "ems_control": {"name": "EMS Steuerung"},
+      "ems_keep_alive": {"name": "EMS Keep-Alive"}
     },
     "sensor": {
       "voltage_l1": {"name": "Spannung L1"},
