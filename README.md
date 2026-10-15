@@ -57,6 +57,16 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
 
+## Energy dashboard
+
+To track the energy used for charging in the Home Assistant energy dashboard, add the `Total energy` sensor as an individual device:
+
+1. Open the energy dashboard settings (**Settings > Dashboards > Energy**).
+2. Under **Individual devices**, select **Add device**.
+3. Choose the Wallbox's `Total energy` sensor and save.
+
+`Total energy` is the meter's lifetime counter in Wh with state class `total_increasing`, so Home Assistant builds long-term statistics from it. It keeps its last value during communication gaps and restarts, which avoids gaps in the statistics. The sensor requires a detected meter; if it is disabled, enable it from the entity registry first. Do not use `Energy charged` for the dashboard: it only counts the current charging session.
+
 ## Control by Home Assistant
 
 Home Assistant only reads the Wallbox until you turn on **Allow control by Home Assistant** during setup or later in the integration options (**Configure**). Control has to be allowed explicitly because many Wallboxes are already controlled by an energy manager such as evcc. If Home Assistant wrote charging current or phases at the same time, the two systems would overwrite each other.
