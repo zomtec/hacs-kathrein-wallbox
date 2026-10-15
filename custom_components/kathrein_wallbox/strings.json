@@ -83,6 +83,7 @@
           "host": "IP address or hostname of the Wallbox in your local network.",
           "port": "Modbus TCP port of the Wallbox. The default is 502.",
           "unit_id": "Modbus unit ID of the Wallbox. The Wallbox currently ignores it; keep the recommended value 0.",
+          "scan_interval": "How often Home Assistant reads the Wallbox, in seconds: 5 to 300 s. The default is 15 s.",
           "allow_control": "Lets Home Assistant change the charging current and phases of the Wallbox through entities and actions. If an EMS timeout is set on the Wallbox, Home Assistant repeats the setpoints regularly so the Wallbox does not drop back to its fallback values. Off by default so Home Assistant does not interfere with another energy manager such as evcc. You can change this later in the integration options."
         }
       },
@@ -119,6 +120,7 @@
           "allow_control": "Allow control by Home Assistant"
         },
         "data_description": {
+          "scan_interval": "How often Home Assistant reads the Wallbox, in seconds: 5 to 300 s. The default is 15 s.",
           "allow_control": "Lets Home Assistant change the charging current and phases of the Wallbox through entities and actions. If an EMS timeout is set on the Wallbox, Home Assistant repeats the setpoints regularly so the Wallbox does not drop back to its fallback values. Off by default so Home Assistant does not interfere with another energy manager such as evcc. You can change this later in the integration options."
         }
       }
