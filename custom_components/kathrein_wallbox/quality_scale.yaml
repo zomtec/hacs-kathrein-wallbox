@@ -6,10 +6,8 @@ rules:
   common-modules: done
   config-flow:
     status: todo
-    comment: data_description is missing for host, port and unit ID.
-  config-flow-test-coverage:
-    status: todo
-    comment: The device validation is always mocked and no test recovers from a form error.
+    comment: data_description is missing for the polling interval.
+  config-flow-test-coverage: done
   dependency-transparency: done
   docs-actions: done
   docs-conditions:
@@ -17,7 +15,7 @@ rules:
     comment: The integration provides no conditions.
   docs-high-level-description: done
   docs-installation-instructions: done
-  docs-removal-instructions: todo
+  docs-removal-instructions: done
   docs-triggers:
     status: exempt
     comment: The integration provides no triggers.
