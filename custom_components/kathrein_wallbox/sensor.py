@@ -36,6 +36,8 @@ from .model import (
     RelayMatrix,
 )
 
+PARALLEL_UPDATES = 0
+
 # PP value 0 is ambiguous; the device info cable bit picks one of these.
 PP_CABLE_NOT_CONNECTED = "cable_not_connected"
 PP_FIXED_CABLE_MOUNTED = "fixed_cable_mounted"

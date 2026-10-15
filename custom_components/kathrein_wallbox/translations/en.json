@@ -113,7 +113,9 @@
     "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
     "current_below_minimum": {"message": "EMS charging current must be 0 A to pause charging or at least {min_current} A."},
     "current_limit_11_kw": {"message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."},
-    "write_failed": {"message": "Unable to write to the Wallbox: {error}"}
+    "write_failed": {"message": "Unable to write to the Wallbox: {error}"},
+    "missing_serial_number": {"message": "The Wallbox did not report a serial number."},
+    "update_failed": {"message": "Unable to read the Wallbox: {error}"}
   },
   "entity": {
     "number": {

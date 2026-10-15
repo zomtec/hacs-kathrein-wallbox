@@ -27,7 +27,9 @@
     "entry_not_loaded": {"message": "Wallbox {title} nie jest aktywny."},
     "current_below_minimum": {"message": "Prąd ładowania EMS musi wynosić 0 A (wstrzymanie ładowania) lub co najmniej {min_current} A."},
     "current_limit_11_kw": {"message": "Wallboxy 11 kW obsługują maksymalny prąd ładowania EMS wynoszący {max_current} A."},
-    "write_failed": {"message": "Nie można zapisać do wallboxa: {error}"}
+    "write_failed": {"message": "Nie można zapisać do wallboxa: {error}"},
+    "missing_serial_number": {"message": "Wallbox nie zgłosił numeru seryjnego."},
+    "update_failed": {"message": "Nie można odczytać danych z wallboxa: {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Prąd ładowania"}},

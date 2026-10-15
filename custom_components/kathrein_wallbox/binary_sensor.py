@@ -15,6 +15,8 @@ from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import CoordinatorGetter, KathreinWallboxEntity
 from .model import ErrorState, RelayState
 
+PARALLEL_UPDATES = 0
+
 
 @dataclass(frozen=True, kw_only=True)
 class KathreinBinarySensorDescription(BinarySensorEntityDescription):

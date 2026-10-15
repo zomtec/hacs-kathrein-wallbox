@@ -27,7 +27,9 @@
     "entry_not_loaded": {"message": "Ladeboksen {title} er ikke aktiv."},
     "current_below_minimum": {"message": "EMS-ladestrømmen må være 0 A (pause lading) eller minst {min_current} A."},
     "current_limit_11_kw": {"message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."},
-    "write_failed": {"message": "Kan ikke skrive til ladeboksen: {error}"}
+    "write_failed": {"message": "Kan ikke skrive til ladeboksen: {error}"},
+    "missing_serial_number": {"message": "Ladeboksen rapporterte ikke et serienummer."},
+    "update_failed": {"message": "Kan ikke lese fra ladeboksen: {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Ladestrøm"}},

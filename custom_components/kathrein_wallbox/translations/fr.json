@@ -27,7 +27,9 @@
     "entry_not_loaded": {"message": "La wallbox {title} n’est pas active."},
     "current_below_minimum": {"message": "Le courant de charge EMS doit être de 0 A (mise en pause de la charge) ou d’au moins {min_current} A."},
     "current_limit_11_kw": {"message": "Les wallbox de 11 kW prennent en charge un courant de charge EMS maximal de {max_current} A."},
-    "write_failed": {"message": "Impossible d’écrire sur la wallbox : {error}"}
+    "write_failed": {"message": "Impossible d’écrire sur la wallbox : {error}"},
+    "missing_serial_number": {"message": "La wallbox n’a pas communiqué de numéro de série."},
+    "update_failed": {"message": "Impossible de lire la wallbox : {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Courant de charge"}},

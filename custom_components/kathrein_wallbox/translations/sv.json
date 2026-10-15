@@ -27,7 +27,9 @@
     "entry_not_loaded": {"message": "Laddboxen {title} är inte aktiv."},
     "current_below_minimum": {"message": "EMS-laddströmmen måste vara 0 A (pausa laddningen) eller minst {min_current} A."},
     "current_limit_11_kw": {"message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."},
-    "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"}
+    "write_failed": {"message": "Det gick inte att skriva till laddboxen: {error}"},
+    "missing_serial_number": {"message": "Laddboxen rapporterade inget serienummer."},
+    "update_failed": {"message": "Det gick inte att läsa från laddboxen: {error}"}
   },
   "entity": {
     "number": {"ems_charging_current": {"name": "Laddström"}},
