@@ -144,7 +144,7 @@ Please [open an issue](https://github.com/zomtec/hacs-kathrein-wallbox/issues) f
 
 ## Acknowledgments
 
-This integration was created with substantial assistance from GitHub Copilot.
+This integration was created with substantial assistance from Claude, an AI assistant by Anthropic.
 
 ## License
 
