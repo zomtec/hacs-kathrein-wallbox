@@ -51,17 +51,23 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.meter_available = False
         self.session_energy_available = False
 
-    async def _async_update_data(self) -> WallboxData:
-        """Read essential registers and isolate the optional energy meter."""
+    async def _async_setup(self) -> None:
+        """Read the static device identity once before the first poll."""
         try:
             await self.identity.async_update()
-            await self.evse.async_update()
-            await self.ems_control.async_update()
         except ModbusError as err:
             raise UpdateFailed(f"Unable to read Kathrein Wallbox: {err}") from err
 
         if not self.identity.serial:
             raise UpdateFailed("Kathrein Wallbox did not report a serial number")
+
+    async def _async_update_data(self) -> WallboxData:
+        """Read essential registers and isolate the optional energy meter."""
+        try:
+            await self.evse.async_update()
+            await self.ems_control.async_update()
+        except ModbusError as err:
+            raise UpdateFailed(f"Unable to read Kathrein Wallbox: {err}") from err
 
         try:
             await self.meter.async_update()
