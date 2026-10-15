@@ -4,9 +4,7 @@ rules:
   appropriate-polling: done
   brands: done
   common-modules: done
-  config-flow:
-    status: todo
-    comment: data_description is missing for the polling interval.
+  config-flow: done
   config-flow-test-coverage: done
   dependency-transparency: done
   docs-actions: done
