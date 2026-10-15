@@ -42,9 +42,7 @@
       "charging_state": {"name": "Estado do carregamento", "state": {"idle": "Em espera", "ev_connected": "Veículo elétrico ligado", "authentication_waiting": "A aguardar autenticação", "authentication_confirmed": "Autenticação confirmada", "charging_active": "Carregamento em curso", "charging_paused": "Carregamento em pausa", "charging_completed": "Carregamento concluído", "rfid_pairing": "Emparelhamento RFID", "error": "Erro", "unknown": "Desconhecido"}},
       "pp_state": {"name": "Sinal de proximidade (PP)", "state": {"not_connected_or_fixed_cable": "Cabo não ligado ou cabo fixo", "cable_not_connected": "Cabo não ligado", "fixed_cable_mounted": "Cabo fixo instalado", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Erro", "unknown": "Desconhecido"}},
       "cp_state": {"name": "Sinal de controlo (CP)", "state": {"state_a": "A: veículo não detetado", "state_b": "B: veículo detetado", "state_c": "C: veículo a carregar", "state_d": "D: carregamento com ventilação", "state_e": "E: curto-circuito no CP", "state_f": "F: EVSE indisponível", "unknown": "Desconhecido"}},
-      "granted_current": {"name": "Corrente de carregamento autorizada"}, "granted_power": {"name": "Potência de carregamento autorizada"}, "charging_duration": {"name": "Duração do carregamento"}, "charging_energy": {"name": "Energia carregada"},
-      "relay_matrix": {"name": "Configuração dos relés EMS", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fases", "unknown": "Desconhecido"}},
-      "charging_current": {"name": "Corrente de carregamento solicitada pelo EMS"}, "timeout_period": {"name": "Tempo limite do EMS"},
+      "granted_current": {"name": "Corrente de carregamento autorizada"}, "granted_power": {"name": "Potência de carregamento autorizada"}, "charging_duration": {"name": "Duração do carregamento"}, "charging_energy": {"name": "Energia carregada"}, "timeout_period": {"name": "Tempo limite do EMS"},
       "timeout_fallback_relay_matrix": {"name": "Configuração de recurso dos relés EMS", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fases", "unknown": "Desconhecido"}},
       "timeout_fallback_current": {"name": "Corrente de recurso do EMS"}
     },
@@ -59,7 +57,7 @@
       "pp_short_circuit": {"name": "Curto-circuito no PP", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
       "internal_error": {"name": "Erro interno", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
       "relay_l1": {"name": "Relé L1"}, "relay_l2": {"name": "Relé L2"}, "relay_l3": {"name": "Relé L3"},
-      "ems_control_enabled": {"name": "Controlo EMS ativado", "state": {"on": "Ativado", "off": "Desativado"}}, "meter_available": {"name": "Contador de energia disponível"}
+      "meter_available": {"name": "Contador de energia disponível"}
     }
   }
 }

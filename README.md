@@ -47,7 +47,7 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 | Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. |
 | Charging | Charging state, session duration and energy, granted current and power. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
-| EMS | EMS enabled state and readbacks for relay matrix, current, timeout, and timeout fallback values. |
+| EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
 | EMS controls | `EMS control` switch, `Charging current` number (0 A to pause, or 6 to 32 A in 1 A steps), and `Phases` select (`Phase 1` or `3 Phases`). |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
@@ -78,7 +78,7 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 | `set_timeout_fallback_relay_matrix` | `0x00A4` | `value`: `phase_1` or `three_phases` |
 | `set_timeout_fallback_current` | `0x00A5` | `value`: `0` or `6` to `32` A in 1 A steps |
 
-Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The relay-matrix sensors report `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
+Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
 Unsupported values and unknown or inactive Wallbox entries are rejected with a validation error before anything is written. A failed register write is reported as an error.
 

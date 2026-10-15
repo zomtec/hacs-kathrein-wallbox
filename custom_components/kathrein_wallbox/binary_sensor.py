@@ -13,7 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import CoordinatorGetter, KathreinWallboxEntity
-from .model import EMS_CONTROL_ENABLED, ErrorState, RelayState
+from .model import ErrorState, RelayState
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -65,14 +65,6 @@ ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
     _relay("relay_l1", RelayState.RELAY_L1),
     _relay("relay_l2", RelayState.RELAY_L2),
     _relay("relay_l3", RelayState.RELAY_L3),
-    KathreinBinarySensorDescription(
-        key="ems_control_enabled",
-        translation_key="ems_control_enabled",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        is_on_fn=lambda c: _bit_set(
-            c.ems_control.control_register, EMS_CONTROL_ENABLED
-        ),
-    ),
     KathreinBinarySensorDescription(
         key="meter_available",
         translation_key="meter_available",
