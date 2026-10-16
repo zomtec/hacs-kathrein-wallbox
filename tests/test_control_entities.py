@@ -1,11 +1,16 @@
 """Tests for disabling control entities while control is not allowed."""
 
+from datetime import timedelta
 from unittest.mock import Mock
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import entity_registry as er
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_time_changed,
+)
 
 from custom_components.kathrein_wallbox.const import (
     CONF_ALLOW_CONTROL,
@@ -107,3 +112,31 @@ async def test_user_disabled_controls_stay_disabled(hass, entry) -> None:
         "ems_charging_current": er.RegistryEntryDisabler.USER,
         "ems_relay_matrix": None,
     }
+
+
+async def test_keep_alive_runs_with_disabled_timeout_sensor(
+    hass, entry, mock_modbus_unit
+) -> None:
+    """Read the EMS timeout from the coordinator, not from its disabled sensor."""
+    mock_modbus_unit.holding[0x00A0] = 0x8000
+    mock_modbus_unit.holding[0x00A2] = 13000
+    mock_modbus_unit.holding[0x00A3] = 60
+    hass.config_entries.async_update_entry(entry, options={CONF_ALLOW_CONTROL: True})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    registry = er.async_get(hass)
+    sensor_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{SERIAL}_timeout_period"
+    )
+    assert registry.async_get(sensor_id).disabled_by is (
+        er.RegistryEntryDisabler.INTEGRATION
+    )
+
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
+    await hass.async_block_till_done()
+
+    assert [
+        event.values
+        for event in mock_modbus_unit.write_events
+        if event.address == 0x00A2
+    ] == [[13000]]

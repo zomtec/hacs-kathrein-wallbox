@@ -39,6 +39,7 @@ def _fault(key: str, flag: ErrorState) -> KathreinBinarySensorDescription:
         translation_key=key,
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
         is_on_fn=lambda c: _bit_set(c.evse.error_states, flag),
     )
 
@@ -50,6 +51,7 @@ def _relay(key: str, flag: RelayState) -> KathreinBinarySensorDescription:
         translation_key=key,
         device_class=BinarySensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
         is_on_fn=lambda c: _bit_set(c.evse.relay_state, flag),
     )
 

@@ -123,6 +123,41 @@ async def test_sensor_maps_register_values(
     assert _sensor(coordinator, key).native_value == expected
 
 
+def test_detail_entities_are_disabled_by_default() -> None:
+    """Enable only the main charging and meter entities for new installations."""
+    disabled = {
+        item.key
+        for item in (*SENSOR_DESCRIPTIONS, *ENTITY_DESCRIPTIONS)
+        if not item.entity_registry_enabled_default
+    }
+
+    assert disabled == {
+        *(
+            f"{q}_l{p}"
+            for q in ("voltage", "current", "active_power")
+            for p in (1, 2, 3)
+        ),
+        "frequency",
+        "pp_state",
+        "cp_state",
+        "relay_l1",
+        "relay_l2",
+        "relay_l3",
+        "timeout_period",
+        "timeout_fallback_relay_matrix",
+        "timeout_fallback_current",
+        "relay_welded",
+        "residual_dc_current",
+        "socket_lock_error",
+        "charging_overcurrent",
+        "ventilation_unavailable",
+        "cp_short_circuit",
+        "cp_loop_broken",
+        "pp_short_circuit",
+        "internal_error",
+    }
+
+
 @pytest.mark.parametrize("key", ["granted_current", "granted_power"])
 def test_granted_charging_sensors_are_not_diagnostic(key) -> None:
     """List granted charging current and power with the regular sensors."""
@@ -142,7 +177,7 @@ async def test_meter_sensor_is_unavailable_without_optional_meter(coordinator) -
 async def test_meter_sensor_is_enabled_once_a_meter_is_detected(coordinator) -> None:
     """Enable meter entities when the coordinator detected a plausible meter."""
     coordinator.meter_available = True
-    entity = _sensor(coordinator, "voltage_l1")
+    entity = _sensor(coordinator, "total_active_power")
 
     assert entity.entity_registry_enabled_default
 
