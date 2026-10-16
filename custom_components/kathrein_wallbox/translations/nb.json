@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Sammensveiset relé", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "residual_dc_current": {"name": "Reststrøm (likestrøm)", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
+      "residual_dc_current": {"name": "DC-jordfeilstrøm", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
       "socket_lock_error": {"name": "Feil i kontaktlås", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
       "charging_overcurrent": {"name": "Overstrøm ved lading", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
       "ventilation_unavailable": {"name": "Ventilasjon ikke tilgjengelig", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},

@@ -44,27 +44,27 @@
       }
     },
     "set_timeout_period": {
-      "name": "EMS Timeoutdauer einstellen",
+      "name": "EMS Timeout einstellen",
       "description": "Dauer der EMS Vorgabe einstellen.",
       "fields": {
         "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Timeoutdauer", "description": "Dauer in Sekunden oder deaktiviert."}
+        "value": {"name": "Timeout", "description": "Dauer in Sekunden oder deaktiviert."}
       }
     },
     "set_timeout_fallback_relay_matrix": {
-      "name": "EMS Timeout Fallback Relaismatrix einstellen",
+      "name": "EMS Ersatzwert Phasen einstellen",
       "description": "Phasen auswählen, die nach Ablauf des EMS Timeouts verwendet werden.",
       "fields": {
         "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Fallback Relaismatrix", "description": "Nach dem Timeout zu verwendende Phasen."}
+        "value": {"name": "Ersatzwert Phasen", "description": "Nach dem Timeout zu verwendende Phasen."}
       }
     },
     "set_timeout_fallback_current": {
-      "name": "EMS Timeout Fallback Ladestrom einstellen",
-      "description": "Fallback-Ladestrom nach Ablauf des EMS Timeouts einstellen.",
+      "name": "EMS Ersatzwert Ladestrom einstellen",
+      "description": "Ersatzwert für den Ladestrom nach Ablauf des EMS Timeouts einstellen.",
       "fields": {
         "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Fallback Ladestrom", "description": "Fallback-Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+        "value": {"name": "Ersatzwert Ladestrom", "description": "Ersatzwert für den Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
       }
     }
   },
@@ -85,7 +85,7 @@
           "port": "Modbus-TCP-Port der Wallbox. Standard ist 502.",
           "unit_id": "Modbus-Unit-ID der Wallbox. Die Wallbox ignoriert sie derzeit; behalte den empfohlenen Wert 0 bei.",
           "scan_interval": "Wie oft Home Assistant die Wallbox abfragt, in Sekunden: 5 bis 300 s. Standard ist 15 s.",
-          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Fallback-Werte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
+          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Ersatzwerte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       },
       "dhcp_confirm": {
@@ -101,7 +101,7 @@
           "port": "Modbus-TCP-Port der Wallbox. Standard ist 502.",
           "unit_id": "Modbus-Unit-ID der Wallbox. Die Wallbox ignoriert sie derzeit; behalte den empfohlenen Wert 0 bei.",
           "scan_interval": "Wie oft Home Assistant die Wallbox abfragt, in Sekunden: 5 bis 300 s. Standard ist 15 s.",
-          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Fallback-Werte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
+          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Ersatzwerte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       },
       "reconfigure": {
@@ -139,7 +139,7 @@
         },
         "data_description": {
           "scan_interval": "Wie oft Home Assistant die Wallbox abfragt, in Sekunden: 5 bis 300 s. Standard ist 15 s.",
-          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Fallback-Werte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
+          "allow_control": "Erlaubt Home Assistant, Ladestrom und Phasen der Wallbox über Entitäten und Aktionen zu ändern. Ist an der Wallbox ein EMS Timeout eingestellt, wiederholt Home Assistant die Sollwerte regelmäßig, damit die Wallbox nicht auf ihre Ersatzwerte zurückfällt. Standardmäßig aus, damit Home Assistant einem anderen Energiemanager wie evcc nicht in die Quere kommt. Die Einstellung kann später in den Optionen der Integration geändert werden."
         }
       }
     }
@@ -182,11 +182,11 @@
       "total_energy": {"name": "Gesamtenergie"},
       "frequency": {"name": "Netzfrequenz"},
       "charging_state": {
-        "name": "Ladezustand",
+        "name": "Ladestatus",
         "state": {
           "idle": "Bereit",
           "ev_connected": "Fahrzeug verbunden",
-          "authentication_waiting": "Authentifizierung erwartet",
+          "authentication_waiting": "Warte auf Authentifizierung",
           "authentication_confirmed": "Authentifizierung bestätigt",
           "charging_active": "Ladevorgang aktiv",
           "charging_paused": "Ladevorgang pausiert",
@@ -211,13 +211,13 @@
         }
       },
       "cp_state": {
-        "name": "Control-Pilot (CP)",
+        "name": "Control Pilot (CP)",
         "state": {
           "state_a": "A: Kein Fahrzeug erkannt",
           "state_b": "B: Fahrzeug erkannt, ladebereit",
           "state_c": "C: Fahrzeug lädt",
           "state_d": "D: Fahrzeug lädt mit Lüftung",
-          "state_e": "E: Kurzschluss im CP-Signal",
+          "state_e": "E: CP Kurzschluss",
           "state_f": "F: Wallbox nicht verfügbar",
           "unknown": "Unbekannt"
         }
@@ -226,9 +226,9 @@
       "granted_power": {"name": "Freigegebene Ladeleistung"},
       "charging_duration": {"name": "Ladedauer"},
       "charging_energy": {"name": "Geladene Energie"},
-      "timeout_period": {"name": "EMS Timeoutdauer"},
+      "timeout_period": {"name": "EMS Timeout"},
       "timeout_fallback_relay_matrix": {
-        "name": "EMS Timeout Fallback Phasen",
+        "name": "EMS Ersatzwert Phasen",
         "state": {
           "phase_1": "Phase 1",
           "phase_2": "Phase 2",
@@ -237,7 +237,7 @@
           "unknown": "Unbekannt"
         }
       },
-      "timeout_fallback_current": {"name": "EMS Timeout Fallback Strom"}
+      "timeout_fallback_current": {"name": "EMS Ersatzwert Ladestrom"}
     },
     "binary_sensor": {
       "relay_welded": {
@@ -245,15 +245,15 @@
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "residual_dc_current": {
-        "name": "Gleichfehlerstrom erkannt",
+        "name": "DC Fehlerstrom",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "socket_lock_error": {
-        "name": "Fehler der Steckerverriegelung",
+        "name": "Steckerverriegelung",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "charging_overcurrent": {
-        "name": "Ladeüberstrom",
+        "name": "Überstrom beim Laden",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "ventilation_unavailable": {
@@ -261,15 +261,15 @@
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "cp_short_circuit": {
-        "name": "Kurzschluss im CP-Signal",
+        "name": "CP Kurzschluss",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "cp_loop_broken": {
-        "name": "CP-Stromkreis unterbrochen",
+        "name": "CP Stromkreis unterbrochen",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "pp_short_circuit": {
-        "name": "Kurzschluss im PP-Signal",
+        "name": "PP Kurzschluss",
         "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
       },
       "internal_error": {

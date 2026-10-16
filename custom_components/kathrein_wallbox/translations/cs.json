@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Slepené relé", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "residual_dc_current": {"name": "Zbytkový stejnosměrný proud", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
+      "residual_dc_current": {"name": "Stejnosměrný reziduální proud", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
       "socket_lock_error": {"name": "Chyba zámku zásuvky", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
       "charging_overcurrent": {"name": "Nadproud při nabíjení", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
       "ventilation_unavailable": {"name": "Ventilace není k dispozici", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},

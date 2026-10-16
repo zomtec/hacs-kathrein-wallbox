@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Sklejony przekaźnik", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
-      "residual_dc_current": {"name": "Resztkowy prąd stały", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
+      "residual_dc_current": {"name": "Prąd różnicowy DC", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "socket_lock_error": {"name": "Błąd blokady gniazda", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "charging_overcurrent": {"name": "Nadprąd ładowania", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},
       "ventilation_unavailable": {"name": "Wentylacja niedostępna", "state": {"on": "Wykryto usterkę", "off": "Brak usterek"}},

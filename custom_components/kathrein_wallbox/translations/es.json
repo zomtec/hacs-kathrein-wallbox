@@ -43,7 +43,7 @@
       "current_l1": {"name": "Corriente L1"}, "current_l2": {"name": "Corriente L2"}, "current_l3": {"name": "Corriente L3"},
       "active_power_l1": {"name": "Potencia activa L1"}, "active_power_l2": {"name": "Potencia activa L2"}, "active_power_l3": {"name": "Potencia activa L3"},
       "total_active_power": {"name": "Potencia activa total"}, "total_energy": {"name": "Energía total"}, "frequency": {"name": "Frecuencia de red"},
-      "charging_state": {"name": "Estado de carga", "state": {"idle": "En reposo", "ev_connected": "Vehículo conectado", "authentication_waiting": "Esperando autorización", "authentication_confirmed": "Autorización confirmada", "charging_active": "Carga en curso", "charging_paused": "Carga pausada", "charging_completed": "Carga completada", "rfid_pairing": "Vinculación RFID", "error": "Error", "unknown": "Desconocido"}},
+      "charging_state": {"name": "Estado de recarga", "state": {"idle": "En reposo", "ev_connected": "Vehículo conectado", "authentication_waiting": "Esperando autorización", "authentication_confirmed": "Autorización confirmada", "charging_active": "Carga en curso", "charging_paused": "Carga pausada", "charging_completed": "Carga completada", "rfid_pairing": "Vinculación RFID", "error": "Error", "unknown": "Desconocido"}},
       "pp_state": {"name": "Piloto de proximidad (PP)", "state": {"not_connected_or_fixed_cable": "Cable no conectado o fijo", "cable_not_connected": "Cable no conectado", "fixed_cable_mounted": "Cable fijo instalado", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Error", "unknown": "Desconocido"}},
       "cp_state": {"name": "Piloto de control (CP)", "state": {"state_a": "A: vehículo no detectado", "state_b": "B: vehículo detectado", "state_c": "C: vehículo cargando", "state_d": "D: vehículo cargando con ventilación", "state_e": "E: cortocircuito del CP", "state_f": "F: EVSE no disponible", "unknown": "Desconocido"}},
       "granted_current": {"name": "Corriente de carga autorizada"}, "granted_power": {"name": "Potencia de carga autorizada"}, "charging_duration": {"name": "Duración de la carga"}, "charging_energy": {"name": "Energía cargada"}, "timeout_period": {"name": "Tiempo de espera EMS"},
@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Relé soldado", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},
-      "residual_dc_current": {"name": "Corriente continua residual", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},
+      "residual_dc_current": {"name": "Corriente diferencial continua", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},
       "socket_lock_error": {"name": "Error del bloqueo de la toma", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},
       "charging_overcurrent": {"name": "Sobrecorriente de carga", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},
       "ventilation_unavailable": {"name": "Ventilación no disponible", "state": {"on": "Fallo detectado", "off": "Sin fallos"}},

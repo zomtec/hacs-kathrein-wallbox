@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Relé colado", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
-      "residual_dc_current": {"name": "Corrente contínua residual", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
+      "residual_dc_current": {"name": "Corrente diferencial contínua", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
       "socket_lock_error": {"name": "Erro no bloqueio da tomada", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
       "charging_overcurrent": {"name": "Sobrecorrente de carregamento", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
       "ventilation_unavailable": {"name": "Ventilação indisponível", "state": {"on": "Falha detetada", "off": "Sem falhas"}},
