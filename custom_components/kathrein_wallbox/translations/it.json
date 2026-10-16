@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Relè saldato", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "residual_dc_current": {"name": "Corrente continua residua", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
+      "residual_dc_current": {"name": "Corrente differenziale continua", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
       "socket_lock_error": {"name": "Errore del blocco della presa", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
       "charging_overcurrent": {"name": "Sovracorrente di ricarica", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
       "ventilation_unavailable": {"name": "Ventilazione non disponibile", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},

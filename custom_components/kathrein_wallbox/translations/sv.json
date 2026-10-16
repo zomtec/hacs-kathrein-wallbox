@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Fastsvetsat relä", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
-      "residual_dc_current": {"name": "Kvarvarande likström", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
+      "residual_dc_current": {"name": "DC-jordfelsström", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
       "socket_lock_error": {"name": "Fel på kontaktlåset", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
       "charging_overcurrent": {"name": "Överström vid laddning", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},
       "ventilation_unavailable": {"name": "Ventilation inte tillgänglig", "state": {"on": "Fel upptäckt", "off": "Inget fel"}},

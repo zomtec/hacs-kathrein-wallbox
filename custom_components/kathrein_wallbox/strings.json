@@ -245,7 +245,7 @@
         "state": {"on": "Fault detected", "off": "No fault"}
       },
       "residual_dc_current": {
-        "name": "Residual DC current",
+        "name": "DC residual current",
         "state": {"on": "Fault detected", "off": "No fault"}
       },
       "socket_lock_error": {

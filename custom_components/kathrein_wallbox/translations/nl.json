@@ -52,7 +52,7 @@
     },
     "binary_sensor": {
       "relay_welded": {"name": "Relaiscontact vastgelast", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "residual_dc_current": {"name": "Resterende gelijkstroom", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
+      "residual_dc_current": {"name": "DC-lekstroom", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
       "socket_lock_error": {"name": "Fout in stekkervergrendeling", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
       "charging_overcurrent": {"name": "Te hoge laadstroom", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
       "ventilation_unavailable": {"name": "Ventilatie niet beschikbaar", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
