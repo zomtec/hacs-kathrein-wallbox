@@ -436,18 +436,47 @@ async def test_dhcp_discovery_creates_entry_after_confirmation(
     assert validate.await_args.args[1]["host"] == DISCOVERED_IP
 
 
+OTHER_SERIAL = "G0R7654321"
+CONNECTION_REFUSED = ModbusError("connection refused")
+
+
 @pytest.mark.asyncio
-async def test_dhcp_discovery_updates_address_of_known_wallbox(
-    hass, wallbox_entry
+@pytest.mark.parametrize(
+    ("stored_host_answer", "discovered_ip_answer", "expected_host"),
+    [
+        (CONNECTION_REFUSED, "SERIAL123", DISCOVERED_IP),
+        ("SERIAL123", "SERIAL123", "wallbox.local"),
+        (CONNECTION_REFUSED, CONNECTION_REFUSED, "wallbox.local"),
+        (CONNECTION_REFUSED, OTHER_SERIAL, "wallbox.local"),
+    ],
+    ids=["moved", "stored-host-answers", "no-answer-at-ip", "other-wallbox-at-ip"],
+)
+async def test_dhcp_discovery_updates_address_only_after_a_move(
+    hass,
+    monkeypatch,
+    wallbox_entry,
+    stored_host_answer: str | ModbusError,
+    discovered_ip_answer: str | ModbusError,
+    expected_host: str,
 ) -> None:
-    """Follow a new IP address of a configured Wallbox without a new entry."""
+    """Keep a working host such as a Modbus proxy and follow only a moved Wallbox."""
+    answers = {"wallbox.local": stored_host_answer, DISCOVERED_IP: discovered_ip_answer}
+
+    async def validate(hass, connection_data) -> tuple[str, str]:
+        assert (connection_data["port"], connection_data["unit_id"]) == (502, 1)
+        answer = answers[connection_data["host"]]
+        if isinstance(answer, ModbusError):
+            raise answer
+        return answer, "KWB-AC11"
+
+    monkeypatch.setattr(config_flow, "_async_validate_input", validate)
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info("SERIAL123")
     )
 
     assert result["type"] == "abort"
     assert result["reason"] == "already_configured"
-    assert wallbox_entry.data == {**CONNECTION, "host": DISCOVERED_IP}
+    assert wallbox_entry.data == {**CONNECTION, "host": expected_host}
 
 
 @pytest.mark.asyncio
