@@ -130,6 +130,7 @@ These services write directly to the Wallbox. Check the phase selection, current
 | Cannot connect during setup | Confirm the host, port, and unit ID; make sure the Modbus server is enabled in easyOperate and the Home Assistant host can reach the Wallbox on the network. |
 | Device is not supported | Confirm the device reports mapping version `0x0002` and a readable serial number. |
 | Meter entities are unavailable | Meter data is optional. Check the meter readings and reference ranges above. If the Wallbox has a meter that was not detected during setup, enable its entities from the entity registry. |
+| Repair issue about an invalid phase rotation | The Wallbox reports a line mapping marked as invalid phase rotation (L1-L3-L2, L2-L1-L3 or L3-L2-L1). Have the supply connection and the line mapping set during installation checked by a qualified electrician. The integration checks the line mapping only at startup; reload the integration or restart Home Assistant after the fix. |
 | Need more information for a report | Download diagnostics from the Kathrein Wallbox config entry under **Settings > Devices & services** and attach them to an issue, after reviewing the data. |
 
 ## Compatibility and register notes
@@ -140,7 +141,7 @@ The register manual describes FLOAT32 values as IEEE 754 but does not specify wo
 
 ## Diagnostics and privacy
 
-Downloaded config-entry diagnostics include model and mapping information, meter availability, and register snapshots from the identity, EVSE, meter, and session-energy blocks. Serial-number registers `0x0011`-`0x0018` are removed. EMS control registers are not included. Review diagnostics before sharing them publicly.
+Downloaded config-entry diagnostics include model and mapping information, meter availability, and register snapshots from the identity (including the line mapping `0x001A`), EVSE, meter, and session-energy blocks. Serial-number registers `0x0011`-`0x0018` are removed. EMS control registers are not included. Review diagnostics before sharing them publicly.
 
 ## Removing the integration
 

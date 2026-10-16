@@ -62,5 +62,6 @@
       "ems_control": {"name": "EMS-regeling", "state": {"on": "Actief", "off": "Inactief"}},
       "meter_available": {"name": "Energiemeter beschikbaar"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ongeldige fasevolgorde op de wallbox", "description": "De wallbox {title} meldt de fasetoewijzing {line_mapping}. Dit is een ongeldige fasevolgorde (linksdraaiend draaiveld). Laat de netaansluiting en de bij de installatie ingestelde fasetoewijzing controleren door een erkende elektricien. De fasevolgorde wordt pas opnieuw gecontroleerd wanneer de integratie opnieuw wordt geladen of Home Assistant opnieuw wordt gestart."}}
 }

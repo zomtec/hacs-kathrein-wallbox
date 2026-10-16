@@ -62,5 +62,6 @@
       "ems_control": {"name": "EMS-styring", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energimåler tilgængelig"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ugyldig fasefølge på wallboxen", "description": "Wallboxen {title} melder fasetilordningen {line_mapping}, som er en ugyldig fasefølge (venstredrejende felt). Få nettilslutningen og den fasetilordning, der blev indstillet ved installationen, kontrolleret af en autoriseret elinstallatør. Fasefølgen kontrolleres først igen, når integrationen genindlæses, eller Home Assistant genstartes."}}
 }

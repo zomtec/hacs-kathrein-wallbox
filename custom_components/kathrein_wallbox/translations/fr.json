@@ -62,5 +62,6 @@
       "ems_control": {"name": "Commande EMS", "state": {"on": "Active", "off": "Inactive"}},
       "meter_available": {"name": "Compteur d’énergie disponible"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ordre des phases invalide sur la wallbox", "description": "La wallbox {title} indique l’affectation des phases {line_mapping}, qui correspond à un ordre des phases invalide (champ tournant à gauche). Faites vérifier le raccordement au réseau et l’affectation des phases réglée lors de l’installation par un électricien qualifié. L’ordre des phases n’est vérifié à nouveau qu’au rechargement de l’intégration ou au redémarrage de Home Assistant."}}
 }

@@ -62,5 +62,6 @@
       "ems_control": {"name": "Sterowanie EMS", "state": {"on": "Aktywne", "off": "Nieaktywne"}},
       "meter_available": {"name": "Licznik energii dostępny"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Nieprawidłowa kolejność faz w wallboxie", "description": "Wallbox {title} zgłasza przyporządkowanie faz {line_mapping}, co oznacza nieprawidłową kolejność faz (lewoskrętne pole wirujące). Zleć sprawdzenie przyłącza sieciowego i przyporządkowania faz ustawionego podczas instalacji wykwalifikowanemu elektrykowi. Kolejność faz zostanie ponownie sprawdzona dopiero po ponownym załadowaniu integracji lub ponownym uruchomieniu Home Assistant."}}
 }

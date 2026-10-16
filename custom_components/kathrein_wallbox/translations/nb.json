@@ -62,5 +62,6 @@
       "ems_control": {"name": "EMS-styring", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energimåler tilgjengelig"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ugyldig faserekkefølge på wallboxen", "description": "Wallboxen {title} melder fasetilordningen {line_mapping}, som er en ugyldig faserekkefølge (venstredreiende felt). Få nettilkoblingen og fasetilordningen som ble satt ved installasjonen, kontrollert av en autorisert elektroinstallatør. Faserekkefølgen kontrolleres først igjen når integrasjonen lastes inn på nytt eller Home Assistant startes på nytt."}}
 }

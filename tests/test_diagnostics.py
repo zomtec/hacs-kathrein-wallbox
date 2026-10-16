@@ -37,6 +37,7 @@ async def test_diagnostics_omit_serial_registers(hass, mock_modbus_unit) -> None
     assert "error" not in diagnostics
     holding = diagnostics["registers"]["holding"]
     assert set(range(0x0011, 0x0019)).isdisjoint(holding)
+    assert 0x001A in holding
 
 
 @pytest.mark.parametrize(
