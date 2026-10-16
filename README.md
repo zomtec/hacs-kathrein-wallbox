@@ -62,7 +62,7 @@ The Wallbox must report mapping version `0x0002` and a readable serial number du
 
 Home Assistant discovers a Wallbox on the local network through DHCP, by its hostname `KWB<serial number>` and the Kathrein MAC address prefix `00:D0:55`. A discovered Wallbox shows up under **Settings > Devices & services** as **Discovered**. Confirm it, check the port and unit ID, and choose the polling interval and **Allow control by Home Assistant** as in a manual setup; the integration reads the Wallbox before adding it. Discovery relies on the Home Assistant DHCP integration, which is part of the default configuration. If the Wallbox is not discovered, add it manually as described above.
 
-When a configured Wallbox gets a new IP address, discovery stores the new address in its entry and reloads the integration. This replaces a hostname you entered with the IP address.
+When a configured Wallbox gets a new IP address, discovery stores the new address in its entry and reloads the integration, but only if the Wallbox no longer answers at the configured host and does answer at the new IP address with the configured port and unit ID. A working host, such as a Modbus proxy, is never replaced.
 
 ## What it provides
 

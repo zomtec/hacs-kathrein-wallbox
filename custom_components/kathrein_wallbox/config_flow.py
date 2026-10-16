@@ -157,6 +157,30 @@ async def _async_validate_or_error(
         return None, ERROR_CANNOT_CONNECT
 
 
+async def _async_reports_serial(
+    hass: HomeAssistant, connection_data: Mapping[str, Any], serial: str
+) -> bool:
+    """Return whether the connection reaches the Wallbox with this serial number."""
+    try:
+        reported_serial, _ = await _async_validate_input(hass, dict(connection_data))
+    except (InvalidWallbox, HomeAssistantError, ModbusError) as err:
+        _LOGGER.debug("No Wallbox at %s: %s", connection_data[CONF_HOST], err)
+        return False
+    return reported_serial == serial
+
+
+async def _async_wallbox_moved(
+    hass: HomeAssistant, entry: ConfigEntry, serial: str, ip: str
+) -> bool:
+    """Return whether the Wallbox no longer answers at its stored host but at the IP."""
+    # The stored host may be a Modbus proxy, so only replace an address that failed.
+    if entry.data[CONF_HOST] == ip or await _async_reports_serial(
+        hass, entry.data, serial
+    ):
+        return False
+    return await _async_reports_serial(hass, {**entry.data, CONF_HOST: ip}, serial)
+
+
 class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a user-configured or discovered Wallbox."""
 
@@ -212,7 +236,14 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a Wallbox found by DHCP and update the address of a known one."""
         serial = discovery_info.hostname[len(DHCP_HOSTNAME_PREFIX) :].upper()
         await self.async_set_unique_id(serial)
-        self._abort_if_unique_id_configured(updates={CONF_HOST: discovery_info.ip})
+        entry = self.hass.config_entries.async_entry_for_domain_unique_id(
+            DOMAIN, serial
+        )
+        if entry is not None and await _async_wallbox_moved(
+            self.hass, entry, serial, discovery_info.ip
+        ):
+            self._abort_if_unique_id_configured(updates={CONF_HOST: discovery_info.ip})
+        self._abort_if_unique_id_configured()
         self._discovered_host = discovery_info.ip
         self.context["title_placeholders"] = {CONF_HOST: discovery_info.ip}
         return await self.async_step_dhcp_confirm()
