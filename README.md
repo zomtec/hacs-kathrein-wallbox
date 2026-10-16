@@ -14,6 +14,21 @@ This is an independent community project and is not affiliated with, endorsed by
 > [!IMPORTANT]
 > This integration communicates with the Wallbox locally over Modbus TCP. Enable the Modbus server in the Wallbox **easyOperate** configuration before adding the integration.
 
+## Supported devices
+
+The integration targets the KATHREIN KWB-AC series:
+
+| Model | Status |
+| --- | --- |
+| KWB-AC20 | Should work if the Wallbox reports mapping version `0x0002`. |
+| KWB-AC35 (discontinued) | Tested. |
+| KWB-AC40 | Should work if the Wallbox reports mapping version `0x0002`. |
+| KWB-AC40 E | Should work if the Wallbox reports mapping version `0x0002`. |
+| KWB-AC60 | Should work if the Wallbox reports mapping version `0x0002`. |
+| KWB-AC60 E | Should work if the Wallbox reports mapping version `0x0002`. |
+
+The setup flow rejects Wallboxes that do not report mapping version `0x0002`. If you use a model other than the KWB-AC35, please report whether it works by [opening an issue](https://github.com/zomtec/hacs-kathrein-wallbox/issues).
+
 ## Installation
 
 ### HACS
@@ -128,6 +143,75 @@ data:
 ```
 
 These services write directly to the Wallbox. Check the phase selection, current, timeout, fallback behavior, and Wallbox rating before using them in automations. The integration does not write authentication tags or tariff registers.
+
+## Use cases
+
+- **Monitor charging and energy.** Follow charging state, power, and session energy, also read-only next to evcc or another energy manager. Add `Total energy` as an individual device in the Home Assistant energy dashboard (**Settings > Dashboards > Energy**) to track the Wallbox's consumption.
+- **Get notified about faults.** Use the EVSE fault binary sensors to send a notification when the Wallbox reports a fault.
+- **Control charging current and phases.** Set `Charging current` and `Phases` from dashboards, scripts, or automations.
+
+## Automation examples
+
+The examples use the default entity IDs of a Wallbox named `Kathrein Wallbox`; adjust them to the entity IDs on your device page. Replace `notify.mobile_app_phone` with your own notification action.
+
+### Notify on a fault
+
+The EVSE fault binary sensors may be disabled in the entity registry. Enable the ones you want to use on the device page first.
+
+```yaml
+alias: Wallbox fault
+triggers:
+  - trigger: state
+    entity_id:
+      - binary_sensor.kathrein_wallbox_relay_welded
+      - binary_sensor.kathrein_wallbox_residual_dc_current
+      - binary_sensor.kathrein_wallbox_internal_error
+    to: "on"
+actions:
+  - action: notify.mobile_app_phone
+    data:
+      message: "Wallbox fault: {{ trigger.to_state.name }}"
+```
+
+### Notify when charging is completed
+
+```yaml
+alias: Wallbox charging completed
+triggers:
+  - trigger: state
+    entity_id: sensor.kathrein_wallbox_charging_state
+    from: charging_active
+    to: charging_completed
+actions:
+  - action: notify.mobile_app_phone
+    data:
+      message: >-
+        Charging completed:
+        {{ states('sensor.kathrein_wallbox_energy_charged') }}
+        {{ state_attr('sensor.kathrein_wallbox_energy_charged', 'unit_of_measurement') }}
+        charged.
+```
+
+### Set the charging current by time of day
+
+This example needs **Allow control by Home Assistant** turned on, see [Control by Home Assistant](#control-by-home-assistant). It charges with `16 A` at night and `6 A` during the day.
+
+```yaml
+alias: Wallbox charging current by time
+triggers:
+  - trigger: time
+    at: "22:00:00"
+    id: night
+  - trigger: time
+    at: "06:00:00"
+    id: day
+actions:
+  - action: number.set_value
+    target:
+      entity_id: number.kathrein_wallbox_charging_current
+    data:
+      value: "{{ 16 if trigger.id == 'night' else 6 }}"
+```
 
 ## Troubleshooting
 
