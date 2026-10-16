@@ -81,6 +81,4 @@ rules:
   inject-websession:
     status: exempt
     comment: The integration does not use HTTP.
-  strict-typing:
-    status: todo
-    comment: No strict type checking runs in CI.
+  strict-typing: done
