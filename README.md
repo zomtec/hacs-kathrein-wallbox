@@ -12,7 +12,7 @@ This is an independent community project and is not affiliated with, endorsed by
 [![HACS custom repository](https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat-square)](https://www.hacs.xyz/docs/faq/custom_repositories/)
 
 > [!IMPORTANT]
-> This integration communicates with the Wallbox locally over Modbus TCP. Enable the Modbus server in the Wallbox **easyOperate** configuration before adding the integration.
+> This integration communicates with the Wallbox locally over Modbus TCP. Enable the Modbus server in the Wallbox web interface under **Settings > Modbus TCP control** before adding the integration.
 
 ## Supported devices
 
@@ -56,7 +56,7 @@ Copy `custom_components/kathrein_wallbox` into the `custom_components` directory
 
 To change the host, port, or unit ID later, use **Reconfigure**; it refuses a device with a different serial number. The polling interval and **Allow control by Home Assistant** are changed in the integration options (**Configure**).
 
-The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries. The device page shows the device number as model ID and links to the easyOperate web interface at `http://<host>`.
+The Wallbox must report mapping version `0x0002` and a readable serial number during setup. The integration uses the serial number to identify the device and prevent duplicate entries. The device page shows the device number as model ID and links to the Wallbox web interface at `http://<host>`.
 
 ## What it provides
 
@@ -211,7 +211,7 @@ actions:
 
 | Symptom | Checks |
 | --- | --- |
-| Cannot connect during setup | Confirm the host, port, and unit ID; make sure the Modbus server is enabled in easyOperate and the Home Assistant host can reach the Wallbox on the network. |
+| Cannot connect during setup | Confirm the host, port, and unit ID; make sure the Modbus server is enabled in the Wallbox web interface under **Settings > Modbus TCP control** and the Home Assistant host can reach the Wallbox on the network. |
 | Device is not supported | Confirm the device reports mapping version `0x0002` and a readable serial number. |
 | Meter entities are unavailable | Meter data is optional. Check the meter readings and reference ranges above. If the Wallbox has a meter that was not detected during setup, enable its entities from the entity registry. |
 | Repair issue about an invalid phase rotation | The Wallbox reports a line mapping marked as invalid phase rotation (L1-L3-L2, L2-L1-L3 or L3-L2-L1). Have the supply connection and the line mapping set during installation checked by a qualified electrician. The integration checks the line mapping only at startup; reload the integration or restart Home Assistant after the fix. |

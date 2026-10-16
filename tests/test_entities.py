@@ -88,7 +88,7 @@ async def test_entity_identifies_device_by_serial(coordinator) -> None:
 async def test_device_info_links_device_number_and_web_interface(
     coordinator, mock_modbus_unit
 ) -> None:
-    """Expose the device number as model ID and link the easyOperate interface."""
+    """Expose the device number as model ID and link the web interface."""
     mock_modbus_unit.holding[0x0001] = [0x3632, 0x3031, 0x3233, 0x3435, 0, 0, 0, 0]
     await coordinator.identity.async_update()
 

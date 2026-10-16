@@ -102,7 +102,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
+      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in der Weboberfläche der Wallbox unter \"Einstellungen > Modbus TCP Steuerung\" aktiviert ist.",
       "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
     },
     "abort": {
