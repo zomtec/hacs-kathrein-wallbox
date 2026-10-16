@@ -1,10 +1,10 @@
 """Kathrein Wallbox integration setup."""
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from typing import Any
 
-import voluptuous as vol
+import probatio
 from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT
@@ -65,9 +65,9 @@ def _whole_amperes(value: Any) -> int:
     try:
         amperes = float(value)
     except (TypeError, ValueError) as err:
-        raise vol.Invalid("expected a whole number of amperes") from err
+        raise probatio.Invalid("expected a whole number of amperes") from err
     if not amperes.is_integer():
-        raise vol.Invalid("expected a whole number of amperes")
+        raise probatio.Invalid("expected a whole number of amperes")
     return int(amperes)
 
 
@@ -76,9 +76,9 @@ def _milliamperes(amperes: int) -> int:
     return amperes * MILLIAMPERE_PER_AMPERE
 
 
-EMS_CURRENT_AMPERES = vol.All(
+EMS_CURRENT_AMPERES = probatio.All(
     _whole_amperes,
-    vol.Range(
+    probatio.Range(
         min=EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
         max=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
     ),
@@ -101,7 +101,7 @@ EMS_SETPOINT_SERVICES = (
     EmsSetpointService(
         name=SERVICE_SET_RELAY_MATRIX,
         field="relay_matrix",
-        value_schema=vol.In(list(EMS_RELAY_MATRIX_OPTIONS)),
+        value_schema=probatio.In(list(EMS_RELAY_MATRIX_OPTIONS)),
         to_register=EMS_RELAY_MATRIX_OPTIONS.__getitem__,
         enables_ems=True,
     ),
@@ -116,13 +116,13 @@ EMS_SETPOINT_SERVICES = (
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_PERIOD,
         field="timeout_period",
-        value_schema=vol.In(list(EMS_TIMEOUT_PERIOD_OPTIONS)),
+        value_schema=probatio.In(list(EMS_TIMEOUT_PERIOD_OPTIONS)),
         to_register=EMS_TIMEOUT_PERIOD_OPTIONS.__getitem__,
     ),
     EmsSetpointService(
         name=SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
         field="timeout_fallback_relay_matrix",
-        value_schema=vol.In(list(EMS_RELAY_MATRIX_OPTIONS)),
+        value_schema=probatio.In(list(EMS_RELAY_MATRIX_OPTIONS)),
         to_register=EMS_RELAY_MATRIX_OPTIONS.__getitem__,
     ),
     EmsSetpointService(
@@ -142,7 +142,7 @@ def _get_coordinator(hass: HomeAssistant, device_id: str) -> KathreinCoordinator
         hass.config_entries.async_get_entry(entry_id)
         for entry_id in (device.config_entries if device else ())
     )
-    entry = next(
+    entry: KathreinConfigEntry | None = next(
         (entry for entry in entries if entry is not None and entry.domain == DOMAIN),
         None,
     )
@@ -193,7 +193,7 @@ def _validate_ems_current(coordinator: KathreinCoordinator, current_ma: int) -> 
 
 def _setpoint_handler(
     hass: HomeAssistant, service: EmsSetpointService
-) -> Callable[[ServiceCall], Awaitable[None]]:
+) -> Callable[[ServiceCall], Coroutine[Any, Any, None]]:
     """Create the handler writing one validated setpoint."""
 
     async def _async_handle(call: ServiceCall) -> None:
@@ -223,8 +223,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DOMAIN,
         SERVICE_SET_EMS_CONTROL_ENABLED,
         _async_set_ems_control_enabled,
-        schema=vol.Schema(
-            {vol.Required(ATTR_DEVICE_ID): str, vol.Required(ATTR_ENABLED): bool}
+        schema=probatio.Schema(
+            {
+                probatio.Required(ATTR_DEVICE_ID): str,
+                probatio.Required(ATTR_ENABLED): bool,
+            }
         ),
     )
     for service in EMS_SETPOINT_SERVICES:
@@ -232,10 +235,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             DOMAIN,
             service.name,
             _setpoint_handler(hass, service),
-            schema=vol.Schema(
+            schema=probatio.Schema(
                 {
-                    vol.Required(ATTR_DEVICE_ID): str,
-                    vol.Required(ATTR_VALUE): service.value_schema,
+                    probatio.Required(ATTR_DEVICE_ID): str,
+                    probatio.Required(ATTR_VALUE): service.value_schema,
                 }
             ),
         )

@@ -10,7 +10,7 @@ from .model import EMS_RELAY_MATRIX_OPTIONS
 
 PARALLEL_UPDATES = 1
 
-RELAY_MATRIX_OPTION_BY_VALUE = {
+RELAY_MATRIX_OPTION_BY_VALUE: dict[int, str] = {
     value: option for option, value in EMS_RELAY_MATRIX_OPTIONS.items()
 }
 

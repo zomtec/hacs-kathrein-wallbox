@@ -36,6 +36,8 @@ KEEP_ALIVE_MIN_INTERVAL = timedelta(seconds=5)
 class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     """Fetch the Wallbox model at a fixed polling interval."""
 
+    config_entry: KathreinConfigEntry
+
     def __init__(
         self,
         hass: HomeAssistant,

@@ -71,7 +71,7 @@ Orientation: the Home Assistant
   the energy meter) must not break the rest of the device.
 - **Config flow:** validate by actually reading the device, abort on duplicates via
   `unique_id`, support reconfigure, and use error keys from `strings.json`.
-- **Services:** declare them in `services.yaml` with a voluptuous schema and
+- **Services:** declare them in `services.yaml` with a probatio schema and
   translatable descriptions. Validate input before writing registers.
 - **Diagnostics:** redact serial numbers, host, and other identifying data.
 - **Logging:** use `_LOGGER` with lazy `%s` formatting, no f-strings, no `print`. Log
@@ -147,6 +147,7 @@ Run before declaring work done:
 ```bash
 ruff check .
 ruff format --check .
+mypy
 python -m pytest
 ```
 
@@ -159,7 +160,7 @@ python -m pytest
   attaches `kathrein_wallbox.zip` to the release.
 - `hacs.json` points to that asset (`zip_release: true`,
   `filename: kathrein_wallbox.zip`). Do not change these values without asking.
-- `.github/workflows/validate.yml` runs Ruff, pytest, HACS validation, and hassfest.
+- `.github/workflows/validate.yml` runs Ruff, mypy, pytest, HACS validation, and hassfest.
   Changes must keep all of them green, including `hassfest` rules for `manifest.json`.
 
 ## 10. Definition of done
@@ -167,7 +168,7 @@ python -m pytest
 A task is finished only if all of these hold:
 
 - [ ] The change is minimal and addresses exactly what was requested.
-- [ ] `ruff check .` and `ruff format --check .` pass.
+- [ ] `ruff check .`, `ruff format --check .` and `mypy` pass.
 - [ ] `python -m pytest` passes and new behavior is covered by tests.
 - [ ] No hardcoded UI text; all 12 translation files are consistent.
 - [ ] `services.yaml`, `strings.json`, `icons.json`, and `README.md` match the code.

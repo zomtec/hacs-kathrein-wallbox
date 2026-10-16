@@ -2,8 +2,8 @@
 
 from collections.abc import AsyncGenerator
 
+import probatio
 import pytest
-import voluptuous as vol
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import device_registry as dr
@@ -166,7 +166,7 @@ async def test_ems_services_reject_unsupported_values(
     hass, mock_modbus_unit, ems_entry, service, value
 ) -> None:
     """Reject values the Wallbox does not support before writing anything."""
-    with pytest.raises(vol.Invalid):
+    with pytest.raises(probatio.Invalid):
         await _async_call(hass, ems_entry, service, {"value": value})
 
     assert mock_modbus_unit.write_events == []

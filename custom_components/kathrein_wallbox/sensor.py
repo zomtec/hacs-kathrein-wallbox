@@ -2,6 +2,8 @@
 
 import math
 from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
 
 from homeassistant.components.sensor import (
     RestoreSensor,
@@ -369,7 +371,7 @@ async def async_setup_entry(
     )
 
 
-class KathreinSensorBase(KathreinWallboxEntity):
+class KathreinSensorBase(KathreinWallboxEntity, SensorEntity):
     """Common description handling for Wallbox sensors."""
 
     entity_description: KathreinSensorDescription
@@ -397,12 +399,12 @@ class KathreinSensorBase(KathreinWallboxEntity):
         )
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the decoded register value or the enum state key."""
         return self.entity_description.value_fn(self.coordinator)
 
 
-class KathreinSensor(KathreinSensorBase, SensorEntity):
+class KathreinSensor(KathreinSensorBase):
     """A sensor backed by a typed Wallbox register."""
 
 
@@ -433,7 +435,7 @@ class KathreinRestoredSensor(KathreinSensorBase, RestoreSensor):
             self._attr_native_value = value
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return live energy or the last restored/valid reading."""
         value = self.entity_description.value_fn(self.coordinator)
         return value if value is not None else self._attr_native_value
