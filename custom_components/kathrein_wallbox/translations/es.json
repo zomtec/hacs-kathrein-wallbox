@@ -62,5 +62,6 @@
       "ems_control": {"name": "Control EMS", "state": {"on": "Activo", "off": "Inactivo"}},
       "meter_available": {"name": "Contador de energía disponible"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Secuencia de fases no válida en el wallbox", "description": "El wallbox {title} indica la asignación de fases {line_mapping}, que es una secuencia de fases no válida (campo giratorio antihorario). Haga que un electricista cualificado revise la conexión a la red y la asignación de fases configurada durante la instalación. La secuencia de fases solo se vuelve a comprobar al recargar la integración o reiniciar Home Assistant."}}
 }

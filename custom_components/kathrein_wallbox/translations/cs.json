@@ -62,5 +62,6 @@
       "ems_control": {"name": "Řízení EMS", "state": {"on": "Aktivní", "off": "Neaktivní"}},
       "meter_available": {"name": "Elektroměr je k dispozici"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Neplatný sled fází na wallboxu", "description": "Wallbox {title} hlásí přiřazení fází {line_mapping}, což je neplatný sled fází (levotočivé pole). Nechte připojení k síti a přiřazení fází nastavené při instalaci zkontrolovat kvalifikovaným elektrikářem. Sled fází se znovu zkontroluje až při opětovném načtení integrace nebo restartu Home Assistantu."}}
 }

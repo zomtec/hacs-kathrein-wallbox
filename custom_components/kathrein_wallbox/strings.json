@@ -264,5 +264,11 @@
       "ems_control": {"name": "EMS control", "state": {"on": "Active", "off": "Inactive"}},
       "meter_available": {"name": "Energy meter available"}
     }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Invalid phase rotation on the Wallbox",
+      "description": "The Wallbox {title} reports the line mapping {line_mapping}, which is an invalid phase rotation (counter-clockwise rotating field). Have the supply connection and the line mapping set during installation checked by a qualified electrician. The phase rotation is checked again only when the integration is reloaded or Home Assistant restarts."
+    }
   }
 }

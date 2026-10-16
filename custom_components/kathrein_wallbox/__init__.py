@@ -14,6 +14,7 @@ from homeassistant.helpers import (
     config_validation as cv,
     device_registry as dr,
     entity_registry as er,
+    issue_registry as ir,
 )
 from homeassistant.helpers.typing import ConfigType
 from modbus_connection import ModbusTcpParams
@@ -29,6 +30,7 @@ from .model import (
     EMS_TIMEOUT_PERIODS_S,
     MAX_CURRENT_11_KW_MA,
     MILLIAMPERE_PER_AMPERE,
+    WallboxIdentity,
 )
 from .number import CHARGING_CURRENT_DESCRIPTION
 from .select import RELAY_MATRIX_DESCRIPTION
@@ -38,6 +40,8 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 ATTR_DEVICE_ID = "device_id"
 ATTR_ENABLED = "enabled"
 ATTR_VALUE = "value"
+
+ISSUE_INVALID_PHASE_ROTATION = "invalid_phase_rotation"
 
 SERVICE_SET_EMS_CONTROL_ENABLED = "set_ems_control_enabled"
 SERVICE_SET_RELAY_MATRIX = "set_relay_matrix"
@@ -255,6 +259,35 @@ def _async_sync_control_entities(
             registry.async_update_entity(entity_entry.entity_id, disabled_by=target)
 
 
+def _phase_rotation_issue_id(entry: KathreinConfigEntry) -> str:
+    """Return the repair issue ID for the phase rotation of one Wallbox."""
+    return f"{ISSUE_INVALID_PHASE_ROTATION}_{entry.entry_id}"
+
+
+@callback
+def _async_check_phase_rotation(
+    hass: HomeAssistant, entry: KathreinConfigEntry, identity: WallboxIdentity
+) -> None:
+    """Raise a repair issue while the Wallbox reports an invalid phase rotation."""
+    issue_id = _phase_rotation_issue_id(entry)
+    line_mapping = identity.invalid_phase_rotation
+    if line_mapping is None:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+        return
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        issue_id,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key=ISSUE_INVALID_PHASE_ROTATION,
+        translation_placeholders={
+            "title": entry.title,
+            "line_mapping": line_mapping.name.replace("_", "-"),
+        },
+    )
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> bool:
     """Set up a Wallbox config entry."""
     params = ModbusTcpParams(
@@ -274,6 +307,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> 
     # The coordinator refuses to publish data without a serial number.
     assert serial is not None
     _async_sync_control_entities(hass, entry, serial, coordinator.control_allowed)
+    _async_check_phase_rotation(hass, entry, coordinator.identity)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -281,3 +315,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> 
 async def async_unload_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> bool:
     """Unload platforms for a Wallbox config entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> None:
+    """Remove the repair issue of a deleted Wallbox."""
+    ir.async_delete_issue(hass, DOMAIN, _phase_rotation_issue_id(entry))

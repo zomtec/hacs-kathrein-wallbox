@@ -264,5 +264,11 @@
       "ems_control": {"name": "EMS Steuerung", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energiezähler verfügbar"}
     }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Ungültige Phasenfolge an der Wallbox",
+      "description": "Die Wallbox {title} meldet die Phasenzuordnung {line_mapping}. Das ist eine ungültige Phasenfolge (Linksdrehfeld). Der Netzanschluss und die bei der Installation eingestellte Phasenzuordnung sollten von einer Elektrofachkraft geprüft werden. Die Phasenfolge wird erst beim Neuladen der Integration oder beim Neustart von Home Assistant erneut geprüft."
+    }
   }
 }
