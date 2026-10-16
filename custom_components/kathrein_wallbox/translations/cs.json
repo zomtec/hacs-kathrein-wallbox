@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Nastavit nalezenou nabíjecí stanici Kathrein", "description": "Home Assistant našel nabíjecí stanici Kathrein na adrese {host}. Zkontrolujte nastavení Modbus a potvrďte její přidání.", "data": {"port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.", "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0.", "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.", "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}},
       "reconfigure": {"title": "Upravit připojení nabíjecí stanice Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus"}, "data_description": {"host": "IP adresa nebo název hostitele nabíjecí stanice ve vaší místní síti.", "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.", "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0."}}
     },
-    "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je v easyOperate povolen server Modbus.", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."},
+    "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je server Modbus povolen ve webovém rozhraní wallboxu v nabídce \"Settings > Modbus TCP control\".", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."},
     "abort": {"already_configured": "Tato nabíjecí stanice je již nakonfigurována.", "already_in_progress": "Nastavení této nabíjecí stanice již probíhá.", "reconfigure_successful": "Nastavení připojení bylo aktualizováno.", "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "Řízení EMS", "state": {"on": "Aktivní", "off": "Neaktivní"}},
       "meter_available": {"name": "Elektroměr je k dispozici"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Neplatný sled fází na wallboxu", "description": "Wallbox {title} hlásí přiřazení fází {line_mapping}, což je neplatný sled fází (levotočivé pole). Nechte připojení k síti a přiřazení fází nastavené při instalaci zkontrolovat kvalifikovaným elektrikářem. Sled fází se znovu zkontroluje až při opětovném načtení integrace nebo restartu Home Assistantu."}}
 }

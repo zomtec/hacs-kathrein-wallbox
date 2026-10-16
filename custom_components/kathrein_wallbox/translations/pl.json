@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Skonfiguruj wykryty wallbox Kathrein", "description": "Home Assistant wykrył wallbox Kathrein pod adresem {host}. Sprawdź ustawienia Modbus i potwierdź, aby go dodać.", "data": {"port": "Port", "unit_id": "Identyfikator jednostki Modbus", "scan_interval": "Interwał odpytywania (sekundy)", "allow_control": "Zezwól na sterowanie z Home Assistant"}, "data_description": {"port": "Port Modbus TCP wallboxa. Wartość domyślna to 502.", "unit_id": "Identyfikator jednostki Modbus wallboxa. Wallbox obecnie go ignoruje; pozostaw zalecaną wartość 0.", "scan_interval": "Jak często Home Assistant odpytuje wallbox, w sekundach: od 5 do 300 s. Wartość domyślna to 15 s.", "allow_control": "Pozwala Home Assistant zmieniać prąd ładowania i fazy wallboxa za pomocą encji i akcji. Jeśli w wallboxie ustawiono limit czasu EMS, Home Assistant regularnie powtarza wartości zadane, aby wallbox nie wrócił do wartości zapasowych. Domyślnie wyłączone, aby Home Assistant nie zakłócał pracy innego systemu zarządzania energią, takiego jak evcc. Ustawienie można później zmienić w opcjach integracji."}},
       "reconfigure": {"title": "Zmień połączenie z wallboxem Kathrein", "data": {"host": "Host / adres IP", "port": "Port", "unit_id": "Identyfikator jednostki Modbus"}, "data_description": {"host": "Adres IP lub nazwa hosta wallboxa w sieci lokalnej.", "port": "Port Modbus TCP wallboxa. Wartość domyślna to 502.", "unit_id": "Identyfikator jednostki Modbus wallboxa. Wallbox obecnie go ignoruje; pozostaw zalecaną wartość 0."}}
     },
-    "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w easyOperate.", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."},
+    "error": {"cannot_connect": "Nie można nawiązać połączenia. Sprawdź adres i czy serwer Modbus jest włączony w interfejsie WWW wallboxa w menu \"Settings > Modbus TCP control\".", "unsupported_device": "Urządzenie nie zgłosiło wersji mapowania 2 ani numeru seryjnego."},
     "abort": {"already_configured": "Ten wallbox jest już skonfigurowany.", "already_in_progress": "Konfiguracja tego wallboxa jest już w toku.", "reconfigure_successful": "Ustawienia połączenia zostały zaktualizowane.", "unique_id_mismatch": "Urządzenie pod tym adresem to inny wallbox niż ten, który jest ponownie konfigurowany."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "Sterowanie EMS", "state": {"on": "Aktywne", "off": "Nieaktywne"}},
       "meter_available": {"name": "Licznik energii dostępny"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Nieprawidłowa kolejność faz w wallboxie", "description": "Wallbox {title} zgłasza przyporządkowanie faz {line_mapping}, co oznacza nieprawidłową kolejność faz (lewoskrętne pole wirujące). Zleć sprawdzenie przyłącza sieciowego i przyporządkowania faz ustawionego podczas instalacji wykwalifikowanemu elektrykowi. Kolejność faz zostanie ponownie sprawdzona dopiero po ponownym załadowaniu integracji lub ponownym uruchomieniu Home Assistant."}}
 }

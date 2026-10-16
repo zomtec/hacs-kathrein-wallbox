@@ -119,7 +119,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in easyOperate aktiviert ist.",
+      "cannot_connect": "Verbindung nicht möglich. Prüfe die Adresse und ob der Modbus-Server in der Weboberfläche der Wallbox unter \"Einstellungen > Modbus TCP Steuerung\" aktiviert ist.",
       "unsupported_device": "Das Gerät meldet weder Mapping-Version 2 noch eine Seriennummer."
     },
     "abort": {
@@ -281,6 +281,12 @@
       "relay_l3": {"name": "Relais L3"},
       "ems_control": {"name": "EMS Steuerung", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energiezähler verfügbar"}
+    }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Ungültige Phasenfolge an der Wallbox",
+      "description": "Die Wallbox {title} meldet die Phasenzuordnung {line_mapping}. Das ist eine ungültige Phasenfolge (Linksdrehfeld). Der Netzanschluss und die bei der Installation eingestellte Phasenzuordnung sollten von einer Elektrofachkraft geprüft werden. Die Phasenfolge wird erst beim Neuladen der Integration oder beim Neustart von Home Assistant erneut geprüft."
     }
   }
 }

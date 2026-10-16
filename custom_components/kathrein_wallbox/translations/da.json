@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Opsæt fundet Kathrein-ladeboks", "description": "Home Assistant har fundet en Kathrein-ladeboks på {host}. Kontrollér Modbus-indstillingerne, og bekræft for at tilføje den.", "data": {"port": "Port", "unit_id": "Modbus-enheds-id", "scan_interval": "Forespørgselsinterval (sekunder)", "allow_control": "Tillad styring fra Home Assistant"}, "data_description": {"port": "Ladeboksens Modbus TCP-port. Standard er 502.", "unit_id": "Ladeboksens Modbus-enheds-id. Ladeboksen ignorerer det i øjeblikket; behold den anbefalede værdi 0.", "scan_interval": "Hvor ofte Home Assistant aflæser ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.", "allow_control": "Lader Home Assistant ændre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis der er indstillet en EMS-timeout på ladeboksen, gentager Home Assistant setpunkterne regelmæssigt, så ladeboksen ikke falder tilbage til sine reserveværdier. Slået fra som standard, så Home Assistant ikke kommer i konflikt med en anden energistyring som evcc. Du kan ændre dette senere i integrationens indstillinger."}},
       "reconfigure": {"title": "Opdatér forbindelsen til Kathrein-ladeboksen", "data": {"host": "Vært / IP-adresse", "port": "Port", "unit_id": "Modbus-enheds-id"}, "data_description": {"host": "Ladeboksens IP-adresse eller værtsnavn på dit lokale netværk.", "port": "Ladeboksens Modbus TCP-port. Standard er 502.", "unit_id": "Ladeboksens Modbus-enheds-id. Ladeboksen ignorerer det i øjeblikket; behold den anbefalede værdi 0."}}
     },
-    "error": {"cannot_connect": "Kunne ikke oprette forbindelse. Kontrollér adressen, og at Modbus-serveren er aktiveret i easyOperate.", "unsupported_device": "Enheden rapporterede hverken mappingversion 2 eller et serienummer."},
+    "error": {"cannot_connect": "Kunne ikke oprette forbindelse. Kontrollér adressen, og at Modbus-serveren er aktiveret i wallboxens webgrænseflade under \"Settings > Modbus TCP control\".", "unsupported_device": "Enheden rapporterede hverken mappingversion 2 eller et serienummer."},
     "abort": {"already_configured": "Denne ladeboks er allerede konfigureret.", "already_in_progress": "Opsætningen af denne ladeboks er allerede i gang.", "reconfigure_successful": "Forbindelsesindstillingerne er opdateret.", "unique_id_mismatch": "Enheden på denne adresse er en anden ladeboks end den, der omkonfigureres."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "EMS-styring", "state": {"on": "Aktiv", "off": "Inaktiv"}},
       "meter_available": {"name": "Energimåler tilgængelig"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ugyldig fasefølge på wallboxen", "description": "Wallboxen {title} melder fasetilordningen {line_mapping}, som er en ugyldig fasefølge (venstredrejende felt). Få nettilslutningen og den fasetilordning, der blev indstillet ved installationen, kontrolleret af en autoriseret elinstallatør. Fasefølgen kontrolleres først igen, når integrationen genindlæses, eller Home Assistant genstartes."}}
 }

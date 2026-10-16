@@ -29,6 +29,7 @@ DEVICE_NUMBER_ADDRESS = 0x0001
 DEVICE_TYPE_ADDRESS = 0x0009
 SERIAL_ADDRESS = 0x0011
 DEVICE_INFO_ADDRESS = 0x0019
+LINE_MAPPING_ADDRESS = 0x001A
 # Each identity string spans 8 registers (16 characters).
 IDENTITY_STRING_REGISTER_COUNT = 8
 SERIAL_REGISTER_COUNT = IDENTITY_STRING_REGISTER_COUNT
@@ -114,6 +115,23 @@ class RelayMatrix(IntEnum):
     THREE_PHASES = 0x0007
 
 
+class LineMapping(IntEnum):
+    """Order in which the supply lines are wired to the Wallbox terminals."""
+
+    L1_L2_L3 = 0
+    L1_L3_L2 = 1
+    L2_L3_L1 = 2
+    L2_L1_L3 = 3
+    L3_L1_L2 = 4
+    L3_L2_L1 = 5
+
+
+# The register manual marks these line mappings as invalid phase rotation.
+INVALID_PHASE_ROTATIONS = frozenset(
+    {LineMapping.L1_L3_L2, LineMapping.L2_L1_L3, LineMapping.L3_L2_L1}
+)
+
+
 class ErrorState(IntFlag):
     """Fault bits of the EVSE error register."""
 
@@ -151,6 +169,7 @@ class WallboxIdentity(Component):
     device_type = string(DEVICE_TYPE_ADDRESS, IDENTITY_STRING_REGISTER_COUNT)
     serial = string(SERIAL_ADDRESS, SERIAL_REGISTER_COUNT)
     device_info = integer(DEVICE_INFO_ADDRESS, signed=False)
+    line_mapping = integer(LINE_MAPPING_ADDRESS, signed=False)
 
     @property
     def is_11_kw(self) -> bool:
@@ -160,6 +179,14 @@ class WallboxIdentity(Component):
             and self.device_info & DEVICE_INFO_POWER_CLASS_MASK
             == DEVICE_INFO_POWER_CLASS_11_KW
         )
+
+    @property
+    def invalid_phase_rotation(self) -> LineMapping | None:
+        """Return the line mapping if it is an invalid phase rotation."""
+        line_mapping = self.line_mapping
+        if line_mapping is None or line_mapping not in INVALID_PHASE_ROTATIONS:
+            return None
+        return LineMapping(line_mapping)
 
     @property
     def cable_is_fixed(self) -> bool | None:

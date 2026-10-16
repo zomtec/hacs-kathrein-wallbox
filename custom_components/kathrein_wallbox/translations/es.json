@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Configurar la wallbox Kathrein encontrada", "description": "Home Assistant ha encontrado una wallbox Kathrein en {host}. Revisa los ajustes de Modbus y confirma para añadirla.", "data": {"port": "Puerto", "unit_id": "ID de unidad Modbus", "scan_interval": "Intervalo de consulta (segundos)", "allow_control": "Permitir el control desde Home Assistant"}, "data_description": {"port": "Puerto Modbus TCP de la wallbox. El valor predeterminado es 502.", "unit_id": "ID de unidad Modbus de la wallbox. Actualmente la wallbox lo ignora; mantén el valor recomendado 0.", "scan_interval": "Con qué frecuencia Home Assistant consulta la wallbox, en segundos: de 5 a 300 s. El valor predeterminado es 15 s.", "allow_control": "Permite que Home Assistant cambie la corriente de carga y las fases de la wallbox mediante entidades y acciones. Si la wallbox tiene configurado un tiempo de espera EMS, Home Assistant repite los valores de consigna periódicamente para que la wallbox no vuelva a sus valores de respaldo. Desactivado de forma predeterminada para que Home Assistant no interfiera con otro gestor de energía como evcc. Puede cambiarlo más tarde en las opciones de la integración."}},
       "reconfigure": {"title": "Actualizar la conexión de la wallbox Kathrein", "data": {"host": "Host / dirección IP", "port": "Puerto", "unit_id": "ID de unidad Modbus"}, "data_description": {"host": "Dirección IP o nombre de host de la wallbox en tu red local.", "port": "Puerto Modbus TCP de la wallbox. El valor predeterminado es 502.", "unit_id": "ID de unidad Modbus de la wallbox. Actualmente la wallbox lo ignora; mantén el valor recomendado 0."}}
     },
-    "error": {"cannot_connect": "No se puede conectar. Comprueba la dirección y que el servidor Modbus esté habilitado en easyOperate.", "unsupported_device": "El dispositivo no ha comunicado la versión 2 del mapa ni un número de serie."},
+    "error": {"cannot_connect": "No se puede conectar. Comprueba la dirección y que el servidor Modbus esté habilitado en la interfaz web del wallbox, en \"Settings > Modbus TCP control\".", "unsupported_device": "El dispositivo no ha comunicado la versión 2 del mapa ni un número de serie."},
     "abort": {"already_configured": "Esta wallbox ya está configurada.", "already_in_progress": "La configuración de esta wallbox ya está en curso.", "reconfigure_successful": "Los ajustes de conexión se han actualizado.", "unique_id_mismatch": "El dispositivo de esta dirección es una wallbox distinta de la que se está reconfigurando."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "Control EMS", "state": {"on": "Activo", "off": "Inactivo"}},
       "meter_available": {"name": "Contador de energía disponible"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Secuencia de fases no válida en el wallbox", "description": "El wallbox {title} indica la asignación de fases {line_mapping}, que es una secuencia de fases no válida (campo giratorio antihorario). Haga que un electricista cualificado revise la conexión a la red y la asignación de fases configurada durante la instalación. La secuencia de fases solo se vuelve a comprobar al recargar la integración o reiniciar Home Assistant."}}
 }

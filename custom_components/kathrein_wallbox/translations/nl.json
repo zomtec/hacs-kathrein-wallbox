@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Gevonden Kathrein-wallbox instellen", "description": "Home Assistant heeft een Kathrein-wallbox gevonden op {host}. Controleer de Modbus-instellingen en bevestig om deze toe te voegen.", "data": {"port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.", "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0.", "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.", "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}},
       "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID"}, "data_description": {"host": "IP-adres of hostnaam van de wallbox in je lokale netwerk.", "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.", "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0."}}
     },
-    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in easyOperate is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
+    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in de webinterface van de wallbox onder \"Settings > Modbus TCP control\" is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
     "abort": {"already_configured": "Deze wallbox is al geconfigureerd.", "already_in_progress": "Het instellen van deze wallbox is al bezig.", "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "EMS-regeling", "state": {"on": "Actief", "off": "Inactief"}},
       "meter_available": {"name": "Energiemeter beschikbaar"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ongeldige fasevolgorde op de wallbox", "description": "De wallbox {title} meldt de fasetoewijzing {line_mapping}. Dit is een ongeldige fasevolgorde (linksdraaiend draaiveld). Laat de netaansluiting en de bij de installatie ingestelde fasetoewijzing controleren door een erkende elektricien. De fasevolgorde wordt pas opnieuw gecontroleerd wanneer de integratie opnieuw wordt geladen of Home Assistant opnieuw wordt gestart."}}
 }

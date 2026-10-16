@@ -18,7 +18,7 @@
       "dhcp_confirm": {"title": "Configurer la wallbox Kathrein détectée", "description": "Home Assistant a détecté une wallbox Kathrein à l’adresse {host}. Vérifiez les paramètres Modbus et confirmez pour l’ajouter.", "data": {"port": "Port", "unit_id": "Identifiant d’unité Modbus", "scan_interval": "Intervalle d’interrogation (secondes)", "allow_control": "Autoriser la commande par Home Assistant"}, "data_description": {"port": "Port Modbus TCP de la wallbox. La valeur par défaut est 502.", "unit_id": "Identifiant d’unité Modbus de la wallbox. La wallbox l’ignore actuellement ; conservez la valeur recommandée 0.", "scan_interval": "Fréquence à laquelle Home Assistant interroge la wallbox, en secondes : de 5 à 300 s. La valeur par défaut est 15 s.", "allow_control": "Permet à Home Assistant de modifier le courant de charge et les phases de la wallbox via des entités et des actions. Si un délai d’expiration EMS est configuré sur la wallbox, Home Assistant renvoie régulièrement les consignes afin que la wallbox ne revienne pas à ses valeurs de repli. Désactivé par défaut pour que Home Assistant n’interfère pas avec un autre gestionnaire d’énergie comme evcc. Vous pourrez modifier ce réglage plus tard dans les options de l’intégration."}},
       "reconfigure": {"title": "Modifier la connexion à la wallbox Kathrein", "data": {"host": "Hôte / adresse IP", "port": "Port", "unit_id": "Identifiant d’unité Modbus"}, "data_description": {"host": "Adresse IP ou nom d’hôte de la wallbox sur votre réseau local.", "port": "Port Modbus TCP de la wallbox. La valeur par défaut est 502.", "unit_id": "Identifiant d’unité Modbus de la wallbox. La wallbox l’ignore actuellement ; conservez la valeur recommandée 0."}}
     },
-    "error": {"cannot_connect": "Connexion impossible. Vérifiez l’adresse et l’activation du serveur Modbus dans easyOperate.", "unsupported_device": "L’appareil ne signale ni la version 2 du mappage ni un numéro de série."},
+    "error": {"cannot_connect": "Connexion impossible. Vérifiez l’adresse et l’activation du serveur Modbus dans l’interface web de la wallbox, sous \"Settings > Modbus TCP control\".", "unsupported_device": "L’appareil ne signale ni la version 2 du mappage ni un numéro de série."},
     "abort": {"already_configured": "Cette wallbox est déjà configurée.", "already_in_progress": "La configuration de cette wallbox est déjà en cours.", "reconfigure_successful": "Les paramètres de connexion ont été mis à jour.", "unique_id_mismatch": "L’appareil à cette adresse est une autre wallbox que celle en cours de reconfiguration."}
   },
   "options": {
@@ -64,5 +64,6 @@
       "ems_control": {"name": "Commande EMS", "state": {"on": "Active", "off": "Inactive"}},
       "meter_available": {"name": "Compteur d’énergie disponible"}
     }
-  }
+  },
+  "issues": {"invalid_phase_rotation": {"title": "Ordre des phases invalide sur la wallbox", "description": "La wallbox {title} indique l’affectation des phases {line_mapping}, qui correspond à un ordre des phases invalide (champ tournant à gauche). Faites vérifier le raccordement au réseau et l’affectation des phases réglée lors de l’installation par un électricien qualifié. L’ordre des phases n’est vérifié à nouveau qu’au rechargement de l’intégration ou au redémarrage de Home Assistant."}}
 }

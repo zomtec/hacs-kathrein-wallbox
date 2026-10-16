@@ -41,7 +41,7 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
             model_id=coordinator.identity.device_number,
             serial_number=serial,
             name=DEVICE_NAME,
-            # The easyOperate web interface is served on the Modbus host.
+            # The Wallbox web interface is served on the Modbus host.
             configuration_url=str(
                 URL.build(scheme="http", host=coordinator.config_entry.data[CONF_HOST])
             ),
