@@ -4,7 +4,7 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
-import voluptuous as vol
+import probatio
 from homeassistant import config_entries
 from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.config_entries import ConfigEntry, ConfigFlowResult
@@ -57,40 +57,46 @@ def _number_selector(minimum: int, maximum: int) -> selector.NumberSelector:
     )
 
 
-def _modbus_schema(defaults: Mapping[str, Any]) -> vol.Schema:
+def _modbus_schema(defaults: Mapping[str, Any]) -> probatio.Schema:
     """Build the port and unit ID form schema with the given default values."""
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Optional(
+            probatio.Optional(
                 CONF_PORT, default=defaults.get(CONF_PORT, DEFAULT_PORT)
             ): _number_selector(MIN_PORT, MAX_PORT),
-            vol.Optional(
+            probatio.Optional(
                 CONF_UNIT_ID, default=defaults.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)
             ): _number_selector(MIN_UNIT_ID, MAX_UNIT_ID),
         }
     )
 
 
-def _connection_schema(defaults: Mapping[str, Any]) -> vol.Schema:
+def _connection_schema(defaults: Mapping[str, Any]) -> probatio.Schema:
     """Build the connection form schema with the given default values."""
-    return vol.Schema(
-        {vol.Required(CONF_HOST, default=defaults.get(CONF_HOST, vol.UNDEFINED)): str}
+    return probatio.Schema(
+        {
+            probatio.Required(
+                CONF_HOST, default=defaults.get(CONF_HOST, probatio.UNDEFINED)
+            ): str
+        }
     ).extend(_modbus_schema(defaults).schema)
 
 
-def _options_schema(default_seconds: int, default_allow_control: bool) -> vol.Schema:
+def _options_schema(
+    default_seconds: int, default_allow_control: bool
+) -> probatio.Schema:
     """Build the polling interval and control form schema with the given defaults."""
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Optional(CONF_SCAN_INTERVAL, default=default_seconds): (
+            probatio.Optional(CONF_SCAN_INTERVAL, default=default_seconds): (
                 _number_selector(MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS)
             ),
-            vol.Optional(CONF_ALLOW_CONTROL, default=default_allow_control): bool,
+            probatio.Optional(CONF_ALLOW_CONTROL, default=default_allow_control): bool,
         }
     )
 
 
-def _setup_options_schema() -> vol.Schema:
+def _setup_options_schema() -> probatio.Schema:
     """Build the options part of a setup form with the default values."""
     return _options_schema(
         int(DEFAULT_SCAN_INTERVAL.total_seconds()), DEFAULT_ALLOW_CONTROL

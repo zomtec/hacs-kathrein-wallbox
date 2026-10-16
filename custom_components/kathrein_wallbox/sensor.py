@@ -2,6 +2,8 @@
 
 import math
 from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
 
 from homeassistant.components.sensor import (
     RestoreSensor,
@@ -139,6 +141,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="voltage_l1",
         translation_key="voltage_l1",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -148,6 +151,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="voltage_l2",
         translation_key="voltage_l2",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -157,6 +161,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="voltage_l3",
         translation_key="voltage_l3",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -166,6 +171,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="current_l1",
         translation_key="current_l1",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -175,6 +181,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="current_l2",
         translation_key="current_l2",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -184,6 +191,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="current_l3",
         translation_key="current_l3",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -193,6 +201,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="active_power_l1",
         translation_key="active_power_l1",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -202,6 +211,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="active_power_l2",
         translation_key="active_power_l2",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -211,6 +221,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="active_power_l3",
         translation_key="active_power_l3",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -238,6 +249,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="frequency",
         translation_key="frequency",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.FREQUENCY,
         native_unit_of_measurement=UnitOfFrequency.HERTZ,
         state_class=SensorStateClass.MEASUREMENT,
@@ -254,6 +266,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="pp_state",
         translation_key="pp_state",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.ENUM,
         options=[
             *PP_STATES.values(),
@@ -267,6 +280,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="cp_state",
         translation_key="cp_state",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.ENUM,
         options=[*CP_STATES.values(), STATE_UNKNOWN],
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -309,6 +323,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="timeout_period",
         translation_key="timeout_period",
+        entity_registry_enabled_default=False,
         native_unit_of_measurement=UnitOfTime.SECONDS,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -317,6 +332,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="timeout_fallback_relay_matrix",
         translation_key="timeout_fallback_relay_matrix",
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.ENUM,
         options=[*RELAY_MATRIX_STATES.values(), STATE_UNKNOWN],
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -327,6 +343,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="timeout_fallback_current",
         translation_key="timeout_fallback_current",
+        entity_registry_enabled_default=False,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
@@ -354,7 +371,7 @@ async def async_setup_entry(
     )
 
 
-class KathreinSensorBase(KathreinWallboxEntity):
+class KathreinSensorBase(KathreinWallboxEntity, SensorEntity):
     """Common description handling for Wallbox sensors."""
 
     entity_description: KathreinSensorDescription
@@ -382,12 +399,12 @@ class KathreinSensorBase(KathreinWallboxEntity):
         )
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the decoded register value or the enum state key."""
         return self.entity_description.value_fn(self.coordinator)
 
 
-class KathreinSensor(KathreinSensorBase, SensorEntity):
+class KathreinSensor(KathreinSensorBase):
     """A sensor backed by a typed Wallbox register."""
 
 
@@ -418,7 +435,7 @@ class KathreinRestoredSensor(KathreinSensorBase, RestoreSensor):
             self._attr_native_value = value
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return live energy or the last restored/valid reading."""
         value = self.entity_description.value_fn(self.coordinator)
         return value if value is not None else self._attr_native_value
