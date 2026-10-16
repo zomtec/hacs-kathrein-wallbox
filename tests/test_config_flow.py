@@ -6,8 +6,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from conftest import SERIAL_REGISTERS, RecordingMockModbusUnit
-from homeassistant.config_entries import SOURCE_USER
+from homeassistant.config_entries import SOURCE_DHCP, SOURCE_USER
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 from modbus_connection import ModbusError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -399,3 +400,71 @@ async def test_reconfigure_recovers_after_device_error(
     assert result["reason"] == "reconfigure_successful"
     assert entry.data == CONNECTION
     assert entry.title == "KWB-AC11"
+
+
+DISCOVERED_IP = "192.0.2.20"
+
+
+def _dhcp_info(serial: str) -> DhcpServiceInfo:
+    return DhcpServiceInfo(
+        ip=DISCOVERED_IP, hostname=f"kwb{serial.lower()}", macaddress="00d055000001"
+    )
+
+
+@pytest.mark.asyncio
+async def test_dhcp_discovery_creates_entry_after_confirmation(
+    hass, monkeypatch, enable_custom_integrations
+) -> None:
+    """Read the discovered address and keep control off by default."""
+    validate = AsyncMock(return_value=(DEVICE_SERIAL, "KWB-AC11"))
+    monkeypatch.setattr(config_flow, "_async_validate_input", validate)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(DEVICE_SERIAL)
+    )
+    assert result["type"] == "form"
+    assert result["step_id"] == "dhcp_confirm"
+    assert result["description_placeholders"] == {"host": DISCOVERED_IP}
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"port": 502.0, "unit_id": 1.0}
+    )
+
+    assert result["type"] == "create_entry"
+    assert result["result"].unique_id == DEVICE_SERIAL
+    assert result["data"] == {"host": DISCOVERED_IP, "port": 502, "unit_id": 1}
+    assert result["options"] == {"scan_interval": 15, "allow_control": False}
+    assert validate.await_args.args[1]["host"] == DISCOVERED_IP
+
+
+@pytest.mark.asyncio
+async def test_dhcp_discovery_updates_address_of_known_wallbox(
+    hass, wallbox_entry
+) -> None:
+    """Follow a new IP address of a configured Wallbox without a new entry."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info("SERIAL123")
+    )
+
+    assert result["type"] == "abort"
+    assert result["reason"] == "already_configured"
+    assert wallbox_entry.data == {**CONNECTION, "host": DISCOVERED_IP}
+
+
+@pytest.mark.asyncio
+async def test_dhcp_confirmation_reports_validation_errors(
+    hass, monkeypatch, enable_custom_integrations
+) -> None:
+    """Keep the confirmation form open when the Wallbox cannot be read."""
+    monkeypatch.setattr(
+        config_flow,
+        "_async_validate_input",
+        AsyncMock(side_effect=ModbusError("connection refused")),
+    )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(DEVICE_SERIAL)
+    )
+
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+
+    assert result["type"] == "form"
+    assert result["errors"] == {"base": "cannot_connect"}
