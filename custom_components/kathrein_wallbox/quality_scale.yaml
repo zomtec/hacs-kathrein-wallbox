@@ -53,16 +53,12 @@ rules:
     status: todo
     comment: Depends on discovery.
   docs-data-update: done
-  docs-examples:
-    status: todo
-    comment: The README only has a single action example, no automation examples.
+  docs-examples: done
   docs-known-limitations: done
-  docs-supported-devices:
-    status: todo
-    comment: The README names the register mapping version, not the supported models.
+  docs-supported-devices: done
   docs-supported-functions: done
   docs-troubleshooting: done
-  docs-use-cases: todo
+  docs-use-cases: done
   dynamic-devices:
     status: exempt
     comment: Each config entry represents exactly one Wallbox.
