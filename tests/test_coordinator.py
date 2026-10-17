@@ -170,17 +170,24 @@ async def test_meter_check_waits_for_a_successful_read(
     assert coordinator.config_entry.data[CONF_METER_DETECTED] is True
 
 
+@pytest.mark.parametrize(
+    ("stored", "raw", "expected"),
+    [(True, [0, 0], True), (False, FLOAT_230, True), (False, [0, 0], False)],
+)
 @pytest.mark.asyncio
-async def test_stored_meter_detection_survives_restart(hass, mock_modbus_unit) -> None:
-    """Use the stored meter detection instead of checking the readings again."""
-    entry = MockConfigEntry(domain=DOMAIN, data={CONF_METER_DETECTED: True})
+async def test_meter_check_after_reload(
+    hass, mock_modbus_unit, stored, raw, expected
+) -> None:
+    """Keep a stored meter and check again once after a reload without one."""
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_METER_DETECTED: stored})
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
+    mock_modbus_unit.holding[0x0030] = raw
 
     await coordinator._async_update_data()
 
-    assert coordinator.meter_detected is True
-    assert coordinator.meter_available
+    assert coordinator.meter_detected is expected
+    assert entry.data[CONF_METER_DETECTED] is expected
     await coordinator.async_shutdown()
 
 

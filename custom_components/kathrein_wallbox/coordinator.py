@@ -64,7 +64,10 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.session_energy = WallboxSessionEnergy(unit)
         self.evse = WallboxEVSE(unit)
         self.ems_control = WallboxEMSControl(unit)
-        self.meter_detected: bool | None = entry.data.get(CONF_METER_DETECTED)
+        # A detected meter is final; otherwise check again once per setup.
+        self.meter_detected: bool | None = (
+            True if entry.data.get(CONF_METER_DETECTED) else None
+        )
         self.meter_available = False
         self.session_energy_available = False
         self.control_allowed = get_allow_control(entry)
@@ -145,7 +148,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
     @callback
     def _async_store_meter_detected(self, detected: bool) -> None:
-        """Persist the result of the one-time meter check in the config entry."""
+        """Persist the result of this setup's meter check in the config entry."""
         self.meter_detected = detected
         self.hass.config_entries.async_update_entry(
             self.config_entry,
