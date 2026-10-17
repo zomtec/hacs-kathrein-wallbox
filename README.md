@@ -104,7 +104,7 @@ The number and select entities write the same EMS registers as the services belo
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
-These entities are only enabled while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`), so there is no separate EMS control switch. The integration never enables EMS control on its own, only together with a setpoint you set.
+These entities are only enabled while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`). The integration never enables EMS control on its own, only together with a setpoint you set.
 
 Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. The last setpoint written by Home Assistant stays in effect until another system overwrites it: with an EMS timeout above `0 s` the Wallbox falls back to the timeout fallback phases and current, with a timeout of `0 s` the setpoint stays, including a paused charge. To hand the Wallbox back to its own control, call `set_ems_control_enabled` with `enabled: false`.
 
