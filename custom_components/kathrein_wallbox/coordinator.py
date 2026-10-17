@@ -24,6 +24,7 @@ from .const import (
 from .model import (
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
+    WallboxChargingSession,
     WallboxEMSControl,
     WallboxEVSE,
     WallboxIdentity,
@@ -63,6 +64,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.meter = WallboxMeter(unit)
         self.session_energy = WallboxSessionEnergy(unit)
         self.evse = WallboxEVSE(unit)
+        self.charging_session = WallboxChargingSession(unit)
         self.ems_control = WallboxEMSControl(unit)
         # A detected meter is final; otherwise check again once per setup.
         self.meter_detected: bool | None = (
@@ -70,6 +72,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         )
         self.meter_available = False
         self.session_energy_available = False
+        self.charging_session_available = False
         self.control_allowed = get_allow_control(entry)
         self._keep_alive_interval: timedelta | None = None
         self._cancel_keep_alive: CALLBACK_TYPE | None = None
@@ -106,6 +109,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
         self._async_schedule_keep_alive()
 
+        await self._async_update_charging_session()
         await self._async_update_meter()
 
         return WallboxData(
@@ -113,8 +117,22 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             meter=self.meter,
             session_energy=self.session_energy,
             evse=self.evse,
+            charging_session=self.charging_session,
             ems_control=self.ems_control,
         )
+
+    async def _async_update_charging_session(self) -> None:
+        """Read the session tag and GUID without blocking the EVSE data."""
+        try:
+            await self.charging_session.async_update()
+        except ModbusError as err:
+            if self.charging_session_available:
+                _LOGGER.warning(
+                    "Charging session registers are no longer available: %s", err
+                )
+            self.charging_session_available = False
+        else:
+            self.charging_session_available = True
 
     async def _async_update_meter(self) -> None:
         """Read the optional meter and session energy if a meter was detected."""
@@ -245,12 +263,13 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
 @dataclass(slots=True)
 class WallboxData:
-    """Decoded identity, optional meter, EVSE and EMS control register components."""
+    """Decoded identity, optional meter, EVSE, session and EMS control components."""
 
     identity: WallboxIdentity
     meter: WallboxMeter
     session_energy: WallboxSessionEnergy
     evse: WallboxEVSE
+    charging_session: WallboxChargingSession
     ems_control: WallboxEMSControl
 
 

@@ -226,6 +226,15 @@
       "granted_power": {"name": "Granted charging power"},
       "charging_duration": {"name": "Charging duration"},
       "charging_energy": {"name": "Energy charged"},
+      "authorization": {
+        "name": "Authorization",
+        "state": {
+          "tag": "Authorized by tag",
+          "not_required": "No authentication required"
+        }
+      },
+      "charging_tag": {"name": "Authorization tag"},
+      "charging_session_id": {"name": "Charging session ID"},
       "timeout_period": {"name": "EMS timeout period"},
       "timeout_fallback_relay_matrix": {
         "name": "EMS timeout fallback relay matrix",

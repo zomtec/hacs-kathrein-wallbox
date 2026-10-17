@@ -107,6 +107,25 @@ async def test_session_energy_failure_recovers_without_losing_meter(
     assert data.session_energy.charging_energy == 1500
 
 
+@pytest.mark.asyncio
+async def test_charging_session_failure_keeps_evse_data(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Keep EVSE data when the session tag registers fail, and recover later."""
+    mock_modbus_unit.holding[0x0060] = 4
+    mock_modbus_unit.fail_read(0x0070, IllegalDataAddressError())
+
+    data = await coordinator._async_update_data()
+
+    assert data.evse.charging_state == 4
+    assert not coordinator.charging_session_available
+
+    mock_modbus_unit.fail_read(0x0070, None)
+    await coordinator._async_update_data()
+
+    assert coordinator.charging_session_available
+
+
 FLOAT_230 = [0x4366, 0]
 
 

@@ -43,6 +43,8 @@ PARALLEL_UPDATES = 0
 # PP value 0 is ambiguous; the device info cable bit picks one of these.
 PP_CABLE_NOT_CONNECTED = "cable_not_connected"
 PP_FIXED_CABLE_MOUNTED = "fixed_cable_mounted"
+AUTHORIZATION_BY_TAG = "tag"
+AUTHORIZATION_NOT_REQUIRED = "not_required"
 
 CHARGING_STATES: dict[int, str] = {
     ChargingState.IDLE: "idle",
@@ -135,6 +137,19 @@ def _meter_available(coordinator: KathreinCoordinator) -> bool:
 def _session_energy_available(coordinator: KathreinCoordinator) -> bool:
     """Return whether the session energy register is readable."""
     return coordinator.session_energy_available
+
+
+def _authorization(coordinator: KathreinCoordinator) -> str | None:
+    """Tell whether the session needed a tag or charged without authentication."""
+    authorized_by_tag = coordinator.charging_session.authorized_by_tag
+    if authorized_by_tag is None:
+        return None
+    return AUTHORIZATION_BY_TAG if authorized_by_tag else AUTHORIZATION_NOT_REQUIRED
+
+
+def _charging_session_available(coordinator: KathreinCoordinator) -> bool:
+    """Return whether the session tag and GUID registers are readable."""
+    return coordinator.charging_session_available
 
 
 SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
@@ -319,6 +334,29 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         value_fn=lambda c: c.session_energy.charging_energy,
         available_fn=_session_energy_available,
+    ),
+    KathreinSensorDescription(
+        key="authorization",
+        translation_key="authorization",
+        entity_registry_enabled_default=False,
+        device_class=SensorDeviceClass.ENUM,
+        options=[AUTHORIZATION_BY_TAG, AUTHORIZATION_NOT_REQUIRED],
+        value_fn=_authorization,
+        available_fn=_charging_session_available,
+    ),
+    KathreinSensorDescription(
+        key="charging_tag",
+        translation_key="charging_tag",
+        entity_registry_enabled_default=False,
+        value_fn=lambda c: c.charging_session.charging_tag,
+        available_fn=_charging_session_available,
+    ),
+    KathreinSensorDescription(
+        key="charging_session_id",
+        translation_key="charging_session_id",
+        entity_registry_enabled_default=False,
+        value_fn=lambda c: c.charging_session.charging_session_id,
+        available_fn=_charging_session_available,
     ),
     KathreinSensorDescription(
         key="timeout_period",

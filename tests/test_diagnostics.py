@@ -40,6 +40,26 @@ async def test_diagnostics_omit_serial_registers(hass, mock_modbus_unit) -> None
     assert 0x001A in holding
 
 
+@pytest.mark.asyncio
+async def test_diagnostics_omit_charging_tag_and_session_id(
+    hass, mock_modbus_unit
+) -> None:
+    """Keep the authorization tag and session GUID out of the register snapshot."""
+    mock_modbus_unit.holding[0x0070] = [0x5246, 0x4944, 0x3A41, 0x3037]
+    mock_modbus_unit.holding[0x0088] = [0x3336, 0x3539]
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
+    entry.runtime_data = SimpleNamespace(
+        coordinator=KathreinCoordinator(hass, entry, mock_modbus_unit)
+    )
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    holding = diagnostics["registers"]["holding"]
+    assert set(range(0x0070, 0x009A)).isdisjoint(holding)
+    assert 0x0060 in holding
+
+
 @pytest.mark.parametrize(
     ("address", "has_error"),
     [(0x0000, True), (0x0030, False), (0x0069, False)],

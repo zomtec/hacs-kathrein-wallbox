@@ -14,6 +14,15 @@
       "granted_current": {
         "default": "mdi:current-ac"
       },
+      "authorization": {
+        "default": "mdi:lock-open-check"
+      },
+      "charging_tag": {
+        "default": "mdi:card-account-details"
+      },
+      "charging_session_id": {
+        "default": "mdi:identifier"
+      },
       "timeout_fallback_current": {
         "default": "mdi:current-ac"
       },
