@@ -93,7 +93,7 @@ While control is not allowed:
 
 Leave the option off if another energy manager controls the Wallbox. Turn it on if Home Assistant should control charging.
 
-When you allow control again, the integration enables only the control entities it disabled itself; entities you disabled yourself stay disabled. Home Assistant reloads the integration a second time about 30 seconds after re-enabling them.
+When you allow control again, the integration enables only the control entities it disabled itself; entities you disabled yourself stay disabled.
 
 ## EMS controls
 
