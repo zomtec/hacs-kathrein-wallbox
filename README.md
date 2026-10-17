@@ -21,7 +21,7 @@ The integration targets the KATHREIN KWB-AC series:
 | Model | Status |
 | --- | --- |
 | KWB-AC20 | Should work if the Wallbox reports mapping version `0x0002`. |
-| KWB-AC35 (discontinued) | Tested. |
+| KWB-AC35 | Tested. |
 | KWB-AC40 | Should work if the Wallbox reports mapping version `0x0002`. |
 | KWB-AC40 E | Should work if the Wallbox reports mapping version `0x0002`. |
 | KWB-AC60 | Should work if the Wallbox reports mapping version `0x0002`. |
