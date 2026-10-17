@@ -20,6 +20,8 @@ DEFAULT_SCAN_INTERVAL = timedelta(seconds=15)
 MIN_SCAN_INTERVAL_SECONDS = 5
 MAX_SCAN_INTERVAL_SECONDS = 300
 CONF_ALLOW_CONTROL = "allow_control"
+# Set once by the first meter check; a detected meter is never reported missing again.
+CONF_METER_DETECTED = "meter_detected"
 # Off by default so Home Assistant does not fight an existing energy manager.
 DEFAULT_ALLOW_CONTROL = False
 # Register mapping version this integration supports.

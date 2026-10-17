@@ -82,7 +82,7 @@ ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
         translation_key="meter_available",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,
-        is_on_fn=lambda c: c.meter_available,
+        is_on_fn=lambda c: c.meter_detected,
     ),
 )
 
