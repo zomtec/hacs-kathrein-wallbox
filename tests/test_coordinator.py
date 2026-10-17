@@ -6,9 +6,13 @@ import pytest
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from homeassistant.util import dt as dt_util
 from modbus_connection import IllegalDataAddressError, ModbusError
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_time_changed,
+)
 
-from custom_components.kathrein_wallbox.const import DOMAIN
+from custom_components.kathrein_wallbox.const import CONF_METER_DETECTED, DOMAIN
+from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
 from custom_components.kathrein_wallbox.model import SERIAL_ADDRESS
 
 
@@ -101,6 +105,90 @@ async def test_session_energy_failure_recovers_without_losing_meter(
     assert coordinator.meter_available
     assert coordinator.session_energy_available
     assert data.session_energy.charging_energy == 1500
+
+
+FLOAT_230 = [0x4366, 0]
+
+
+@pytest.mark.asyncio
+async def test_detected_meter_is_stored_and_never_reported_missing(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Keep a detected meter detected when its readings later fail or vanish."""
+    mock_modbus_unit.holding[0x0030] = FLOAT_230
+    await coordinator._async_update_data()
+
+    assert coordinator.config_entry.data[CONF_METER_DETECTED] is True
+    assert coordinator.meter_available
+
+    mock_modbus_unit.holding[0x0030] = [0, 0]
+    await coordinator._async_update_data()
+
+    assert coordinator.meter_detected is True
+    assert coordinator.meter_available
+
+    mock_modbus_unit.fail_read(0x0030, IllegalDataAddressError())
+    await coordinator._async_update_data()
+
+    assert coordinator.meter_detected is True
+    assert coordinator.config_entry.data[CONF_METER_DETECTED] is True
+    assert not coordinator.meter_available
+
+
+@pytest.mark.asyncio
+async def test_missing_meter_is_stored_and_not_checked_again(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Decide on a missing meter once and ignore later meter readings."""
+    await coordinator._async_update_data()
+
+    assert coordinator.config_entry.data[CONF_METER_DETECTED] is False
+
+    mock_modbus_unit.holding[0x0030] = FLOAT_230
+    await coordinator._async_update_data()
+
+    assert coordinator.meter_detected is False
+    assert not coordinator.meter_available
+    assert not coordinator.session_energy_available
+
+
+@pytest.mark.asyncio
+async def test_meter_check_waits_for_a_successful_read(
+    coordinator, mock_modbus_unit
+) -> None:
+    """Leave the meter undecided while its registers cannot be read."""
+    mock_modbus_unit.fail_read(0x0030, IllegalDataAddressError())
+    await coordinator._async_update_data()
+
+    assert coordinator.meter_detected is None
+    assert CONF_METER_DETECTED not in coordinator.config_entry.data
+
+    mock_modbus_unit.fail_read(0x0030, None)
+    mock_modbus_unit.holding[0x0030] = FLOAT_230
+    await coordinator._async_update_data()
+
+    assert coordinator.config_entry.data[CONF_METER_DETECTED] is True
+
+
+@pytest.mark.parametrize(
+    ("stored", "raw", "expected"),
+    [(True, [0, 0], True), (False, FLOAT_230, True), (False, [0, 0], False)],
+)
+@pytest.mark.asyncio
+async def test_meter_check_after_reload(
+    hass, mock_modbus_unit, stored, raw, expected
+) -> None:
+    """Keep a stored meter and check again once after a reload without one."""
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_METER_DETECTED: stored})
+    entry.add_to_hass(hass)
+    coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
+    mock_modbus_unit.holding[0x0030] = raw
+
+    await coordinator._async_update_data()
+
+    assert coordinator.meter_detected is expected
+    assert entry.data[CONF_METER_DETECTED] is expected
+    await coordinator.async_shutdown()
 
 
 EMS_CONTROL_ADDRESS = 0x00A0

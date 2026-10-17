@@ -74,11 +74,11 @@ When a configured Wallbox gets a new IP address, discovery stores the new addres
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
 | EMS controls | `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps) and `Phases` select (`Phase 1` or `3 Phases`). |
 | EMS diagnostics | `EMS control` binary sensor showing whether EMS control is active, whether turned on by Home Assistant or by another energy manager. |
-| Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
+| Meter diagnostics | A binary sensor indicating whether a meter was detected. Once detected, it stays on. |
 
 Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks and EVSE fault flags. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the EMS keep-alive.
 
-Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
+Meter readings are optional and do not prevent EVSE and charging data from updating. The meter is checked on the first successful read of its registers after setup against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`), and the result is stored. A detected meter stays detected; later failed reads only make meter entities unavailable until the meter answers again, and implausible single values are shown as unknown. Without a detected meter, its registers are not read again until the integration is reloaded; each reload or Home Assistant restart repeats the check once. Meter entities are disabled by default while no meter is detected.
 
 ## Control by Home Assistant
 
@@ -221,7 +221,7 @@ actions:
 | --- | --- |
 | Cannot connect during setup | Confirm the host, port, and unit ID; make sure the Modbus server is enabled in the Wallbox web interface under **Settings > Modbus TCP control** and the Home Assistant host can reach the Wallbox on the network. |
 | Device is not supported | Confirm the device reports mapping version `0x0002` and a readable serial number. |
-| Meter entities are unavailable | Meter data is optional. Check the meter readings and reference ranges above. If the Wallbox has a meter that was not detected during setup, enable its entities from the entity registry. |
+| Meter entities are unavailable | Meter data is optional. Check the meter diagnostics binary sensor and the reference ranges above. If the Wallbox has a meter that was not detected, reload the integration to repeat the check. |
 | Repair issue about an invalid phase rotation | The Wallbox reports a line mapping marked as invalid phase rotation (L1-L3-L2, L2-L1-L3 or L3-L2-L1). Have the supply connection and the line mapping set during installation checked by a qualified electrician. The integration checks the line mapping only at startup; reload the integration or restart Home Assistant after the fix. |
 | Need more information for a report | Download diagnostics from the Kathrein Wallbox config entry under **Settings > Devices & services** and attach them to an issue, after reviewing the data. |
 

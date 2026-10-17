@@ -14,7 +14,13 @@ from homeassistant.helpers.update_coordinator import (
 )
 from modbus_connection import ModbusError, ModbusUnit
 
-from .const import DEFAULT_SCAN_INTERVAL, DEVICE_NAME, DOMAIN, get_allow_control
+from .const import (
+    CONF_METER_DETECTED,
+    DEFAULT_SCAN_INTERVAL,
+    DEVICE_NAME,
+    DOMAIN,
+    get_allow_control,
+)
 from .model import (
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
@@ -58,6 +64,10 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         self.session_energy = WallboxSessionEnergy(unit)
         self.evse = WallboxEVSE(unit)
         self.ems_control = WallboxEMSControl(unit)
+        # A detected meter is final; otherwise check again once per setup.
+        self.meter_detected: bool | None = (
+            True if entry.data.get(CONF_METER_DETECTED) else None
+        )
         self.meter_available = False
         self.session_energy_available = False
         self.control_allowed = get_allow_control(entry)
@@ -96,6 +106,20 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
         self._async_schedule_keep_alive()
 
+        await self._async_update_meter()
+
+        return WallboxData(
+            identity=self.identity,
+            meter=self.meter,
+            session_energy=self.session_energy,
+            evse=self.evse,
+            ems_control=self.ems_control,
+        )
+
+    async def _async_update_meter(self) -> None:
+        """Read the optional meter and session energy if a meter was detected."""
+        if self.meter_detected is False:
+            return
         try:
             await self.meter.async_update()
         except ModbusError as err:
@@ -105,28 +129,30 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
                 )
             self.meter_available = False
             self.session_energy_available = False
+            return
+        if self.meter_detected is None:
+            self._async_store_meter_detected(self.meter.has_plausible_reference)
+        self.meter_available = bool(self.meter_detected)
+        if not self.meter_available:
+            return
+        try:
+            await self.session_energy.async_update()
+        except ModbusError as err:
+            if self.session_energy_available:
+                _LOGGER.warning(
+                    "Session energy register is no longer available: %s", err
+                )
+            self.session_energy_available = False
         else:
-            self.meter_available = self.meter.has_plausible_reference
-            if self.meter_available:
-                try:
-                    await self.session_energy.async_update()
-                except ModbusError as err:
-                    if self.session_energy_available:
-                        _LOGGER.warning(
-                            "Session energy register is no longer available: %s", err
-                        )
-                    self.session_energy_available = False
-                else:
-                    self.session_energy_available = True
-            else:
-                self.session_energy_available = False
+            self.session_energy_available = True
 
-        return WallboxData(
-            identity=self.identity,
-            meter=self.meter,
-            session_energy=self.session_energy,
-            evse=self.evse,
-            ems_control=self.ems_control,
+    @callback
+    def _async_store_meter_detected(self, detected: bool) -> None:
+        """Persist the result of this setup's meter check in the config entry."""
+        self.meter_detected = detected
+        self.hass.config_entries.async_update_entry(
+            self.config_entry,
+            data={**self.config_entry.data, CONF_METER_DETECTED: detected},
         )
 
     async def async_write_ems(
