@@ -18,6 +18,12 @@ FLOAT_230 = [0x4366, 0x0000]
 FLOAT_50 = [0x4248, 0x0000]
 FLOAT_NAN = [0x7FC0, 0x0000]
 FLOAT_1000 = [0x447A, 0x0000]
+SESSION_ID = "36598160-9E55-4B09-1702-7ED324945443"
+
+
+def _string_registers(text: str, count: int) -> list[int]:
+    raw = text.encode("ascii").ljust(count * 2, b"\x00")
+    return [int.from_bytes(raw[i : i + 2], "big") for i in range(0, count * 2, 2)]
 
 
 def _sensor(coordinator, key) -> KathreinSensor:
@@ -52,6 +58,8 @@ def test_entity_keys_are_stable() -> None:
         "granted_power",
         "charging_duration",
         "charging_energy",
+        "charging_tag",
+        "charging_session_id",
         "timeout_period",
         "timeout_fallback_relay_matrix",
         "timeout_fallback_current",
@@ -123,6 +131,38 @@ async def test_sensor_maps_register_values(
     assert _sensor(coordinator, key).native_value == expected
 
 
+@pytest.mark.parametrize(
+    ("tag_info", "expected"),
+    [
+        ("RFID:A07E3F27FFE0", "RFID:A07E3F27FFE0"),
+        ("RFID:A07E3F27FFE0\x00OLD", "RFID:A07E3F27FFE0"),
+        ("VOID", "VOID"),
+        ("", None),
+    ],
+)
+async def test_charging_tag_ends_at_terminator(
+    coordinator, mock_modbus_unit, tag_info, expected
+) -> None:
+    """Show the tag up to its 0x00 terminator and unknown without a tag."""
+    mock_modbus_unit.holding[0x0070] = _string_registers(tag_info, 24)
+    await coordinator.charging_session.async_update()
+
+    assert _sensor(coordinator, "charging_tag").native_value == expected
+
+
+@pytest.mark.parametrize(
+    ("session_id", "expected"), [(SESSION_ID, SESSION_ID), ("", None)]
+)
+async def test_charging_session_id_reads_unterminated_guid(
+    coordinator, mock_modbus_unit, session_id, expected
+) -> None:
+    """Read all 36 GUID characters, which have no terminator."""
+    mock_modbus_unit.holding[0x0088] = _string_registers(session_id, 18)
+    await coordinator.charging_session.async_update()
+
+    assert _sensor(coordinator, "charging_session_id").native_value == expected
+
+
 def test_detail_entities_are_disabled_by_default() -> None:
     """Enable only the main charging and meter entities for new installations."""
     disabled = {
@@ -155,6 +195,8 @@ def test_detail_entities_are_disabled_by_default() -> None:
         "cp_loop_broken",
         "pp_short_circuit",
         "internal_error",
+        "charging_tag",
+        "charging_session_id",
     }
 
 

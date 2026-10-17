@@ -137,6 +137,11 @@ def _session_energy_available(coordinator: KathreinCoordinator) -> bool:
     return coordinator.session_energy_available
 
 
+def _charging_session_available(coordinator: KathreinCoordinator) -> bool:
+    """Return whether the session tag and GUID registers are readable."""
+    return coordinator.charging_session_available
+
+
 SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
     KathreinSensorDescription(
         key="voltage_l1",
@@ -319,6 +324,20 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         value_fn=lambda c: c.session_energy.charging_energy,
         available_fn=_session_energy_available,
+    ),
+    KathreinSensorDescription(
+        key="charging_tag",
+        translation_key="charging_tag",
+        entity_registry_enabled_default=False,
+        value_fn=lambda c: c.charging_session.charging_tag,
+        available_fn=_charging_session_available,
+    ),
+    KathreinSensorDescription(
+        key="charging_session_id",
+        translation_key="charging_session_id",
+        entity_registry_enabled_default=False,
+        value_fn=lambda c: c.charging_session.charging_session_id,
+        available_fn=_charging_session_available,
     ),
     KathreinSensorDescription(
         key="timeout_period",

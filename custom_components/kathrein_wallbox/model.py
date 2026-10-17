@@ -56,6 +56,11 @@ GRANTED_CURRENT_ADDRESS = 0x0065
 GRANTED_POWER_ADDRESS = 0x0066
 CHARGING_DURATION_ADDRESS = 0x0067
 CHARGING_ENERGY_ADDRESS = 0x0069
+CHARGING_TAG_INFO_ADDRESS = 0x0070
+CHARGING_SESSION_ID_ADDRESS = 0x0088
+# Tag info spans 24 registers (48 characters), the session GUID 18 (36 characters).
+CHARGING_TAG_INFO_REGISTER_COUNT = 24
+CHARGING_SESSION_ID_REGISTER_COUNT = 18
 
 EMS_CONTROL_REGISTER_ADDRESS = 0x00A0
 EMS_RELAY_MATRIX_ADDRESS = 0x00A1
@@ -247,6 +252,24 @@ class WallboxEVSE(Component):
     granted_current = integer(GRANTED_CURRENT_ADDRESS, signed=False, unit="mA")
     granted_power = integer(GRANTED_POWER_ADDRESS, signed=False, unit="W")
     charging_duration = uint32(CHARGING_DURATION_ADDRESS, unit="s")
+
+
+class WallboxChargingSession(Component):
+    """Tag and GUID of the current or last charging session."""
+
+    tag_info = string(CHARGING_TAG_INFO_ADDRESS, CHARGING_TAG_INFO_REGISTER_COUNT)
+    session_id = string(CHARGING_SESSION_ID_ADDRESS, CHARGING_SESSION_ID_REGISTER_COUNT)
+
+    @property
+    def charging_tag(self) -> str | None:
+        """Return the authorizing tag, or "VOID" when charging needs no authentication."""
+        # The tag string ends at its first 0x00 terminator.
+        return (self.tag_info or "").partition("\x00")[0] or None
+
+    @property
+    def charging_session_id(self) -> str | None:
+        """Return the GUID of the current or last charging session."""
+        return self.session_id or None
 
 
 class WallboxEMSControl(Component):

@@ -226,6 +226,8 @@
       "granted_power": {"name": "Freigegebene Ladeleistung"},
       "charging_duration": {"name": "Ladedauer"},
       "charging_energy": {"name": "Geladene Energie"},
+      "charging_tag": {"name": "Autorisierungs-Tag"},
+      "charging_session_id": {"name": "Ladevorgangs-ID"},
       "timeout_period": {"name": "EMS Timeout"},
       "timeout_fallback_relay_matrix": {
         "name": "EMS Ersatzwert Phasen",
