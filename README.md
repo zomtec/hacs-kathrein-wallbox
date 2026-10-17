@@ -76,7 +76,7 @@ When a configured Wallbox gets a new IP address, discovery stores the new addres
 | EMS diagnostics | `EMS control` binary sensor showing whether EMS control is active, whether turned on by Home Assistant or by another energy manager. |
 | Meter diagnostics | A binary sensor indicating whether a usable meter is detected. |
 
-Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks and EVSE fault flags. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the EMS keep-alive. Entities that already exist keep their current setting.
+Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks and EVSE fault flags. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the EMS keep-alive.
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. Meter availability is checked against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`); rejected or implausible readings make meter entities unavailable. Meter entities are disabled by default if no meter is detected during setup. If the Wallbox has a meter, you can enable those entities from the entity registry and check the readings against the device.
 
