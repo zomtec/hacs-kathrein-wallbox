@@ -1,69 +1,431 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}},
-    "ems_timeout_period": {"options": {"0": "Vypnuto", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
+    "ems_relay_matrix": {
+      "options": {
+        "phase_1": "Fáze 1",
+        "three_phases": "3 fáze"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Vypnuto",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 min",
+        "180": "3 min",
+        "300": "5 min",
+        "600": "10 min"
+      }
+    }
   },
   "services": {
-    "set_ems_control_enabled": {"name": "Nastavit řízení EMS", "description": "Zapne nebo vypne řízení EMS pro tuto nabíjecí stanici.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "enabled": {"name": "Zapnuto", "description": "Určuje, zda je řízení EMS zapnuté."}}},
-    "set_relay_matrix": {"name": "Nastavit konfiguraci relé", "description": "Vyberte konfiguraci relé pro řízení EMS.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "value": {"name": "Výběr fází", "description": "Fáze, které se mají aktivovat."}}},
-    "set_charging_current": {"name": "Nastavit nabíjecí proud", "description": "Nastaví nabíjecí proud požadovaný systémem EMS.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "value": {"name": "Požadovaný proud", "description": "Proud požadovaný systémem EMS v ampérech: 0 nebo 6 až 32 A po krocích 1 A. Hodnota 0 A pozastaví nabíjení a nepovolí žádný nabíjecí proud."}}},
-    "set_timeout_period": {"name": "Nastavit časový limit EMS", "description": "Určuje, jak dlouho zůstane požadavek EMS aktivní.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "value": {"name": "Časový limit", "description": "Časový limit v sekundách nebo vypnuto."}}},
-    "set_timeout_fallback_relay_matrix": {"name": "Nastavit konfiguraci relé po vypršení limitu EMS", "description": "Vybere konfiguraci relé použitou po vypršení časového limitu EMS.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "value": {"name": "Záložní konfigurace", "description": "Fáze použité po vypršení limitu."}}},
-    "set_timeout_fallback_current": {"name": "Nastavit záložní proud po vypršení limitu EMS", "description": "Nastaví nabíjecí proud použitý po vypršení časového limitu EMS.", "fields": {"device_id": {"name": "Nabíjecí stanice", "description": "Nabíjecí stanice, kterou chcete ovládat."}, "value": {"name": "Záložní proud", "description": "Záložní proud v ampérech: 0 nebo 6 až 32 A po krocích 1 A. Hodnota 0 A pozastaví nabíjení a nepovolí žádný nabíjecí proud."}}}
+    "set_ems_control_enabled": {
+      "name": "Nastavit řízení EMS",
+      "description": "Zapne nebo vypne řízení EMS pro tuto nabíjecí stanici.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "enabled": {
+          "name": "Zapnuto",
+          "description": "Určuje, zda je řízení EMS zapnuté."
+        }
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Nastavit konfiguraci relé",
+      "description": "Vyberte konfiguraci relé pro řízení EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "value": {
+          "name": "Výběr fází",
+          "description": "Fáze, které se mají aktivovat."
+        }
+      }
+    },
+    "set_charging_current": {
+      "name": "Nastavit nabíjecí proud",
+      "description": "Nastaví nabíjecí proud požadovaný systémem EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "value": {
+          "name": "Požadovaný proud",
+          "description": "Proud požadovaný systémem EMS v ampérech: 0 nebo 6 až 32 A po krocích 1 A. Hodnota 0 A pozastaví nabíjení a nepovolí žádný nabíjecí proud."
+        }
+      }
+    },
+    "set_timeout_period": {
+      "name": "Nastavit časový limit EMS",
+      "description": "Určuje, jak dlouho zůstane požadavek EMS aktivní.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "value": {
+          "name": "Časový limit",
+          "description": "Časový limit v sekundách nebo vypnuto."
+        }
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "Nastavit konfiguraci relé po vypršení limitu EMS",
+      "description": "Vybere konfiguraci relé použitou po vypršení časového limitu EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "value": {
+          "name": "Záložní konfigurace",
+          "description": "Fáze použité po vypršení limitu."
+        }
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "Nastavit záložní proud po vypršení limitu EMS",
+      "description": "Nastaví nabíjecí proud použitý po vypršení časového limitu EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Nabíjecí stanice",
+          "description": "Nabíjecí stanice, kterou chcete ovládat."
+        },
+        "value": {
+          "name": "Záložní proud",
+          "description": "Záložní proud v ampérech: 0 nebo 6 až 32 A po krocích 1 A. Hodnota 0 A pozastaví nabíjení a nepovolí žádný nabíjecí proud."
+        }
+      }
+    }
   },
   "config": {
     "flow_title": "Nabíjecí stanice Kathrein ({host})",
     "step": {
-      "user": {"title": "Připojit nabíjecí stanici Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"host": "IP adresa nebo název hostitele nabíjecí stanice ve vaší místní síti.", "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.", "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0.", "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.", "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}},
-      "dhcp_confirm": {"title": "Nastavit nalezenou nabíjecí stanici Kathrein", "description": "Home Assistant našel nabíjecí stanici Kathrein na adrese {host}. Zkontrolujte nastavení Modbus a potvrďte její přidání.", "data": {"port": "Port", "unit_id": "ID jednotky Modbus", "scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.", "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0.", "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.", "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}},
-      "reconfigure": {"title": "Upravit připojení nabíjecí stanice Kathrein", "data": {"host": "Hostitel / IP adresa", "port": "Port", "unit_id": "ID jednotky Modbus"}, "data_description": {"host": "IP adresa nebo název hostitele nabíjecí stanice ve vaší místní síti.", "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.", "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0."}}
+      "user": {
+        "title": "Připojit nabíjecí stanici Kathrein",
+        "data": {
+          "host": "Hostitel / IP adresa",
+          "port": "Port",
+          "unit_id": "ID jednotky Modbus",
+          "scan_interval": "Interval dotazování (sekundy)",
+          "allow_control": "Povolit řízení z Home Assistantu"
+        },
+        "data_description": {
+          "host": "IP adresa nebo název hostitele nabíjecí stanice ve vaší místní síti.",
+          "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.",
+          "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0.",
+          "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.",
+          "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."
+        }
+      },
+      "dhcp_confirm": {
+        "title": "Nastavit nalezenou nabíjecí stanici Kathrein",
+        "description": "Home Assistant našel nabíjecí stanici Kathrein na adrese {host}. Zkontrolujte nastavení Modbus a potvrďte její přidání.",
+        "data": {
+          "port": "Port",
+          "unit_id": "ID jednotky Modbus",
+          "scan_interval": "Interval dotazování (sekundy)",
+          "allow_control": "Povolit řízení z Home Assistantu"
+        },
+        "data_description": {
+          "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.",
+          "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0.",
+          "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.",
+          "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."
+        }
+      },
+      "reconfigure": {
+        "title": "Upravit připojení nabíjecí stanice Kathrein",
+        "data": {
+          "host": "Hostitel / IP adresa",
+          "port": "Port",
+          "unit_id": "ID jednotky Modbus"
+        },
+        "data_description": {
+          "host": "IP adresa nebo název hostitele nabíjecí stanice ve vaší místní síti.",
+          "port": "Port Modbus TCP nabíjecí stanice. Výchozí hodnota je 502.",
+          "unit_id": "ID jednotky Modbus nabíjecí stanice. Nabíjecí stanice jej v současnosti ignoruje; ponechte doporučenou hodnotu 0."
+        }
+      }
     },
-    "error": {"cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je server Modbus povolen ve webovém rozhraní wallboxu v nabídce \"Settings > Modbus TCP control\".", "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."},
-    "abort": {"already_configured": "Tato nabíjecí stanice je již nakonfigurována.", "already_in_progress": "Nastavení této nabíjecí stanice již probíhá.", "reconfigure_successful": "Nastavení připojení bylo aktualizováno.", "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."}
-  },
-  "options": {
-    "step": {"init": {"title": "Nastavení dotazování a řízení", "data": {"scan_interval": "Interval dotazování (sekundy)", "allow_control": "Povolit řízení z Home Assistantu"}, "data_description": {"scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.", "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."}}}
-  },
-  "exceptions": {
-    "device_not_found": {"message": "Vybrané zařízení není nabíjecí stanice Kathrein."},
-    "entry_not_loaded": {"message": "Nabíjecí stanice {title} není aktivní."},
-    "ems_control_disabled": {"message": "Řízení EMS je vypnuté. Před změnou žádaných hodnot EMS zapněte řízení EMS."},
-    "control_not_allowed": {"message": "Řízení z Home Assistantu není povoleno. Nejprve jej povolte v možnostech integrace."},
-    "current_below_minimum": {"message": "Nabíjecí proud EMS musí být 0 A (pozastavení nabíjení) nebo alespoň {min_current} A."},
-    "current_limit_11_kw": {"message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."},
-    "write_failed": {"message": "Zápis do nabíjecí stanice se nezdařil: {error}"},
-    "missing_serial_number": {"message": "Nabíjecí stanice neposkytla sériové číslo."},
-    "update_failed": {"message": "Čtení z nabíjecí stanice se nezdařilo: {error}"}
-  },
-  "entity": {
-    "number": {"ems_charging_current": {"name": "Nabíjecí proud"}},
-    "select": {"ems_relay_matrix": {"name": "Fáze", "state": {"phase_1": "Fáze 1", "three_phases": "3 fáze"}}},
-    "sensor": {
-      "voltage_l1": {"name": "Napětí L1"}, "voltage_l2": {"name": "Napětí L2"}, "voltage_l3": {"name": "Napětí L3"},
-      "current_l1": {"name": "Proud L1"}, "current_l2": {"name": "Proud L2"}, "current_l3": {"name": "Proud L3"},
-      "active_power_l1": {"name": "Činný výkon L1"}, "active_power_l2": {"name": "Činný výkon L2"}, "active_power_l3": {"name": "Činný výkon L3"},
-      "total_active_power": {"name": "Celkový činný výkon"}, "total_energy": {"name": "Celková energie"}, "frequency": {"name": "Síťová frekvence"},
-      "charging_state": {"name": "Stav nabíjení", "state": {"idle": "Nečinná", "ev_connected": "Vozidlo připojeno", "authentication_waiting": "Čeká se na ověření", "authentication_confirmed": "Ověření potvrzeno", "charging_active": "Nabíjení probíhá", "charging_paused": "Nabíjení pozastaveno", "charging_completed": "Nabíjení dokončeno", "rfid_pairing": "Párování RFID", "error": "Chyba", "unknown": "Neznámý"}},
-      "pp_state": {"name": "Signál proximity pilot (PP)", "state": {"not_connected_or_fixed_cable": "Kabel není připojen nebo je pevně připojen", "cable_not_connected": "Kabel není připojen", "fixed_cable_mounted": "Pevný kabel je připojen", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Chyba", "unknown": "Neznámý"}},
-      "cp_state": {"name": "Řídicí signál (CP)", "state": {"state_a": "A: vozidlo nebylo detekováno", "state_b": "B: vozidlo detekováno", "state_c": "C: vozidlo se nabíjí", "state_d": "D: nabíjení s ventilací", "state_e": "E: zkrat CP", "state_f": "F: EVSE není k dispozici", "unknown": "Neznámý"}},
-      "granted_current": {"name": "Povolený nabíjecí proud"}, "granted_power": {"name": "Povolený nabíjecí výkon"}, "charging_duration": {"name": "Doba nabíjení"}, "charging_energy": {"name": "Dodaná energie"}, "charging_tag": {"name": "Autorizační identifikátor"}, "charging_session_id": {"name": "ID nabíjecí relace"}, "timeout_period": {"name": "Časový limit EMS"},
-      "timeout_fallback_relay_matrix": {"name": "Záložní konfigurace relé EMS", "state": {"phase_1": "Fáze 1", "phase_2": "Fáze 2", "phase_3": "Fáze 3", "three_phases": "3 fáze", "unknown": "Neznámý"}},
-      "timeout_fallback_current": {"name": "Záložní proud EMS"}
+    "error": {
+      "cannot_connect": "Připojení se nezdařilo. Zkontrolujte adresu a zda je server Modbus povolen ve webovém rozhraní wallboxu v nabídce \"Settings > Modbus TCP control\".",
+      "unsupported_device": "Zařízení neohlásilo verzi mapování 2 ani sériové číslo."
     },
-    "binary_sensor": {
-      "relay_welded": {"name": "Slepené relé", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "residual_dc_current": {"name": "Stejnosměrný reziduální proud", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "socket_lock_error": {"name": "Chyba zámku zásuvky", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "charging_overcurrent": {"name": "Nadproud při nabíjení", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "ventilation_unavailable": {"name": "Ventilace není k dispozici", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "cp_short_circuit": {"name": "Zkrat CP", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "cp_loop_broken": {"name": "Přerušená smyčka CP", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "pp_short_circuit": {"name": "Zkrat PP", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "internal_error": {"name": "Interní chyba", "state": {"on": "Zjištěna závada", "off": "Bez závady"}},
-      "relay_l1": {"name": "Relé L1"}, "relay_l2": {"name": "Relé L2"}, "relay_l3": {"name": "Relé L3"},
-      "ems_control": {"name": "Řízení EMS", "state": {"on": "Aktivní", "off": "Neaktivní"}},
-      "meter_available": {"name": "Elektroměr je k dispozici"}
+    "abort": {
+      "already_configured": "Tato nabíjecí stanice je již nakonfigurována.",
+      "already_in_progress": "Nastavení této nabíjecí stanice již probíhá.",
+      "reconfigure_successful": "Nastavení připojení bylo aktualizováno.",
+      "unique_id_mismatch": "Zařízení na této adrese je jiná nabíjecí stanice, než která se právě konfiguruje."
     }
   },
-  "issues": {"invalid_phase_rotation": {"title": "Neplatný sled fází na wallboxu", "description": "Wallbox {title} hlásí přiřazení fází {line_mapping}, což je neplatný sled fází (levotočivé pole). Nechte připojení k síti a přiřazení fází nastavené při instalaci zkontrolovat kvalifikovaným elektrikářem. Sled fází se znovu zkontroluje až při opětovném načtení integrace nebo restartu Home Assistantu."}}
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nastavení dotazování a řízení",
+        "data": {
+          "scan_interval": "Interval dotazování (sekundy)",
+          "allow_control": "Povolit řízení z Home Assistantu"
+        },
+        "data_description": {
+          "scan_interval": "Jak často Home Assistant čte data z nabíjecí stanice, v sekundách: 5 až 300 s. Výchozí hodnota je 15 s.",
+          "allow_control": "Umožní Home Assistantu měnit nabíjecí proud a fáze nabíjecí stanice pomocí entit a akcí. Pokud je v nabíjecí stanici nastaven časový limit EMS, Home Assistant pravidelně opakuje požadované hodnoty, aby se stanice nevrátila k záložním hodnotám. Ve výchozím stavu vypnuto, aby Home Assistant nezasahoval do jiného energetického manažera, jako je evcc. Nastavení lze později změnit v možnostech integrace."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "device_not_found": {
+      "message": "Vybrané zařízení není nabíjecí stanice Kathrein."
+    },
+    "entry_not_loaded": {
+      "message": "Nabíjecí stanice {title} není aktivní."
+    },
+    "ems_control_disabled": {
+      "message": "Řízení EMS je vypnuté. Před změnou žádaných hodnot EMS zapněte řízení EMS."
+    },
+    "control_not_allowed": {
+      "message": "Řízení z Home Assistantu není povoleno. Nejprve jej povolte v možnostech integrace."
+    },
+    "current_below_minimum": {
+      "message": "Nabíjecí proud EMS musí být 0 A (pozastavení nabíjení) nebo alespoň {min_current} A."
+    },
+    "current_limit_11_kw": {
+      "message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."
+    },
+    "write_failed": {
+      "message": "Zápis do nabíjecí stanice se nezdařil: {error}"
+    },
+    "missing_serial_number": {
+      "message": "Nabíjecí stanice neposkytla sériové číslo."
+    },
+    "update_failed": {
+      "message": "Čtení z nabíjecí stanice se nezdařilo: {error}"
+    }
+  },
+  "entity": {
+    "number": {
+      "ems_charging_current": {
+        "name": "Nabíjecí proud"
+      }
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "name": "Fáze",
+        "state": {
+          "phase_1": "Fáze 1",
+          "three_phases": "3 fáze"
+        }
+      }
+    },
+    "sensor": {
+      "voltage_l1": {
+        "name": "Napětí L1"
+      },
+      "voltage_l2": {
+        "name": "Napětí L2"
+      },
+      "voltage_l3": {
+        "name": "Napětí L3"
+      },
+      "current_l1": {
+        "name": "Proud L1"
+      },
+      "current_l2": {
+        "name": "Proud L2"
+      },
+      "current_l3": {
+        "name": "Proud L3"
+      },
+      "active_power_l1": {
+        "name": "Činný výkon L1"
+      },
+      "active_power_l2": {
+        "name": "Činný výkon L2"
+      },
+      "active_power_l3": {
+        "name": "Činný výkon L3"
+      },
+      "total_active_power": {
+        "name": "Celkový činný výkon"
+      },
+      "total_energy": {
+        "name": "Celková energie"
+      },
+      "frequency": {
+        "name": "Síťová frekvence"
+      },
+      "charging_state": {
+        "name": "Stav nabíjení",
+        "state": {
+          "idle": "Nečinná",
+          "ev_connected": "Vozidlo připojeno",
+          "authentication_waiting": "Čeká se na ověření",
+          "authentication_confirmed": "Ověření potvrzeno",
+          "charging_active": "Nabíjení probíhá",
+          "charging_paused": "Nabíjení pozastaveno",
+          "charging_completed": "Nabíjení dokončeno",
+          "rfid_pairing": "Párování RFID",
+          "error": "Chyba",
+          "unknown": "Neznámý"
+        }
+      },
+      "pp_state": {
+        "name": "Signál proximity pilot (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Kabel není připojen nebo je pevně připojen",
+          "cable_not_connected": "Kabel není připojen",
+          "fixed_cable_mounted": "Pevný kabel je připojen",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Chyba",
+          "unknown": "Neznámý"
+        }
+      },
+      "cp_state": {
+        "name": "Řídicí signál (CP)",
+        "state": {
+          "state_a": "A: vozidlo nebylo detekováno",
+          "state_b": "B: vozidlo detekováno",
+          "state_c": "C: vozidlo se nabíjí",
+          "state_d": "D: nabíjení s ventilací",
+          "state_e": "E: zkrat CP",
+          "state_f": "F: EVSE není k dispozici",
+          "unknown": "Neznámý"
+        }
+      },
+      "granted_current": {
+        "name": "Povolený nabíjecí proud"
+      },
+      "granted_power": {
+        "name": "Povolený nabíjecí výkon"
+      },
+      "charging_duration": {
+        "name": "Doba nabíjení"
+      },
+      "charging_energy": {
+        "name": "Dodaná energie"
+      },
+      "charging_tag": {
+        "name": "Autorizační identifikátor"
+      },
+      "charging_session_id": {
+        "name": "ID nabíjecí relace"
+      },
+      "timeout_period": {
+        "name": "Časový limit EMS"
+      },
+      "timeout_fallback_relay_matrix": {
+        "name": "Záložní konfigurace relé EMS",
+        "state": {
+          "phase_1": "Fáze 1",
+          "phase_2": "Fáze 2",
+          "phase_3": "Fáze 3",
+          "three_phases": "3 fáze",
+          "unknown": "Neznámý"
+        }
+      },
+      "timeout_fallback_current": {
+        "name": "Záložní proud EMS"
+      }
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Slepené relé",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "residual_dc_current": {
+        "name": "Stejnosměrný reziduální proud",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "socket_lock_error": {
+        "name": "Chyba zámku zásuvky",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "charging_overcurrent": {
+        "name": "Nadproud při nabíjení",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "ventilation_unavailable": {
+        "name": "Ventilace není k dispozici",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "cp_short_circuit": {
+        "name": "Zkrat CP",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "cp_loop_broken": {
+        "name": "Přerušená smyčka CP",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "pp_short_circuit": {
+        "name": "Zkrat PP",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "internal_error": {
+        "name": "Interní chyba",
+        "state": {
+          "on": "Zjištěna závada",
+          "off": "Bez závady"
+        }
+      },
+      "relay_l1": {
+        "name": "Relé L1"
+      },
+      "relay_l2": {
+        "name": "Relé L2"
+      },
+      "relay_l3": {
+        "name": "Relé L3"
+      },
+      "ems_control": {
+        "name": "Řízení EMS",
+        "state": {
+          "on": "Aktivní",
+          "off": "Neaktivní"
+        }
+      },
+      "meter_available": {
+        "name": "Elektroměr je k dispozici"
+      }
+    }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Neplatný sled fází na wallboxu",
+      "description": "Wallbox {title} hlásí přiřazení fází {line_mapping}, což je neplatný sled fází (levotočivé pole). Nechte připojení k síti a přiřazení fází nastavené při instalaci zkontrolovat kvalifikovaným elektrikářem. Sled fází se znovu zkontroluje až při opětovném načtení integrace nebo restartu Home Assistantu."
+    }
+  }
 }

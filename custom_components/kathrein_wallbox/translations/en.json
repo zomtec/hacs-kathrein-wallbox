@@ -23,48 +23,84 @@
       "name": "Set EMS control state",
       "description": "Enable or disable EMS control for this Wallbox.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "enabled": {"name": "Enabled", "description": "Whether EMS control is enabled."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether EMS control is enabled."
+        }
       }
     },
     "set_relay_matrix": {
       "name": "Set relay matrix",
       "description": "Choose the relay matrix for EMS control.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "value": {"name": "Phase selection", "description": "Relay phases to enable."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "value": {
+          "name": "Phase selection",
+          "description": "Relay phases to enable."
+        }
       }
     },
     "set_charging_current": {
       "name": "Set charging current setpoint",
       "description": "Set the charging current requested from the EMS.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "value": {"name": "Current setpoint", "description": "EMS charging current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "value": {
+          "name": "Current setpoint",
+          "description": "EMS charging current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."
+        }
       }
     },
     "set_timeout_period": {
       "name": "Set EMS timeout period",
       "description": "Set how long the EMS override remains active.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "value": {"name": "Timeout period", "description": "Timeout in seconds, or off."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "value": {
+          "name": "Timeout period",
+          "description": "Timeout in seconds, or off."
+        }
       }
     },
     "set_timeout_fallback_relay_matrix": {
       "name": "Set EMS timeout fallback relay matrix",
       "description": "Choose the relay matrix used when the EMS timeout expires.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "value": {"name": "Fallback relay matrix", "description": "Relay phases to use after timeout."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "value": {
+          "name": "Fallback relay matrix",
+          "description": "Relay phases to use after timeout."
+        }
       }
     },
     "set_timeout_fallback_current": {
       "name": "Set EMS timeout fallback current",
       "description": "Set the fallback charging current used when the EMS timeout expires.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Wallbox to control."},
-        "value": {"name": "Fallback current", "description": "Fallback current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox to control."
+        },
+        "value": {
+          "name": "Fallback current",
+          "description": "Fallback current in amps: 0 or 6 to 32 A in 1 A steps. 0 A pauses charging and grants no charging current."
+        }
       }
     }
   },
@@ -145,19 +181,39 @@
     }
   },
   "exceptions": {
-    "device_not_found": {"message": "The selected device is not a Kathrein Wallbox."},
-    "entry_not_loaded": {"message": "The Wallbox {title} is not active."},
-    "ems_control_disabled": {"message": "EMS control is off. Turn on EMS control before changing EMS setpoints."},
-    "control_not_allowed": {"message": "Control by Home Assistant is not allowed. Allow it in the integration options first."},
-    "current_below_minimum": {"message": "EMS charging current must be 0 A to pause charging or at least {min_current} A."},
-    "current_limit_11_kw": {"message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."},
-    "write_failed": {"message": "Unable to write to the Wallbox: {error}"},
-    "missing_serial_number": {"message": "The Wallbox did not report a serial number."},
-    "update_failed": {"message": "Unable to read the Wallbox: {error}"}
+    "device_not_found": {
+      "message": "The selected device is not a Kathrein Wallbox."
+    },
+    "entry_not_loaded": {
+      "message": "The Wallbox {title} is not active."
+    },
+    "ems_control_disabled": {
+      "message": "EMS control is off. Turn on EMS control before changing EMS setpoints."
+    },
+    "control_not_allowed": {
+      "message": "Control by Home Assistant is not allowed. Allow it in the integration options first."
+    },
+    "current_below_minimum": {
+      "message": "EMS charging current must be 0 A to pause charging or at least {min_current} A."
+    },
+    "current_limit_11_kw": {
+      "message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."
+    },
+    "write_failed": {
+      "message": "Unable to write to the Wallbox: {error}"
+    },
+    "missing_serial_number": {
+      "message": "The Wallbox did not report a serial number."
+    },
+    "update_failed": {
+      "message": "Unable to read the Wallbox: {error}"
+    }
   },
   "entity": {
     "number": {
-      "ems_charging_current": {"name": "Charging current"}
+      "ems_charging_current": {
+        "name": "Charging current"
+      }
     },
     "select": {
       "ems_relay_matrix": {
@@ -169,18 +225,42 @@
       }
     },
     "sensor": {
-      "voltage_l1": {"name": "Voltage L1"},
-      "voltage_l2": {"name": "Voltage L2"},
-      "voltage_l3": {"name": "Voltage L3"},
-      "current_l1": {"name": "Current L1"},
-      "current_l2": {"name": "Current L2"},
-      "current_l3": {"name": "Current L3"},
-      "active_power_l1": {"name": "Active power L1"},
-      "active_power_l2": {"name": "Active power L2"},
-      "active_power_l3": {"name": "Active power L3"},
-      "total_active_power": {"name": "Total active power"},
-      "total_energy": {"name": "Total energy"},
-      "frequency": {"name": "Grid frequency"},
+      "voltage_l1": {
+        "name": "Voltage L1"
+      },
+      "voltage_l2": {
+        "name": "Voltage L2"
+      },
+      "voltage_l3": {
+        "name": "Voltage L3"
+      },
+      "current_l1": {
+        "name": "Current L1"
+      },
+      "current_l2": {
+        "name": "Current L2"
+      },
+      "current_l3": {
+        "name": "Current L3"
+      },
+      "active_power_l1": {
+        "name": "Active power L1"
+      },
+      "active_power_l2": {
+        "name": "Active power L2"
+      },
+      "active_power_l3": {
+        "name": "Active power L3"
+      },
+      "total_active_power": {
+        "name": "Total active power"
+      },
+      "total_energy": {
+        "name": "Total energy"
+      },
+      "frequency": {
+        "name": "Grid frequency"
+      },
       "charging_state": {
         "name": "Charging state",
         "state": {
@@ -222,13 +302,27 @@
           "unknown": "Unknown"
         }
       },
-      "granted_current": {"name": "Granted charging current"},
-      "granted_power": {"name": "Granted charging power"},
-      "charging_duration": {"name": "Charging duration"},
-      "charging_energy": {"name": "Energy charged"},
-      "charging_tag": {"name": "Authorization tag"},
-      "charging_session_id": {"name": "Charging session ID"},
-      "timeout_period": {"name": "EMS timeout period"},
+      "granted_current": {
+        "name": "Granted charging current"
+      },
+      "granted_power": {
+        "name": "Granted charging power"
+      },
+      "charging_duration": {
+        "name": "Charging duration"
+      },
+      "charging_energy": {
+        "name": "Energy charged"
+      },
+      "charging_tag": {
+        "name": "Authorization tag"
+      },
+      "charging_session_id": {
+        "name": "Charging session ID"
+      },
+      "timeout_period": {
+        "name": "EMS timeout period"
+      },
       "timeout_fallback_relay_matrix": {
         "name": "EMS timeout fallback relay matrix",
         "state": {
@@ -239,50 +333,93 @@
           "unknown": "Unknown"
         }
       },
-      "timeout_fallback_current": {"name": "EMS timeout fallback current"}
+      "timeout_fallback_current": {
+        "name": "EMS timeout fallback current"
+      }
     },
     "binary_sensor": {
       "relay_welded": {
         "name": "Relay welded",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "residual_dc_current": {
         "name": "DC residual current",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "socket_lock_error": {
         "name": "Socket lock error",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "charging_overcurrent": {
         "name": "Charging overcurrent",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "ventilation_unavailable": {
         "name": "Ventilation unavailable",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "cp_short_circuit": {
         "name": "CP short circuit",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "cp_loop_broken": {
         "name": "CP loop broken",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "pp_short_circuit": {
         "name": "PP short circuit",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
       "internal_error": {
         "name": "Internal error",
-        "state": {"on": "Fault detected", "off": "No fault"}
+        "state": {
+          "on": "Fault detected",
+          "off": "No fault"
+        }
       },
-      "relay_l1": {"name": "Relay L1"},
-      "relay_l2": {"name": "Relay L2"},
-      "relay_l3": {"name": "Relay L3"},
-      "ems_control": {"name": "EMS control", "state": {"on": "Active", "off": "Inactive"}},
-      "meter_available": {"name": "Energy meter available"}
+      "relay_l1": {
+        "name": "Relay L1"
+      },
+      "relay_l2": {
+        "name": "Relay L2"
+      },
+      "relay_l3": {
+        "name": "Relay L3"
+      },
+      "ems_control": {
+        "name": "EMS control",
+        "state": {
+          "on": "Active",
+          "off": "Inactive"
+        }
+      },
+      "meter_available": {
+        "name": "Energy meter available"
+      }
     }
   },
   "issues": {

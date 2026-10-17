@@ -23,48 +23,84 @@
       "name": "EMS Steuerung einstellen",
       "description": "EMS Steuerung dieser Wallbox aktivieren oder deaktivieren.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "enabled": {"name": "Aktiviert", "description": "Legt fest, ob EMS Steuerung aktiv ist."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "enabled": {
+          "name": "Aktiviert",
+          "description": "Legt fest, ob EMS Steuerung aktiv ist."
+        }
       }
     },
     "set_relay_matrix": {
       "name": "Relaismatrix einstellen",
       "description": "Phasen für die EMS Steuerung auswählen.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Phasenauswahl", "description": "Zu aktivierende Phasen."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "value": {
+          "name": "Phasenauswahl",
+          "description": "Zu aktivierende Phasen."
+        }
       }
     },
     "set_charging_current": {
       "name": "Ladestrom Vorgabe einstellen",
       "description": "Den von der EMS angeforderten Ladestrom einstellen.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Ladestrom Vorgabe", "description": "EMS Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "value": {
+          "name": "Ladestrom Vorgabe",
+          "description": "EMS Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."
+        }
       }
     },
     "set_timeout_period": {
       "name": "EMS Timeout einstellen",
       "description": "Dauer der EMS Vorgabe einstellen.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Timeout", "description": "Dauer in Sekunden oder deaktiviert."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "value": {
+          "name": "Timeout",
+          "description": "Dauer in Sekunden oder deaktiviert."
+        }
       }
     },
     "set_timeout_fallback_relay_matrix": {
       "name": "EMS Ersatzwert Phasen einstellen",
       "description": "Phasen auswählen, die nach Ablauf des EMS Timeouts verwendet werden.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Ersatzwert Phasen", "description": "Nach dem Timeout zu verwendende Phasen."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "value": {
+          "name": "Ersatzwert Phasen",
+          "description": "Nach dem Timeout zu verwendende Phasen."
+        }
       }
     },
     "set_timeout_fallback_current": {
       "name": "EMS Ersatzwert Ladestrom einstellen",
       "description": "Ersatzwert für den Ladestrom nach Ablauf des EMS Timeouts einstellen.",
       "fields": {
-        "device_id": {"name": "Wallbox", "description": "Zu steuernde Wallbox."},
-        "value": {"name": "Ersatzwert Ladestrom", "description": "Ersatzwert für den Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."}
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Zu steuernde Wallbox."
+        },
+        "value": {
+          "name": "Ersatzwert Ladestrom",
+          "description": "Ersatzwert für den Ladestrom in Ampere: 0 oder 6 bis 32 A in 1-A-Schritten. 0 A legt eine Ladepause ein und erteilt keine Ladefreigabe."
+        }
       }
     }
   },
@@ -145,19 +181,39 @@
     }
   },
   "exceptions": {
-    "device_not_found": {"message": "Das ausgewählte Gerät ist keine Kathrein Wallbox."},
-    "entry_not_loaded": {"message": "Die Wallbox {title} ist nicht aktiv."},
-    "ems_control_disabled": {"message": "Die EMS Steuerung ist aus. Vor dem Ändern von EMS Sollwerten muss die EMS Steuerung eingeschaltet werden."},
-    "control_not_allowed": {"message": "Die Steuerung durch Home Assistant ist nicht erlaubt. Sie muss zuerst in den Optionen der Integration erlaubt werden."},
-    "current_below_minimum": {"message": "Der EMS Ladestrom muss 0 A (Laden pausieren) oder mindestens {min_current} A betragen."},
-    "current_limit_11_kw": {"message": "Wallboxen mit 11 kW unterstützen einen EMS Ladestrom von höchstens {max_current} A."},
-    "write_failed": {"message": "Schreiben auf die Wallbox nicht möglich: {error}"},
-    "missing_serial_number": {"message": "Die Wallbox hat keine Seriennummer gemeldet."},
-    "update_failed": {"message": "Lesen der Wallbox nicht möglich: {error}"}
+    "device_not_found": {
+      "message": "Das ausgewählte Gerät ist keine Kathrein Wallbox."
+    },
+    "entry_not_loaded": {
+      "message": "Die Wallbox {title} ist nicht aktiv."
+    },
+    "ems_control_disabled": {
+      "message": "Die EMS Steuerung ist aus. Vor dem Ändern von EMS Sollwerten muss die EMS Steuerung eingeschaltet werden."
+    },
+    "control_not_allowed": {
+      "message": "Die Steuerung durch Home Assistant ist nicht erlaubt. Sie muss zuerst in den Optionen der Integration erlaubt werden."
+    },
+    "current_below_minimum": {
+      "message": "Der EMS Ladestrom muss 0 A (Laden pausieren) oder mindestens {min_current} A betragen."
+    },
+    "current_limit_11_kw": {
+      "message": "Wallboxen mit 11 kW unterstützen einen EMS Ladestrom von höchstens {max_current} A."
+    },
+    "write_failed": {
+      "message": "Schreiben auf die Wallbox nicht möglich: {error}"
+    },
+    "missing_serial_number": {
+      "message": "Die Wallbox hat keine Seriennummer gemeldet."
+    },
+    "update_failed": {
+      "message": "Lesen der Wallbox nicht möglich: {error}"
+    }
   },
   "entity": {
     "number": {
-      "ems_charging_current": {"name": "Ladestrom"}
+      "ems_charging_current": {
+        "name": "Ladestrom"
+      }
     },
     "select": {
       "ems_relay_matrix": {
@@ -169,18 +225,42 @@
       }
     },
     "sensor": {
-      "voltage_l1": {"name": "Spannung L1"},
-      "voltage_l2": {"name": "Spannung L2"},
-      "voltage_l3": {"name": "Spannung L3"},
-      "current_l1": {"name": "Strom L1"},
-      "current_l2": {"name": "Strom L2"},
-      "current_l3": {"name": "Strom L3"},
-      "active_power_l1": {"name": "Wirkleistung L1"},
-      "active_power_l2": {"name": "Wirkleistung L2"},
-      "active_power_l3": {"name": "Wirkleistung L3"},
-      "total_active_power": {"name": "Gesamtwirkleistung"},
-      "total_energy": {"name": "Gesamtenergie"},
-      "frequency": {"name": "Netzfrequenz"},
+      "voltage_l1": {
+        "name": "Spannung L1"
+      },
+      "voltage_l2": {
+        "name": "Spannung L2"
+      },
+      "voltage_l3": {
+        "name": "Spannung L3"
+      },
+      "current_l1": {
+        "name": "Strom L1"
+      },
+      "current_l2": {
+        "name": "Strom L2"
+      },
+      "current_l3": {
+        "name": "Strom L3"
+      },
+      "active_power_l1": {
+        "name": "Wirkleistung L1"
+      },
+      "active_power_l2": {
+        "name": "Wirkleistung L2"
+      },
+      "active_power_l3": {
+        "name": "Wirkleistung L3"
+      },
+      "total_active_power": {
+        "name": "Gesamtwirkleistung"
+      },
+      "total_energy": {
+        "name": "Gesamtenergie"
+      },
+      "frequency": {
+        "name": "Netzfrequenz"
+      },
       "charging_state": {
         "name": "Ladestatus",
         "state": {
@@ -222,13 +302,27 @@
           "unknown": "Unbekannt"
         }
       },
-      "granted_current": {"name": "Freigegebener Ladestrom"},
-      "granted_power": {"name": "Freigegebene Ladeleistung"},
-      "charging_duration": {"name": "Ladedauer"},
-      "charging_energy": {"name": "Geladene Energie"},
-      "charging_tag": {"name": "Autorisierungs-Tag"},
-      "charging_session_id": {"name": "Ladevorgangs-ID"},
-      "timeout_period": {"name": "EMS Timeout"},
+      "granted_current": {
+        "name": "Freigegebener Ladestrom"
+      },
+      "granted_power": {
+        "name": "Freigegebene Ladeleistung"
+      },
+      "charging_duration": {
+        "name": "Ladedauer"
+      },
+      "charging_energy": {
+        "name": "Geladene Energie"
+      },
+      "charging_tag": {
+        "name": "Autorisierungs-Tag"
+      },
+      "charging_session_id": {
+        "name": "Ladevorgangs-ID"
+      },
+      "timeout_period": {
+        "name": "EMS Timeout"
+      },
       "timeout_fallback_relay_matrix": {
         "name": "EMS Ersatzwert Phasen",
         "state": {
@@ -239,50 +333,93 @@
           "unknown": "Unbekannt"
         }
       },
-      "timeout_fallback_current": {"name": "EMS Ersatzwert Ladestrom"}
+      "timeout_fallback_current": {
+        "name": "EMS Ersatzwert Ladestrom"
+      }
     },
     "binary_sensor": {
       "relay_welded": {
         "name": "Relais verschweißt",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "residual_dc_current": {
         "name": "DC Fehlerstrom",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "socket_lock_error": {
         "name": "Steckerverriegelung",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "charging_overcurrent": {
         "name": "Überstrom beim Laden",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "ventilation_unavailable": {
         "name": "Lüftung nicht verfügbar",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "cp_short_circuit": {
         "name": "CP Kurzschluss",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "cp_loop_broken": {
         "name": "CP Stromkreis unterbrochen",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "pp_short_circuit": {
         "name": "PP Kurzschluss",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
       "internal_error": {
         "name": "Interner Fehler",
-        "state": {"on": "Fehler erkannt", "off": "Kein Fehler"}
+        "state": {
+          "on": "Fehler erkannt",
+          "off": "Kein Fehler"
+        }
       },
-      "relay_l1": {"name": "Relais L1"},
-      "relay_l2": {"name": "Relais L2"},
-      "relay_l3": {"name": "Relais L3"},
-      "ems_control": {"name": "EMS Steuerung", "state": {"on": "Aktiv", "off": "Inaktiv"}},
-      "meter_available": {"name": "Energiezähler verfügbar"}
+      "relay_l1": {
+        "name": "Relais L1"
+      },
+      "relay_l2": {
+        "name": "Relais L2"
+      },
+      "relay_l3": {
+        "name": "Relais L3"
+      },
+      "ems_control": {
+        "name": "EMS Steuerung",
+        "state": {
+          "on": "Aktiv",
+          "off": "Inaktiv"
+        }
+      },
+      "meter_available": {
+        "name": "Energiezähler verfügbar"
+      }
     }
   },
   "issues": {

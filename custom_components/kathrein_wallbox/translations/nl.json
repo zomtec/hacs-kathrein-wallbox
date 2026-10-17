@@ -1,69 +1,431 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fasen"}},
-    "ems_timeout_period": {"options": {"0": "Uit", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
+    "ems_relay_matrix": {
+      "options": {
+        "phase_1": "Fase 1",
+        "three_phases": "3 fasen"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Uit",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 min",
+        "180": "3 min",
+        "300": "5 min",
+        "600": "10 min"
+      }
+    }
   },
   "services": {
-    "set_ems_control_enabled": {"name": "EMS-regeling instellen", "description": "Schakel de EMS-regeling voor deze wallbox in of uit.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "enabled": {"name": "Ingeschakeld", "description": "Geeft aan of de EMS-regeling is ingeschakeld."}}},
-    "set_relay_matrix": {"name": "Relaisconfiguratie instellen", "description": "Kies de relaisconfiguratie voor de EMS-regeling.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "value": {"name": "Faseselectie", "description": "De in te schakelen fasen."}}},
-    "set_charging_current": {"name": "Laadstroom instellen", "description": "Stel de door het EMS gevraagde laadstroom in.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "value": {"name": "Laadstroominstelling", "description": "Door het EMS gevraagde laadstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}},
-    "set_timeout_period": {"name": "EMS-time-out instellen", "description": "Stel in hoelang de EMS-instelling actief blijft.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "value": {"name": "Time-out", "description": "Time-out in seconden, of uit."}}},
-    "set_timeout_fallback_relay_matrix": {"name": "Relaisconfiguratie na EMS-time-out instellen", "description": "Kies de relaisconfiguratie die na het verlopen van de EMS-time-out wordt gebruikt.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "value": {"name": "Terugvalconfiguratie", "description": "De fasen die na de time-out worden gebruikt."}}},
-    "set_timeout_fallback_current": {"name": "Terugvalstroom na EMS-time-out instellen", "description": "Stel de laadstroom in die na het verlopen van de EMS-time-out wordt gebruikt.", "fields": {"device_id": {"name": "Wallbox", "description": "De wallbox die je wilt bedienen."}, "value": {"name": "Terugvalstroom", "description": "Terugvalstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."}}}
+    "set_ems_control_enabled": {
+      "name": "EMS-regeling instellen",
+      "description": "Schakel de EMS-regeling voor deze wallbox in of uit.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "enabled": {
+          "name": "Ingeschakeld",
+          "description": "Geeft aan of de EMS-regeling is ingeschakeld."
+        }
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Relaisconfiguratie instellen",
+      "description": "Kies de relaisconfiguratie voor de EMS-regeling.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "value": {
+          "name": "Faseselectie",
+          "description": "De in te schakelen fasen."
+        }
+      }
+    },
+    "set_charging_current": {
+      "name": "Laadstroom instellen",
+      "description": "Stel de door het EMS gevraagde laadstroom in.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "value": {
+          "name": "Laadstroominstelling",
+          "description": "Door het EMS gevraagde laadstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."
+        }
+      }
+    },
+    "set_timeout_period": {
+      "name": "EMS-time-out instellen",
+      "description": "Stel in hoelang de EMS-instelling actief blijft.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "value": {
+          "name": "Time-out",
+          "description": "Time-out in seconden, of uit."
+        }
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "Relaisconfiguratie na EMS-time-out instellen",
+      "description": "Kies de relaisconfiguratie die na het verlopen van de EMS-time-out wordt gebruikt.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "value": {
+          "name": "Terugvalconfiguratie",
+          "description": "De fasen die na de time-out worden gebruikt."
+        }
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "Terugvalstroom na EMS-time-out instellen",
+      "description": "Stel de laadstroom in die na het verlopen van de EMS-time-out wordt gebruikt.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "De wallbox die je wilt bedienen."
+        },
+        "value": {
+          "name": "Terugvalstroom",
+          "description": "Terugvalstroom in ampère: 0 of 6 tot 32 A in stappen van 1 A. 0 A pauzeert het laden en geeft geen laadstroom vrij."
+        }
+      }
+    }
   },
   "config": {
     "flow_title": "Kathrein-wallbox ({host})",
     "step": {
-      "user": {"title": "Verbinden met een Kathrein-wallbox", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"host": "IP-adres of hostnaam van de wallbox in je lokale netwerk.", "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.", "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0.", "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.", "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}},
-      "dhcp_confirm": {"title": "Gevonden Kathrein-wallbox instellen", "description": "Home Assistant heeft een Kathrein-wallbox gevonden op {host}. Controleer de Modbus-instellingen en bevestig om deze toe te voegen.", "data": {"port": "Poort", "unit_id": "Modbus-unit-ID", "scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.", "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0.", "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.", "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}},
-      "reconfigure": {"title": "Verbinding met Kathrein-wallbox wijzigen", "data": {"host": "Host / IP-adres", "port": "Poort", "unit_id": "Modbus-unit-ID"}, "data_description": {"host": "IP-adres of hostnaam van de wallbox in je lokale netwerk.", "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.", "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0."}}
+      "user": {
+        "title": "Verbinden met een Kathrein-wallbox",
+        "data": {
+          "host": "Host / IP-adres",
+          "port": "Poort",
+          "unit_id": "Modbus-unit-ID",
+          "scan_interval": "Pollinterval (seconden)",
+          "allow_control": "Regeling door Home Assistant toestaan"
+        },
+        "data_description": {
+          "host": "IP-adres of hostnaam van de wallbox in je lokale netwerk.",
+          "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.",
+          "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0.",
+          "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.",
+          "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."
+        }
+      },
+      "dhcp_confirm": {
+        "title": "Gevonden Kathrein-wallbox instellen",
+        "description": "Home Assistant heeft een Kathrein-wallbox gevonden op {host}. Controleer de Modbus-instellingen en bevestig om deze toe te voegen.",
+        "data": {
+          "port": "Poort",
+          "unit_id": "Modbus-unit-ID",
+          "scan_interval": "Pollinterval (seconden)",
+          "allow_control": "Regeling door Home Assistant toestaan"
+        },
+        "data_description": {
+          "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.",
+          "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0.",
+          "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.",
+          "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."
+        }
+      },
+      "reconfigure": {
+        "title": "Verbinding met Kathrein-wallbox wijzigen",
+        "data": {
+          "host": "Host / IP-adres",
+          "port": "Poort",
+          "unit_id": "Modbus-unit-ID"
+        },
+        "data_description": {
+          "host": "IP-adres of hostnaam van de wallbox in je lokale netwerk.",
+          "port": "Modbus TCP-poort van de wallbox. De standaardwaarde is 502.",
+          "unit_id": "Modbus-unit-ID van de wallbox. De wallbox negeert deze momenteel; behoud de aanbevolen waarde 0."
+        }
+      }
     },
-    "error": {"cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in de webinterface van de wallbox onder \"Settings > Modbus TCP control\" is ingeschakeld.", "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."},
-    "abort": {"already_configured": "Deze wallbox is al geconfigureerd.", "already_in_progress": "Het instellen van deze wallbox is al bezig.", "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.", "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."}
-  },
-  "options": {
-    "step": {"init": {"title": "Poll- en regelinstellingen", "data": {"scan_interval": "Pollinterval (seconden)", "allow_control": "Regeling door Home Assistant toestaan"}, "data_description": {"scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.", "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."}}}
-  },
-  "exceptions": {
-    "device_not_found": {"message": "Het geselecteerde apparaat is geen Kathrein-wallbox."},
-    "entry_not_loaded": {"message": "De wallbox {title} is niet actief."},
-    "ems_control_disabled": {"message": "EMS-regeling staat uit. Schakel EMS-regeling in voordat u EMS-setpoints wijzigt."},
-    "control_not_allowed": {"message": "Regeling door Home Assistant is niet toegestaan. Sta dit eerst toe in de opties van de integratie."},
-    "current_below_minimum": {"message": "De EMS-laadstroom moet 0 A (laden pauzeren) of minimaal {min_current} A zijn."},
-    "current_limit_11_kw": {"message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."},
-    "write_failed": {"message": "Schrijven naar de wallbox is mislukt: {error}"},
-    "missing_serial_number": {"message": "De wallbox heeft geen serienummer doorgegeven."},
-    "update_failed": {"message": "Lezen van de wallbox is mislukt: {error}"}
-  },
-  "entity": {
-    "number": {"ems_charging_current": {"name": "Laadstroom"}},
-    "select": {"ems_relay_matrix": {"name": "Fasen", "state": {"phase_1": "Fase 1", "three_phases": "3 fasen"}}},
-    "sensor": {
-      "voltage_l1": {"name": "Spanning L1"}, "voltage_l2": {"name": "Spanning L2"}, "voltage_l3": {"name": "Spanning L3"},
-      "current_l1": {"name": "Stroom L1"}, "current_l2": {"name": "Stroom L2"}, "current_l3": {"name": "Stroom L3"},
-      "active_power_l1": {"name": "Actief vermogen L1"}, "active_power_l2": {"name": "Actief vermogen L2"}, "active_power_l3": {"name": "Actief vermogen L3"},
-      "total_active_power": {"name": "Totaal actief vermogen"}, "total_energy": {"name": "Totale energie"}, "frequency": {"name": "Netfrequentie"},
-      "charging_state": {"name": "Laadstatus", "state": {"idle": "Inactief", "ev_connected": "Voertuig aangesloten", "authentication_waiting": "Wachten op autorisatie", "authentication_confirmed": "Autorisatie bevestigd", "charging_active": "Laden actief", "charging_paused": "Laden gepauzeerd", "charging_completed": "Laden voltooid", "rfid_pairing": "RFID-koppeling", "error": "Fout", "unknown": "Onbekend"}},
-      "pp_state": {"name": "Proximity pilot (PP)", "state": {"not_connected_or_fixed_cable": "Kabel niet aangesloten of vast gemonteerd", "cable_not_connected": "Kabel niet aangesloten", "fixed_cable_mounted": "Vaste kabel gemonteerd", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Fout", "unknown": "Onbekend"}},
-      "cp_state": {"name": "Control pilot (CP)", "state": {"state_a": "A: voertuig niet gedetecteerd", "state_b": "B: voertuig gedetecteerd", "state_c": "C: voertuig laadt", "state_d": "D: voertuig laadt met ventilatie", "state_e": "E: CP-kortsluiting", "state_f": "F: laadstation niet beschikbaar", "unknown": "Onbekend"}},
-      "granted_current": {"name": "Vrijgegeven laadstroom"}, "granted_power": {"name": "Vrijgegeven laadvermogen"}, "charging_duration": {"name": "Laadduur"}, "charging_energy": {"name": "Geladen energie"}, "charging_tag": {"name": "Autorisatietag"}, "charging_session_id": {"name": "Laadsessie-ID"}, "timeout_period": {"name": "EMS-time-out"},
-      "timeout_fallback_relay_matrix": {"name": "EMS-terugvalrelaisconfiguratie", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fasen", "unknown": "Onbekend"}},
-      "timeout_fallback_current": {"name": "EMS-terugvalstroom"}
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken. Controleer het adres en of de Modbus-server in de webinterface van de wallbox onder \"Settings > Modbus TCP control\" is ingeschakeld.",
+      "unsupported_device": "Het apparaat meldt geen mappingversie 2 of serienummer."
     },
-    "binary_sensor": {
-      "relay_welded": {"name": "Relaiscontact vastgelast", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "residual_dc_current": {"name": "DC-lekstroom", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "socket_lock_error": {"name": "Fout in stekkervergrendeling", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "charging_overcurrent": {"name": "Te hoge laadstroom", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "ventilation_unavailable": {"name": "Ventilatie niet beschikbaar", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "cp_short_circuit": {"name": "CP-kortsluiting", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "cp_loop_broken": {"name": "CP-lus onderbroken", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "pp_short_circuit": {"name": "PP-kortsluiting", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "internal_error": {"name": "Interne fout", "state": {"on": "Storing gedetecteerd", "off": "Geen storing"}},
-      "relay_l1": {"name": "Relais L1"}, "relay_l2": {"name": "Relais L2"}, "relay_l3": {"name": "Relais L3"},
-      "ems_control": {"name": "EMS-regeling", "state": {"on": "Actief", "off": "Inactief"}},
-      "meter_available": {"name": "Energiemeter beschikbaar"}
+    "abort": {
+      "already_configured": "Deze wallbox is al geconfigureerd.",
+      "already_in_progress": "Het instellen van deze wallbox is al bezig.",
+      "reconfigure_successful": "De verbindingsinstellingen zijn bijgewerkt.",
+      "unique_id_mismatch": "Het apparaat op dit adres is een andere wallbox dan degene die opnieuw wordt geconfigureerd."
     }
   },
-  "issues": {"invalid_phase_rotation": {"title": "Ongeldige fasevolgorde op de wallbox", "description": "De wallbox {title} meldt de fasetoewijzing {line_mapping}. Dit is een ongeldige fasevolgorde (linksdraaiend draaiveld). Laat de netaansluiting en de bij de installatie ingestelde fasetoewijzing controleren door een erkende elektricien. De fasevolgorde wordt pas opnieuw gecontroleerd wanneer de integratie opnieuw wordt geladen of Home Assistant opnieuw wordt gestart."}}
+  "options": {
+    "step": {
+      "init": {
+        "title": "Poll- en regelinstellingen",
+        "data": {
+          "scan_interval": "Pollinterval (seconden)",
+          "allow_control": "Regeling door Home Assistant toestaan"
+        },
+        "data_description": {
+          "scan_interval": "Hoe vaak Home Assistant de wallbox uitleest, in seconden: 5 tot 300 s. De standaardwaarde is 15 s.",
+          "allow_control": "Laat Home Assistant de laadstroom en fasen van de wallbox via entiteiten en acties wijzigen. Als op de wallbox een EMS-time-out is ingesteld, herhaalt Home Assistant de setpoints regelmatig zodat de wallbox niet terugvalt op zijn terugvalwaarden. Standaard uit zodat Home Assistant een ander energiebeheersysteem zoals evcc niet in de weg zit. U kunt dit later wijzigen in de opties van de integratie."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "device_not_found": {
+      "message": "Het geselecteerde apparaat is geen Kathrein-wallbox."
+    },
+    "entry_not_loaded": {
+      "message": "De wallbox {title} is niet actief."
+    },
+    "ems_control_disabled": {
+      "message": "EMS-regeling staat uit. Schakel EMS-regeling in voordat u EMS-setpoints wijzigt."
+    },
+    "control_not_allowed": {
+      "message": "Regeling door Home Assistant is niet toegestaan. Sta dit eerst toe in de opties van de integratie."
+    },
+    "current_below_minimum": {
+      "message": "De EMS-laadstroom moet 0 A (laden pauzeren) of minimaal {min_current} A zijn."
+    },
+    "current_limit_11_kw": {
+      "message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."
+    },
+    "write_failed": {
+      "message": "Schrijven naar de wallbox is mislukt: {error}"
+    },
+    "missing_serial_number": {
+      "message": "De wallbox heeft geen serienummer doorgegeven."
+    },
+    "update_failed": {
+      "message": "Lezen van de wallbox is mislukt: {error}"
+    }
+  },
+  "entity": {
+    "number": {
+      "ems_charging_current": {
+        "name": "Laadstroom"
+      }
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "name": "Fasen",
+        "state": {
+          "phase_1": "Fase 1",
+          "three_phases": "3 fasen"
+        }
+      }
+    },
+    "sensor": {
+      "voltage_l1": {
+        "name": "Spanning L1"
+      },
+      "voltage_l2": {
+        "name": "Spanning L2"
+      },
+      "voltage_l3": {
+        "name": "Spanning L3"
+      },
+      "current_l1": {
+        "name": "Stroom L1"
+      },
+      "current_l2": {
+        "name": "Stroom L2"
+      },
+      "current_l3": {
+        "name": "Stroom L3"
+      },
+      "active_power_l1": {
+        "name": "Actief vermogen L1"
+      },
+      "active_power_l2": {
+        "name": "Actief vermogen L2"
+      },
+      "active_power_l3": {
+        "name": "Actief vermogen L3"
+      },
+      "total_active_power": {
+        "name": "Totaal actief vermogen"
+      },
+      "total_energy": {
+        "name": "Totale energie"
+      },
+      "frequency": {
+        "name": "Netfrequentie"
+      },
+      "charging_state": {
+        "name": "Laadstatus",
+        "state": {
+          "idle": "Inactief",
+          "ev_connected": "Voertuig aangesloten",
+          "authentication_waiting": "Wachten op autorisatie",
+          "authentication_confirmed": "Autorisatie bevestigd",
+          "charging_active": "Laden actief",
+          "charging_paused": "Laden gepauzeerd",
+          "charging_completed": "Laden voltooid",
+          "rfid_pairing": "RFID-koppeling",
+          "error": "Fout",
+          "unknown": "Onbekend"
+        }
+      },
+      "pp_state": {
+        "name": "Proximity pilot (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Kabel niet aangesloten of vast gemonteerd",
+          "cable_not_connected": "Kabel niet aangesloten",
+          "fixed_cable_mounted": "Vaste kabel gemonteerd",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Fout",
+          "unknown": "Onbekend"
+        }
+      },
+      "cp_state": {
+        "name": "Control pilot (CP)",
+        "state": {
+          "state_a": "A: voertuig niet gedetecteerd",
+          "state_b": "B: voertuig gedetecteerd",
+          "state_c": "C: voertuig laadt",
+          "state_d": "D: voertuig laadt met ventilatie",
+          "state_e": "E: CP-kortsluiting",
+          "state_f": "F: laadstation niet beschikbaar",
+          "unknown": "Onbekend"
+        }
+      },
+      "granted_current": {
+        "name": "Vrijgegeven laadstroom"
+      },
+      "granted_power": {
+        "name": "Vrijgegeven laadvermogen"
+      },
+      "charging_duration": {
+        "name": "Laadduur"
+      },
+      "charging_energy": {
+        "name": "Geladen energie"
+      },
+      "charging_tag": {
+        "name": "Autorisatietag"
+      },
+      "charging_session_id": {
+        "name": "Laadsessie-ID"
+      },
+      "timeout_period": {
+        "name": "EMS-time-out"
+      },
+      "timeout_fallback_relay_matrix": {
+        "name": "EMS-terugvalrelaisconfiguratie",
+        "state": {
+          "phase_1": "Fase 1",
+          "phase_2": "Fase 2",
+          "phase_3": "Fase 3",
+          "three_phases": "3 fasen",
+          "unknown": "Onbekend"
+        }
+      },
+      "timeout_fallback_current": {
+        "name": "EMS-terugvalstroom"
+      }
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Relaiscontact vastgelast",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "residual_dc_current": {
+        "name": "DC-lekstroom",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "socket_lock_error": {
+        "name": "Fout in stekkervergrendeling",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "charging_overcurrent": {
+        "name": "Te hoge laadstroom",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "ventilation_unavailable": {
+        "name": "Ventilatie niet beschikbaar",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "cp_short_circuit": {
+        "name": "CP-kortsluiting",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "cp_loop_broken": {
+        "name": "CP-lus onderbroken",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "pp_short_circuit": {
+        "name": "PP-kortsluiting",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "internal_error": {
+        "name": "Interne fout",
+        "state": {
+          "on": "Storing gedetecteerd",
+          "off": "Geen storing"
+        }
+      },
+      "relay_l1": {
+        "name": "Relais L1"
+      },
+      "relay_l2": {
+        "name": "Relais L2"
+      },
+      "relay_l3": {
+        "name": "Relais L3"
+      },
+      "ems_control": {
+        "name": "EMS-regeling",
+        "state": {
+          "on": "Actief",
+          "off": "Inactief"
+        }
+      },
+      "meter_available": {
+        "name": "Energiemeter beschikbaar"
+      }
+    }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Ongeldige fasevolgorde op de wallbox",
+      "description": "De wallbox {title} meldt de fasetoewijzing {line_mapping}. Dit is een ongeldige fasevolgorde (linksdraaiend draaiveld). Laat de netaansluiting en de bij de installatie ingestelde fasetoewijzing controleren door een erkende elektricien. De fasevolgorde wordt pas opnieuw gecontroleerd wanneer de integratie opnieuw wordt geladen of Home Assistant opnieuw wordt gestart."
+    }
+  }
 }

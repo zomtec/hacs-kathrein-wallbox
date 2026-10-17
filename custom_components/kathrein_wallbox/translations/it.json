@@ -1,69 +1,431 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 fasi"}},
-    "ems_timeout_period": {"options": {"0": "Disattivato", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
+    "ems_relay_matrix": {
+      "options": {
+        "phase_1": "Fase 1",
+        "three_phases": "3 fasi"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Disattivato",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 min",
+        "180": "3 min",
+        "300": "5 min",
+        "600": "10 min"
+      }
+    }
   },
   "services": {
-    "set_ems_control_enabled": {"name": "Imposta il controllo EMS", "description": "Attiva o disattiva il controllo EMS per questa wallbox.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "enabled": {"name": "Attivato", "description": "Indica se il controllo EMS è attivo."}}},
-    "set_relay_matrix": {"name": "Imposta la matrice dei relè", "description": "Scegli la configurazione dei relè per il controllo EMS.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "value": {"name": "Selezione delle fasi", "description": "Fasi da attivare."}}},
-    "set_charging_current": {"name": "Imposta la corrente di carica", "description": "Imposta la corrente di carica richiesta dal sistema EMS.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "value": {"name": "Corrente richiesta", "description": "Corrente richiesta dall’EMS in ampere: 0 oppure da 6 a 32 A a passi di 1 A. 0 A mette in pausa la ricarica e non concede corrente di carica."}}},
-    "set_timeout_period": {"name": "Imposta il timeout EMS", "description": "Imposta la durata della richiesta EMS.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "value": {"name": "Timeout", "description": "Timeout in secondi oppure disattivato."}}},
-    "set_timeout_fallback_relay_matrix": {"name": "Imposta la matrice dei relè di ripristino", "description": "Scegli la configurazione dei relè da usare alla scadenza del timeout EMS.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "value": {"name": "Matrice di ripristino", "description": "Fasi da usare dopo la scadenza del timeout."}}},
-    "set_timeout_fallback_current": {"name": "Imposta la corrente di ripristino", "description": "Imposta la corrente di carica da usare alla scadenza del timeout EMS.", "fields": {"device_id": {"name": "Wallbox", "description": "Wallbox da controllare."}, "value": {"name": "Corrente di ripristino", "description": "Corrente di ripristino in ampere: 0 oppure da 6 a 32 A a passi di 1 A. 0 A mette in pausa la ricarica e non concede corrente di carica."}}}
+    "set_ems_control_enabled": {
+      "name": "Imposta il controllo EMS",
+      "description": "Attiva o disattiva il controllo EMS per questa wallbox.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "enabled": {
+          "name": "Attivato",
+          "description": "Indica se il controllo EMS è attivo."
+        }
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Imposta la matrice dei relè",
+      "description": "Scegli la configurazione dei relè per il controllo EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "value": {
+          "name": "Selezione delle fasi",
+          "description": "Fasi da attivare."
+        }
+      }
+    },
+    "set_charging_current": {
+      "name": "Imposta la corrente di carica",
+      "description": "Imposta la corrente di carica richiesta dal sistema EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "value": {
+          "name": "Corrente richiesta",
+          "description": "Corrente richiesta dall’EMS in ampere: 0 oppure da 6 a 32 A a passi di 1 A. 0 A mette in pausa la ricarica e non concede corrente di carica."
+        }
+      }
+    },
+    "set_timeout_period": {
+      "name": "Imposta il timeout EMS",
+      "description": "Imposta la durata della richiesta EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "value": {
+          "name": "Timeout",
+          "description": "Timeout in secondi oppure disattivato."
+        }
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "Imposta la matrice dei relè di ripristino",
+      "description": "Scegli la configurazione dei relè da usare alla scadenza del timeout EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "value": {
+          "name": "Matrice di ripristino",
+          "description": "Fasi da usare dopo la scadenza del timeout."
+        }
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "Imposta la corrente di ripristino",
+      "description": "Imposta la corrente di carica da usare alla scadenza del timeout EMS.",
+      "fields": {
+        "device_id": {
+          "name": "Wallbox",
+          "description": "Wallbox da controllare."
+        },
+        "value": {
+          "name": "Corrente di ripristino",
+          "description": "Corrente di ripristino in ampere: 0 oppure da 6 a 32 A a passi di 1 A. 0 A mette in pausa la ricarica e non concede corrente di carica."
+        }
+      }
+    }
   },
   "config": {
     "flow_title": "Wallbox Kathrein ({host})",
     "step": {
-      "user": {"title": "Connetti una wallbox Kathrein", "data": {"host": "Host / indirizzo IP", "port": "Porta", "unit_id": "ID unità Modbus", "scan_interval": "Intervallo di polling (secondi)", "allow_control": "Consenti il controllo da Home Assistant"}, "data_description": {"host": "Indirizzo IP o nome host della wallbox nella rete locale.", "port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.", "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0.", "scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.", "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."}},
-      "dhcp_confirm": {"title": "Configura la wallbox Kathrein rilevata", "description": "Home Assistant ha rilevato una wallbox Kathrein all’indirizzo {host}. Controlla le impostazioni Modbus e conferma per aggiungerla.", "data": {"port": "Porta", "unit_id": "ID unità Modbus", "scan_interval": "Intervallo di polling (secondi)", "allow_control": "Consenti il controllo da Home Assistant"}, "data_description": {"port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.", "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0.", "scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.", "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."}},
-      "reconfigure": {"title": "Modifica la connessione della wallbox Kathrein", "data": {"host": "Host / indirizzo IP", "port": "Porta", "unit_id": "ID unità Modbus"}, "data_description": {"host": "Indirizzo IP o nome host della wallbox nella rete locale.", "port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.", "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0."}}
+      "user": {
+        "title": "Connetti una wallbox Kathrein",
+        "data": {
+          "host": "Host / indirizzo IP",
+          "port": "Porta",
+          "unit_id": "ID unità Modbus",
+          "scan_interval": "Intervallo di polling (secondi)",
+          "allow_control": "Consenti il controllo da Home Assistant"
+        },
+        "data_description": {
+          "host": "Indirizzo IP o nome host della wallbox nella rete locale.",
+          "port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.",
+          "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0.",
+          "scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.",
+          "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."
+        }
+      },
+      "dhcp_confirm": {
+        "title": "Configura la wallbox Kathrein rilevata",
+        "description": "Home Assistant ha rilevato una wallbox Kathrein all’indirizzo {host}. Controlla le impostazioni Modbus e conferma per aggiungerla.",
+        "data": {
+          "port": "Porta",
+          "unit_id": "ID unità Modbus",
+          "scan_interval": "Intervallo di polling (secondi)",
+          "allow_control": "Consenti il controllo da Home Assistant"
+        },
+        "data_description": {
+          "port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.",
+          "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0.",
+          "scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.",
+          "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."
+        }
+      },
+      "reconfigure": {
+        "title": "Modifica la connessione della wallbox Kathrein",
+        "data": {
+          "host": "Host / indirizzo IP",
+          "port": "Porta",
+          "unit_id": "ID unità Modbus"
+        },
+        "data_description": {
+          "host": "Indirizzo IP o nome host della wallbox nella rete locale.",
+          "port": "Porta Modbus TCP della wallbox. Il valore predefinito è 502.",
+          "unit_id": "ID unità Modbus della wallbox. Attualmente la wallbox lo ignora; mantieni il valore consigliato 0."
+        }
+      }
     },
-    "error": {"cannot_connect": "Impossibile connettersi. Verifica l’indirizzo e che il server Modbus sia attivo nell’interfaccia web della wallbox in \"Settings > Modbus TCP control\".", "unsupported_device": "Il dispositivo non ha comunicato la versione 2 della mappatura o il numero di serie."},
-    "abort": {"already_configured": "Questa wallbox è già configurata.", "already_in_progress": "La configurazione di questa wallbox è già in corso.", "reconfigure_successful": "Le impostazioni di connessione sono state aggiornate.", "unique_id_mismatch": "Il dispositivo a questo indirizzo è una wallbox diversa da quella che si sta riconfigurando."}
-  },
-  "options": {
-    "step": {"init": {"title": "Impostazioni di polling e controllo", "data": {"scan_interval": "Intervallo di polling (secondi)", "allow_control": "Consenti il controllo da Home Assistant"}, "data_description": {"scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.", "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."}}}
-  },
-  "exceptions": {
-    "device_not_found": {"message": "Il dispositivo selezionato non è una wallbox Kathrein."},
-    "entry_not_loaded": {"message": "La wallbox {title} non è attiva."},
-    "ems_control_disabled": {"message": "Il controllo EMS è disattivato. Attiva il controllo EMS prima di modificare i setpoint EMS."},
-    "control_not_allowed": {"message": "Il controllo da Home Assistant non è consentito. Consentilo prima nelle opzioni dell’integrazione."},
-    "current_below_minimum": {"message": "La corrente di carica EMS deve essere 0 A (pausa della ricarica) o almeno {min_current} A."},
-    "current_limit_11_kw": {"message": "Le wallbox da 11 kW supportano una corrente di carica EMS massima di {max_current} A."},
-    "write_failed": {"message": "Impossibile scrivere sulla wallbox: {error}"},
-    "missing_serial_number": {"message": "La wallbox non ha fornito un numero di serie."},
-    "update_failed": {"message": "Impossibile leggere la wallbox: {error}"}
-  },
-  "entity": {
-    "number": {"ems_charging_current": {"name": "Corrente di carica"}},
-    "select": {"ems_relay_matrix": {"name": "Fasi", "state": {"phase_1": "Fase 1", "three_phases": "3 fasi"}}},
-    "sensor": {
-      "voltage_l1": {"name": "Tensione L1"}, "voltage_l2": {"name": "Tensione L2"}, "voltage_l3": {"name": "Tensione L3"},
-      "current_l1": {"name": "Corrente L1"}, "current_l2": {"name": "Corrente L2"}, "current_l3": {"name": "Corrente L3"},
-      "active_power_l1": {"name": "Potenza attiva L1"}, "active_power_l2": {"name": "Potenza attiva L2"}, "active_power_l3": {"name": "Potenza attiva L3"},
-      "total_active_power": {"name": "Potenza attiva totale"}, "total_energy": {"name": "Energia totale"}, "frequency": {"name": "Frequenza di rete"},
-      "charging_state": {"name": "Stato di ricarica", "state": {"idle": "Inattivo", "ev_connected": "Veicolo collegato", "authentication_waiting": "In attesa di autorizzazione", "authentication_confirmed": "Autorizzazione confermata", "charging_active": "Ricarica in corso", "charging_paused": "Ricarica in pausa", "charging_completed": "Ricarica completata", "rfid_pairing": "Abbinamento RFID", "error": "Errore", "unknown": "Sconosciuto"}},
-      "pp_state": {"name": "Proximity pilot (PP)", "state": {"not_connected_or_fixed_cable": "Cavo non collegato o fisso", "cable_not_connected": "Cavo non collegato", "fixed_cable_mounted": "Cavo fisso installato", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Errore", "unknown": "Sconosciuto"}},
-      "cp_state": {"name": "Control pilot (CP)", "state": {"state_a": "A: veicolo non rilevato", "state_b": "B: veicolo rilevato", "state_c": "C: veicolo in carica", "state_d": "D: veicolo in carica con ventilazione", "state_e": "E: cortocircuito CP", "state_f": "F: EVSE non disponibile", "unknown": "Sconosciuto"}},
-      "granted_current": {"name": "Corrente di carica consentita"}, "granted_power": {"name": "Potenza di carica consentita"}, "charging_duration": {"name": "Durata della ricarica"}, "charging_energy": {"name": "Energia caricata"}, "charging_tag": {"name": "Tag di autorizzazione"}, "charging_session_id": {"name": "ID sessione di ricarica"}, "timeout_period": {"name": "Timeout EMS"},
-      "timeout_fallback_relay_matrix": {"name": "Matrice dei relè di ripristino EMS", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 fasi", "unknown": "Sconosciuto"}},
-      "timeout_fallback_current": {"name": "Corrente di ripristino EMS"}
+    "error": {
+      "cannot_connect": "Impossibile connettersi. Verifica l’indirizzo e che il server Modbus sia attivo nell’interfaccia web della wallbox in \"Settings > Modbus TCP control\".",
+      "unsupported_device": "Il dispositivo non ha comunicato la versione 2 della mappatura o il numero di serie."
     },
-    "binary_sensor": {
-      "relay_welded": {"name": "Relè saldato", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "residual_dc_current": {"name": "Corrente differenziale continua", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "socket_lock_error": {"name": "Errore del blocco della presa", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "charging_overcurrent": {"name": "Sovracorrente di ricarica", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "ventilation_unavailable": {"name": "Ventilazione non disponibile", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "cp_short_circuit": {"name": "Cortocircuito CP", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "cp_loop_broken": {"name": "Circuito CP interrotto", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "pp_short_circuit": {"name": "Cortocircuito PP", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "internal_error": {"name": "Errore interno", "state": {"on": "Guasto rilevato", "off": "Nessun guasto"}},
-      "relay_l1": {"name": "Relè L1"}, "relay_l2": {"name": "Relè L2"}, "relay_l3": {"name": "Relè L3"},
-      "ems_control": {"name": "Controllo EMS", "state": {"on": "Attivo", "off": "Inattivo"}},
-      "meter_available": {"name": "Contatore di energia disponibile"}
+    "abort": {
+      "already_configured": "Questa wallbox è già configurata.",
+      "already_in_progress": "La configurazione di questa wallbox è già in corso.",
+      "reconfigure_successful": "Le impostazioni di connessione sono state aggiornate.",
+      "unique_id_mismatch": "Il dispositivo a questo indirizzo è una wallbox diversa da quella che si sta riconfigurando."
     }
   },
-  "issues": {"invalid_phase_rotation": {"title": "Sequenza delle fasi non valida sulla wallbox", "description": "La wallbox {title} segnala l’assegnazione delle fasi {line_mapping}, che corrisponde a una sequenza delle fasi non valida (campo rotante sinistrorso). Fai verificare il collegamento alla rete e l’assegnazione delle fasi impostata durante l’installazione da un elettricista qualificato. La sequenza delle fasi viene verificata di nuovo solo al ricaricamento dell’integrazione o al riavvio di Home Assistant."}}
+  "options": {
+    "step": {
+      "init": {
+        "title": "Impostazioni di polling e controllo",
+        "data": {
+          "scan_interval": "Intervallo di polling (secondi)",
+          "allow_control": "Consenti il controllo da Home Assistant"
+        },
+        "data_description": {
+          "scan_interval": "Ogni quanto Home Assistant interroga la wallbox, in secondi: da 5 a 300 s. Il valore predefinito è 15 s.",
+          "allow_control": "Consente a Home Assistant di modificare la corrente di carica e le fasi della wallbox tramite entità e azioni. Se sulla wallbox è impostato un timeout EMS, Home Assistant ripete regolarmente i setpoint affinché la wallbox non torni ai valori di ripristino. Disattivato per impostazione predefinita affinché Home Assistant non interferisca con un altro gestore energetico come evcc. Puoi modificarlo in seguito nelle opzioni dell’integrazione."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "device_not_found": {
+      "message": "Il dispositivo selezionato non è una wallbox Kathrein."
+    },
+    "entry_not_loaded": {
+      "message": "La wallbox {title} non è attiva."
+    },
+    "ems_control_disabled": {
+      "message": "Il controllo EMS è disattivato. Attiva il controllo EMS prima di modificare i setpoint EMS."
+    },
+    "control_not_allowed": {
+      "message": "Il controllo da Home Assistant non è consentito. Consentilo prima nelle opzioni dell’integrazione."
+    },
+    "current_below_minimum": {
+      "message": "La corrente di carica EMS deve essere 0 A (pausa della ricarica) o almeno {min_current} A."
+    },
+    "current_limit_11_kw": {
+      "message": "Le wallbox da 11 kW supportano una corrente di carica EMS massima di {max_current} A."
+    },
+    "write_failed": {
+      "message": "Impossibile scrivere sulla wallbox: {error}"
+    },
+    "missing_serial_number": {
+      "message": "La wallbox non ha fornito un numero di serie."
+    },
+    "update_failed": {
+      "message": "Impossibile leggere la wallbox: {error}"
+    }
+  },
+  "entity": {
+    "number": {
+      "ems_charging_current": {
+        "name": "Corrente di carica"
+      }
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "name": "Fasi",
+        "state": {
+          "phase_1": "Fase 1",
+          "three_phases": "3 fasi"
+        }
+      }
+    },
+    "sensor": {
+      "voltage_l1": {
+        "name": "Tensione L1"
+      },
+      "voltage_l2": {
+        "name": "Tensione L2"
+      },
+      "voltage_l3": {
+        "name": "Tensione L3"
+      },
+      "current_l1": {
+        "name": "Corrente L1"
+      },
+      "current_l2": {
+        "name": "Corrente L2"
+      },
+      "current_l3": {
+        "name": "Corrente L3"
+      },
+      "active_power_l1": {
+        "name": "Potenza attiva L1"
+      },
+      "active_power_l2": {
+        "name": "Potenza attiva L2"
+      },
+      "active_power_l3": {
+        "name": "Potenza attiva L3"
+      },
+      "total_active_power": {
+        "name": "Potenza attiva totale"
+      },
+      "total_energy": {
+        "name": "Energia totale"
+      },
+      "frequency": {
+        "name": "Frequenza di rete"
+      },
+      "charging_state": {
+        "name": "Stato di ricarica",
+        "state": {
+          "idle": "Inattivo",
+          "ev_connected": "Veicolo collegato",
+          "authentication_waiting": "In attesa di autorizzazione",
+          "authentication_confirmed": "Autorizzazione confermata",
+          "charging_active": "Ricarica in corso",
+          "charging_paused": "Ricarica in pausa",
+          "charging_completed": "Ricarica completata",
+          "rfid_pairing": "Abbinamento RFID",
+          "error": "Errore",
+          "unknown": "Sconosciuto"
+        }
+      },
+      "pp_state": {
+        "name": "Proximity pilot (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Cavo non collegato o fisso",
+          "cable_not_connected": "Cavo non collegato",
+          "fixed_cable_mounted": "Cavo fisso installato",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Errore",
+          "unknown": "Sconosciuto"
+        }
+      },
+      "cp_state": {
+        "name": "Control pilot (CP)",
+        "state": {
+          "state_a": "A: veicolo non rilevato",
+          "state_b": "B: veicolo rilevato",
+          "state_c": "C: veicolo in carica",
+          "state_d": "D: veicolo in carica con ventilazione",
+          "state_e": "E: cortocircuito CP",
+          "state_f": "F: EVSE non disponibile",
+          "unknown": "Sconosciuto"
+        }
+      },
+      "granted_current": {
+        "name": "Corrente di carica consentita"
+      },
+      "granted_power": {
+        "name": "Potenza di carica consentita"
+      },
+      "charging_duration": {
+        "name": "Durata della ricarica"
+      },
+      "charging_energy": {
+        "name": "Energia caricata"
+      },
+      "charging_tag": {
+        "name": "Tag di autorizzazione"
+      },
+      "charging_session_id": {
+        "name": "ID sessione di ricarica"
+      },
+      "timeout_period": {
+        "name": "Timeout EMS"
+      },
+      "timeout_fallback_relay_matrix": {
+        "name": "Matrice dei relè di ripristino EMS",
+        "state": {
+          "phase_1": "Fase 1",
+          "phase_2": "Fase 2",
+          "phase_3": "Fase 3",
+          "three_phases": "3 fasi",
+          "unknown": "Sconosciuto"
+        }
+      },
+      "timeout_fallback_current": {
+        "name": "Corrente di ripristino EMS"
+      }
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Relè saldato",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "residual_dc_current": {
+        "name": "Corrente differenziale continua",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "socket_lock_error": {
+        "name": "Errore del blocco della presa",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "charging_overcurrent": {
+        "name": "Sovracorrente di ricarica",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "ventilation_unavailable": {
+        "name": "Ventilazione non disponibile",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "cp_short_circuit": {
+        "name": "Cortocircuito CP",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "cp_loop_broken": {
+        "name": "Circuito CP interrotto",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "pp_short_circuit": {
+        "name": "Cortocircuito PP",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "internal_error": {
+        "name": "Errore interno",
+        "state": {
+          "on": "Guasto rilevato",
+          "off": "Nessun guasto"
+        }
+      },
+      "relay_l1": {
+        "name": "Relè L1"
+      },
+      "relay_l2": {
+        "name": "Relè L2"
+      },
+      "relay_l3": {
+        "name": "Relè L3"
+      },
+      "ems_control": {
+        "name": "Controllo EMS",
+        "state": {
+          "on": "Attivo",
+          "off": "Inattivo"
+        }
+      },
+      "meter_available": {
+        "name": "Contatore di energia disponibile"
+      }
+    }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Sequenza delle fasi non valida sulla wallbox",
+      "description": "La wallbox {title} segnala l’assegnazione delle fasi {line_mapping}, che corrisponde a una sequenza delle fasi non valida (campo rotante sinistrorso). Fai verificare il collegamento alla rete e l’assegnazione delle fasi impostata durante l’installazione da un elettricista qualificato. La sequenza delle fasi viene verificata di nuovo solo al ricaricamento dell’integrazione o al riavvio di Home Assistant."
+    }
+  }
 }
