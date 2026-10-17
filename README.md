@@ -76,7 +76,7 @@ When a configured Wallbox gets a new IP address, discovery stores the new addres
 | EMS diagnostics | `EMS control` binary sensor showing whether EMS control is active, whether turned on by Home Assistant or by another energy manager. |
 | Meter diagnostics | A binary sensor indicating whether a meter was detected. Once detected, it stays on. |
 
-Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks and EVSE fault flags. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the EMS keep-alive.
+Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks and EVSE fault flags. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the [EMS keep-alive](#ems-keep-alive).
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. The meter is checked on the first successful read of its registers after setup against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`), and the result is stored. A detected meter stays detected; later failed reads only make meter entities unavailable until the meter answers again, and implausible single values are shown as unknown. Without a detected meter, its registers are not read again until the integration is reloaded; each reload or Home Assistant restart repeats the check once. Meter entities are disabled by default while no meter is detected.
 
@@ -89,7 +89,7 @@ While control is not allowed:
 - all sensors and binary sensors keep updating;
 - the `Charging current` number and the `Phases` select are disabled by the integration;
 - every EMS service except `set_ems_control_enabled` is rejected with an error and writes nothing;
-- the EMS keep-alive does not run.
+- the [EMS keep-alive](#ems-keep-alive) does not run.
 
 Leave the option off if another energy manager controls the Wallbox. Turn it on if Home Assistant should control charging.
 
@@ -106,7 +106,7 @@ The number and select entities write the same EMS registers as the services belo
 
 These entities are only enabled while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`).
 
-Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. Home Assistant also stops the EMS keep-alive. If no other system writes a new setpoint, what happens next depends on the EMS timeout:
+Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. Home Assistant also stops the [EMS keep-alive](#ems-keep-alive). If no other system writes a new setpoint, what happens next depends on the EMS timeout:
 
 - above `0 s`: the Wallbox switches to the timeout fallback phases and current once the timeout expires;
 - `0 s`: the last setpoint written by Home Assistant stays in effect, including a paused charge.
