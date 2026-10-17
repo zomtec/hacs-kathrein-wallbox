@@ -14,9 +14,6 @@
       "granted_current": {
         "default": "mdi:current-ac"
       },
-      "authorization": {
-        "default": "mdi:lock-open-check"
-      },
       "charging_tag": {
         "default": "mdi:card-account-details"
       },

@@ -61,8 +61,6 @@ CHARGING_SESSION_ID_ADDRESS = 0x0088
 # Tag info spans 24 registers (48 characters), the session GUID 18 (36 characters).
 CHARGING_TAG_INFO_REGISTER_COUNT = 24
 CHARGING_SESSION_ID_REGISTER_COUNT = 18
-# Tag info reported for charging without authentication.
-CHARGING_TAG_VOID = "VOID"
 
 EMS_CONTROL_REGISTER_ADDRESS = 0x00A0
 EMS_RELAY_MATRIX_ADDRESS = 0x00A1
@@ -263,21 +261,10 @@ class WallboxChargingSession(Component):
     session_id = string(CHARGING_SESSION_ID_ADDRESS, CHARGING_SESSION_ID_REGISTER_COUNT)
 
     @property
-    def _tag(self) -> str:
-        """Return the tag info up to its 0x00 terminator."""
-        return (self.tag_info or "").partition("\x00")[0]
-
-    @property
     def charging_tag(self) -> str | None:
-        """Return the tag that authorized the session, if a tag was used."""
-        tag = self._tag
-        return tag if tag and tag != CHARGING_TAG_VOID else None
-
-    @property
-    def authorized_by_tag(self) -> bool | None:
-        """Return whether a tag authorized the session, or None if not reported."""
-        tag = self._tag
-        return tag != CHARGING_TAG_VOID if tag else None
+        """Return the authorizing tag, or "VOID" when charging needs no authentication."""
+        # The tag string ends at its first 0x00 terminator.
+        return (self.tag_info or "").partition("\x00")[0] or None
 
     @property
     def charging_session_id(self) -> str | None:

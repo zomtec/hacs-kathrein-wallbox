@@ -69,16 +69,16 @@ When a configured Wallbox gets a new IP address, discovery stores the new addres
 | Group | Entities |
 | --- | --- |
 | Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. |
-| Charging | Charging state, session duration and energy, granted charging current and power; authorization, authorization tag and session ID of the current or last charging session. |
+| Charging | Charging state, session duration and energy, granted charging current and power; authorization tag and session ID of the current or last charging session. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
 | EMS controls | `Charging current` number input box (0 A to pause, or 6 to 32 A in 1 A steps) and `Phases` select (`Phase 1` or `3 Phases`). |
 | EMS diagnostics | `EMS control` binary sensor showing whether EMS control is active, whether turned on by Home Assistant or by another energy manager. |
 | Meter diagnostics | A binary sensor indicating whether a meter was detected. Once detected, it stays on. |
 
-Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks, EVSE fault flags, authorization, authorization tag and charging session ID. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the [EMS keep-alive](#ems-keep-alive).
+Detail entities are disabled by default and can be enabled from the entity registry: per-phase voltage, current and active power, grid frequency, PP and CP states, relay states, EMS readbacks, EVSE fault flags, authorization tag and charging session ID. Enable the fault flags if you want automations for them. Disabling an EMS readback does not affect the [EMS keep-alive](#ems-keep-alive).
 
-The authorization sensor shows whether the current or last charging session was authorized by a tag or needed no authentication, for example because the Wallbox is set to always allow charging. The authorization tag sensor shows the tag as reported by the Wallbox, for example `RFID:A07E3F27FFE0`, and is unknown when no tag was needed. The tag is personal data: Home Assistant records its history once you enable it. The charging session ID is the GUID the Wallbox assigns to each charging session. If the Wallbox does not answer for these registers (`0x0070`-`0x0099`), the three sensors become unavailable without affecting the other entities.
+The authorization tag sensor shows the tag that authorized the current or last charging session as reported by the Wallbox, for example `RFID:A07E3F27FFE0`, or `VOID` when the Wallbox is set to charge without authentication. The tag is personal data: Home Assistant records its history once you enable it. The charging session ID is the GUID the Wallbox assigns to each charging session. If the Wallbox does not answer for these registers (`0x0070`-`0x0099`), both sensors become unavailable without affecting the other entities.
 
 Meter readings are optional and do not prevent EVSE and charging data from updating. The meter is checked on the first successful read of its registers after setup against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`), and the result is stored. A detected meter stays detected; later failed reads only make meter entities unavailable until the meter answers again, and implausible single values are shown as unknown. Without a detected meter, its registers are not read again until the integration is reloaded; each reload or Home Assistant restart repeats the check once. Meter entities are disabled by default while no meter is detected.
 

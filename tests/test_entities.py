@@ -58,7 +58,6 @@ def test_entity_keys_are_stable() -> None:
         "granted_power",
         "charging_duration",
         "charging_energy",
-        "authorization",
         "charging_tag",
         "charging_session_id",
         "timeout_period",
@@ -133,23 +132,22 @@ async def test_sensor_maps_register_values(
 
 
 @pytest.mark.parametrize(
-    ("tag_info", "tag", "authorization"),
+    ("tag_info", "expected"),
     [
-        ("RFID:A07E3F27FFE0", "RFID:A07E3F27FFE0", "tag"),
-        ("RFID:A07E3F27FFE0\x00OLD", "RFID:A07E3F27FFE0", "tag"),
-        ("VOID", None, "not_required"),
-        ("", None, None),
+        ("RFID:A07E3F27FFE0", "RFID:A07E3F27FFE0"),
+        ("RFID:A07E3F27FFE0\x00OLD", "RFID:A07E3F27FFE0"),
+        ("VOID", "VOID"),
+        ("", None),
     ],
 )
-async def test_charging_tag_and_authorization(
-    coordinator, mock_modbus_unit, tag_info, tag, authorization
+async def test_charging_tag_ends_at_terminator(
+    coordinator, mock_modbus_unit, tag_info, expected
 ) -> None:
-    """Show tags up to their terminator and charging without authentication."""
+    """Show the tag up to its 0x00 terminator and unknown without a tag."""
     mock_modbus_unit.holding[0x0070] = _string_registers(tag_info, 24)
     await coordinator.charging_session.async_update()
 
-    assert _sensor(coordinator, "charging_tag").native_value == tag
-    assert _sensor(coordinator, "authorization").native_value == authorization
+    assert _sensor(coordinator, "charging_tag").native_value == expected
 
 
 @pytest.mark.parametrize(
@@ -197,7 +195,6 @@ def test_detail_entities_are_disabled_by_default() -> None:
         "cp_loop_broken",
         "pp_short_circuit",
         "internal_error",
-        "authorization",
         "charging_tag",
         "charging_session_id",
     }

@@ -226,13 +226,6 @@
       "granted_power": {"name": "Freigegebene Ladeleistung"},
       "charging_duration": {"name": "Ladedauer"},
       "charging_energy": {"name": "Geladene Energie"},
-      "authorization": {
-        "name": "Autorisierung",
-        "state": {
-          "tag": "Per Tag autorisiert",
-          "not_required": "Keine Authentifizierung notwendig"
-        }
-      },
       "charging_tag": {"name": "Autorisierungs-Tag"},
       "charging_session_id": {"name": "Ladevorgangs-ID"},
       "timeout_period": {"name": "EMS Timeout"},
