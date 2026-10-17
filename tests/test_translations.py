@@ -81,3 +81,15 @@ def test_polling_interval_has_description(section: str, step: str) -> None:
 
     assert "scan_interval" in form["data"]
     assert form["data_description"]["scan_interval"]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [INTEGRATION_DIR / "strings.json", *TRANSLATION_FILES],
+    ids=lambda path: path.name,
+)
+def test_translation_file_uses_canonical_layout(path: Path) -> None:
+    """Format every language file like Home Assistant Core does."""
+    text = path.read_text(encoding="utf-8")
+
+    assert text == json.dumps(json.loads(text), indent=2, ensure_ascii=False) + "\n"

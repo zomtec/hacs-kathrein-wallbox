@@ -1,69 +1,431 @@
 {
   "selector": {
-    "ems_relay_matrix": {"options": {"phase_1": "Fase 1", "three_phases": "3 faser"}},
-    "ems_timeout_period": {"options": {"0": "Av", "30": "30 s", "60": "60 s", "120": "2 min", "180": "3 min", "300": "5 min", "600": "10 min"}}
+    "ems_relay_matrix": {
+      "options": {
+        "phase_1": "Fase 1",
+        "three_phases": "3 faser"
+      }
+    },
+    "ems_timeout_period": {
+      "options": {
+        "0": "Av",
+        "30": "30 s",
+        "60": "60 s",
+        "120": "2 min",
+        "180": "3 min",
+        "300": "5 min",
+        "600": "10 min"
+      }
+    }
   },
   "services": {
-    "set_ems_control_enabled": {"name": "Angi EMS-styring", "description": "Slå EMS-styring for denne ladeboksen på eller av.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "enabled": {"name": "Aktivert", "description": "Angir om EMS-styring er aktivert."}}},
-    "set_relay_matrix": {"name": "Angi reléoppsett", "description": "Velg reléoppsett for EMS-styring.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "value": {"name": "Fasevalg", "description": "Faser som skal aktiveres."}}},
-    "set_charging_current": {"name": "Angi ladestrøm", "description": "Angi ladestrømmen EMS ber om.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "value": {"name": "Strømverdi", "description": "Ladestrøm EMS ber om, i ampere: 0 eller 6 til 32 A i trinn på 1 A. 0 A setter ladingen på pause og gir ingen ladestrøm."}}},
-    "set_timeout_period": {"name": "Angi tidsavbrudd for EMS", "description": "Angi hvor lenge EMS-kommandoen skal være aktiv.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "value": {"name": "Tidsavbrudd", "description": "Tidsavbrudd i sekunder eller av."}}},
-    "set_timeout_fallback_relay_matrix": {"name": "Angi reléoppsett etter EMS-tidsavbrudd", "description": "Velg reléoppsettet som brukes når EMS-tidsavbruddet utløper.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "value": {"name": "Reserveoppsett", "description": "Faser som brukes etter tidsavbruddet."}}},
-    "set_timeout_fallback_current": {"name": "Angi reservestrøm etter EMS-tidsavbrudd", "description": "Angi ladestrømmen som brukes når EMS-tidsavbruddet utløper.", "fields": {"device_id": {"name": "Ladeboks", "description": "Ladeboksen som skal styres."}, "value": {"name": "Reservestrøm", "description": "Reservestrøm i ampere: 0 eller 6 til 32 A i trinn på 1 A. 0 A setter ladingen på pause og gir ingen ladestrøm."}}}
+    "set_ems_control_enabled": {
+      "name": "Angi EMS-styring",
+      "description": "Slå EMS-styring for denne ladeboksen på eller av.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "enabled": {
+          "name": "Aktivert",
+          "description": "Angir om EMS-styring er aktivert."
+        }
+      }
+    },
+    "set_relay_matrix": {
+      "name": "Angi reléoppsett",
+      "description": "Velg reléoppsett for EMS-styring.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "value": {
+          "name": "Fasevalg",
+          "description": "Faser som skal aktiveres."
+        }
+      }
+    },
+    "set_charging_current": {
+      "name": "Angi ladestrøm",
+      "description": "Angi ladestrømmen EMS ber om.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "value": {
+          "name": "Strømverdi",
+          "description": "Ladestrøm EMS ber om, i ampere: 0 eller 6 til 32 A i trinn på 1 A. 0 A setter ladingen på pause og gir ingen ladestrøm."
+        }
+      }
+    },
+    "set_timeout_period": {
+      "name": "Angi tidsavbrudd for EMS",
+      "description": "Angi hvor lenge EMS-kommandoen skal være aktiv.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "value": {
+          "name": "Tidsavbrudd",
+          "description": "Tidsavbrudd i sekunder eller av."
+        }
+      }
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "name": "Angi reléoppsett etter EMS-tidsavbrudd",
+      "description": "Velg reléoppsettet som brukes når EMS-tidsavbruddet utløper.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "value": {
+          "name": "Reserveoppsett",
+          "description": "Faser som brukes etter tidsavbruddet."
+        }
+      }
+    },
+    "set_timeout_fallback_current": {
+      "name": "Angi reservestrøm etter EMS-tidsavbrudd",
+      "description": "Angi ladestrømmen som brukes når EMS-tidsavbruddet utløper.",
+      "fields": {
+        "device_id": {
+          "name": "Ladeboks",
+          "description": "Ladeboksen som skal styres."
+        },
+        "value": {
+          "name": "Reservestrøm",
+          "description": "Reservestrøm i ampere: 0 eller 6 til 32 A i trinn på 1 A. 0 A setter ladingen på pause og gir ingen ladestrøm."
+        }
+      }
+    }
   },
   "config": {
     "flow_title": "Kathrein-ladeboks ({host})",
     "step": {
-      "user": {"title": "Koble til en Kathrein-ladeboks", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)", "allow_control": "Tillat styring fra Home Assistant"}, "data_description": {"host": "Ladeboksens IP-adresse eller vertsnavn i det lokale nettverket.", "port": "Ladeboksens Modbus TCP-port. Standard er 502.", "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0.", "scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.", "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."}},
-      "dhcp_confirm": {"title": "Konfigurer funnet Kathrein-ladeboks", "description": "Home Assistant fant en Kathrein-ladeboks på {host}. Kontroller Modbus-innstillingene og bekreft for å legge den til.", "data": {"port": "Port", "unit_id": "Modbus-enhets-ID", "scan_interval": "Avspørringsintervall (sekunder)", "allow_control": "Tillat styring fra Home Assistant"}, "data_description": {"port": "Ladeboksens Modbus TCP-port. Standard er 502.", "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0.", "scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.", "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."}},
-      "reconfigure": {"title": "Oppdater tilkoblingen til Kathrein-ladeboksen", "data": {"host": "Vert / IP-adresse", "port": "Port", "unit_id": "Modbus-enhets-ID"}, "data_description": {"host": "Ladeboksens IP-adresse eller vertsnavn i det lokale nettverket.", "port": "Ladeboksens Modbus TCP-port. Standard er 502.", "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0."}}
+      "user": {
+        "title": "Koble til en Kathrein-ladeboks",
+        "data": {
+          "host": "Vert / IP-adresse",
+          "port": "Port",
+          "unit_id": "Modbus-enhets-ID",
+          "scan_interval": "Avspørringsintervall (sekunder)",
+          "allow_control": "Tillat styring fra Home Assistant"
+        },
+        "data_description": {
+          "host": "Ladeboksens IP-adresse eller vertsnavn i det lokale nettverket.",
+          "port": "Ladeboksens Modbus TCP-port. Standard er 502.",
+          "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0.",
+          "scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.",
+          "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."
+        }
+      },
+      "dhcp_confirm": {
+        "title": "Konfigurer funnet Kathrein-ladeboks",
+        "description": "Home Assistant fant en Kathrein-ladeboks på {host}. Kontroller Modbus-innstillingene og bekreft for å legge den til.",
+        "data": {
+          "port": "Port",
+          "unit_id": "Modbus-enhets-ID",
+          "scan_interval": "Avspørringsintervall (sekunder)",
+          "allow_control": "Tillat styring fra Home Assistant"
+        },
+        "data_description": {
+          "port": "Ladeboksens Modbus TCP-port. Standard er 502.",
+          "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0.",
+          "scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.",
+          "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."
+        }
+      },
+      "reconfigure": {
+        "title": "Oppdater tilkoblingen til Kathrein-ladeboksen",
+        "data": {
+          "host": "Vert / IP-adresse",
+          "port": "Port",
+          "unit_id": "Modbus-enhets-ID"
+        },
+        "data_description": {
+          "host": "Ladeboksens IP-adresse eller vertsnavn i det lokale nettverket.",
+          "port": "Ladeboksens Modbus TCP-port. Standard er 502.",
+          "unit_id": "Ladeboksens Modbus-enhets-ID. Ladeboksen ignorerer den foreløpig; behold den anbefalte verdien 0."
+        }
+      }
     },
-    "error": {"cannot_connect": "Kan ikke koble til. Kontroller adressen og at Modbus-serveren er aktivert i wallboksens webgrensesnitt under \"Settings > Modbus TCP control\".", "unsupported_device": "Enheten rapporterte verken mappingversjon 2 eller et serienummer."},
-    "abort": {"already_configured": "Denne ladeboksen er allerede konfigurert.", "already_in_progress": "Konfigureringen av denne ladeboksen pågår allerede.", "reconfigure_successful": "Tilkoblingsinnstillingene er oppdatert.", "unique_id_mismatch": "Enheten på denne adressen er en annen ladeboks enn den som rekonfigureres."}
-  },
-  "options": {
-    "step": {"init": {"title": "Innstillinger for avspørring og styring", "data": {"scan_interval": "Avspørringsintervall (sekunder)", "allow_control": "Tillat styring fra Home Assistant"}, "data_description": {"scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.", "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."}}}
-  },
-  "exceptions": {
-    "device_not_found": {"message": "Den valgte enheten er ikke en Kathrein-ladeboks."},
-    "entry_not_loaded": {"message": "Ladeboksen {title} er ikke aktiv."},
-    "ems_control_disabled": {"message": "EMS-styring er slått av. Slå på EMS-styring før du endrer EMS-settpunkter."},
-    "control_not_allowed": {"message": "Styring fra Home Assistant er ikke tillatt. Tillat det først i integrasjonens alternativer."},
-    "current_below_minimum": {"message": "EMS-ladestrømmen må være 0 A (pause lading) eller minst {min_current} A."},
-    "current_limit_11_kw": {"message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."},
-    "write_failed": {"message": "Kan ikke skrive til ladeboksen: {error}"},
-    "missing_serial_number": {"message": "Ladeboksen rapporterte ikke et serienummer."},
-    "update_failed": {"message": "Kan ikke lese fra ladeboksen: {error}"}
-  },
-  "entity": {
-    "number": {"ems_charging_current": {"name": "Ladestrøm"}},
-    "select": {"ems_relay_matrix": {"name": "Faser", "state": {"phase_1": "Fase 1", "three_phases": "3 faser"}}},
-    "sensor": {
-      "voltage_l1": {"name": "Spenning L1"}, "voltage_l2": {"name": "Spenning L2"}, "voltage_l3": {"name": "Spenning L3"},
-      "current_l1": {"name": "Strøm L1"}, "current_l2": {"name": "Strøm L2"}, "current_l3": {"name": "Strøm L3"},
-      "active_power_l1": {"name": "Aktiv effekt L1"}, "active_power_l2": {"name": "Aktiv effekt L2"}, "active_power_l3": {"name": "Aktiv effekt L3"},
-      "total_active_power": {"name": "Total aktiv effekt"}, "total_energy": {"name": "Total energi"}, "frequency": {"name": "Nettfrekvens"},
-      "charging_state": {"name": "Ladestatus", "state": {"idle": "Inaktiv", "ev_connected": "Kjøretøy tilkoblet", "authentication_waiting": "Venter på autentisering", "authentication_confirmed": "Autentisering bekreftet", "charging_active": "Lading pågår", "charging_paused": "Lading satt på pause", "charging_completed": "Lading fullført", "rfid_pairing": "RFID-paring", "error": "Feil", "unknown": "Ukjent"}},
-      "pp_state": {"name": "Nærhetssignal (PP)", "state": {"not_connected_or_fixed_cable": "Kabel ikke tilkoblet eller fastmontert", "cable_not_connected": "Kabel ikke tilkoblet", "fixed_cable_mounted": "Fast kabel montert", "amp_13": "13 A", "amp_20": "20 A", "amp_32": "32 A", "amp_63": "63 A", "error": "Feil", "unknown": "Ukjent"}},
-      "cp_state": {"name": "Styresignal (CP)", "state": {"state_a": "A: kjøretøy ikke registrert", "state_b": "B: kjøretøy registrert", "state_c": "C: kjøretøy lader", "state_d": "D: lading med ventilasjon", "state_e": "E: kortslutning i CP", "state_f": "F: EVSE ikke tilgjengelig", "unknown": "Ukjent"}},
-      "granted_current": {"name": "Frigitt ladestrøm"}, "granted_power": {"name": "Frigitt ladeeffekt"}, "charging_duration": {"name": "Ladetid"}, "charging_energy": {"name": "Ladet energi"}, "charging_tag": {"name": "Autorisasjonsbrikke"}, "charging_session_id": {"name": "Ladeøkt-ID"}, "timeout_period": {"name": "EMS-tidsavbrudd"},
-      "timeout_fallback_relay_matrix": {"name": "EMS-reservereléoppsett", "state": {"phase_1": "Fase 1", "phase_2": "Fase 2", "phase_3": "Fase 3", "three_phases": "3 faser", "unknown": "Ukjent"}},
-      "timeout_fallback_current": {"name": "EMS-reservestrøm"}
+    "error": {
+      "cannot_connect": "Kan ikke koble til. Kontroller adressen og at Modbus-serveren er aktivert i wallboksens webgrensesnitt under \"Settings > Modbus TCP control\".",
+      "unsupported_device": "Enheten rapporterte verken mappingversjon 2 eller et serienummer."
     },
-    "binary_sensor": {
-      "relay_welded": {"name": "Sammensveiset relé", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "residual_dc_current": {"name": "DC-jordfeilstrøm", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "socket_lock_error": {"name": "Feil i kontaktlås", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "charging_overcurrent": {"name": "Overstrøm ved lading", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "ventilation_unavailable": {"name": "Ventilasjon ikke tilgjengelig", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "cp_short_circuit": {"name": "Kortslutning i CP", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "cp_loop_broken": {"name": "Brudd i CP-sløyfe", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "pp_short_circuit": {"name": "Kortslutning i PP", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "internal_error": {"name": "Intern feil", "state": {"on": "Feil oppdaget", "off": "Ingen feil"}},
-      "relay_l1": {"name": "Relé L1"}, "relay_l2": {"name": "Relé L2"}, "relay_l3": {"name": "Relé L3"},
-      "ems_control": {"name": "EMS-styring", "state": {"on": "Aktiv", "off": "Inaktiv"}},
-      "meter_available": {"name": "Energimåler tilgjengelig"}
+    "abort": {
+      "already_configured": "Denne ladeboksen er allerede konfigurert.",
+      "already_in_progress": "Konfigureringen av denne ladeboksen pågår allerede.",
+      "reconfigure_successful": "Tilkoblingsinnstillingene er oppdatert.",
+      "unique_id_mismatch": "Enheten på denne adressen er en annen ladeboks enn den som rekonfigureres."
     }
   },
-  "issues": {"invalid_phase_rotation": {"title": "Ugyldig faserekkefølge på wallboxen", "description": "Wallboxen {title} melder fasetilordningen {line_mapping}, som er en ugyldig faserekkefølge (venstredreiende felt). Få nettilkoblingen og fasetilordningen som ble satt ved installasjonen, kontrollert av en autorisert elektroinstallatør. Faserekkefølgen kontrolleres først igjen når integrasjonen lastes inn på nytt eller Home Assistant startes på nytt."}}
+  "options": {
+    "step": {
+      "init": {
+        "title": "Innstillinger for avspørring og styring",
+        "data": {
+          "scan_interval": "Avspørringsintervall (sekunder)",
+          "allow_control": "Tillat styring fra Home Assistant"
+        },
+        "data_description": {
+          "scan_interval": "Hvor ofte Home Assistant leser av ladeboksen, i sekunder: 5 til 300 s. Standard er 15 s.",
+          "allow_control": "Lar Home Assistant endre ladestrøm og faser på ladeboksen via entiteter og handlinger. Hvis det er satt et EMS-tidsavbrudd på ladeboksen, gjentar Home Assistant settpunktene jevnlig slik at ladeboksen ikke faller tilbake til reserveverdiene. Av som standard slik at Home Assistant ikke kommer i konflikt med en annen energistyring som evcc. Du kan endre dette senere i integrasjonens alternativer."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "device_not_found": {
+      "message": "Den valgte enheten er ikke en Kathrein-ladeboks."
+    },
+    "entry_not_loaded": {
+      "message": "Ladeboksen {title} er ikke aktiv."
+    },
+    "ems_control_disabled": {
+      "message": "EMS-styring er slått av. Slå på EMS-styring før du endrer EMS-settpunkter."
+    },
+    "control_not_allowed": {
+      "message": "Styring fra Home Assistant er ikke tillatt. Tillat det først i integrasjonens alternativer."
+    },
+    "current_below_minimum": {
+      "message": "EMS-ladestrømmen må være 0 A (pause lading) eller minst {min_current} A."
+    },
+    "current_limit_11_kw": {
+      "message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."
+    },
+    "write_failed": {
+      "message": "Kan ikke skrive til ladeboksen: {error}"
+    },
+    "missing_serial_number": {
+      "message": "Ladeboksen rapporterte ikke et serienummer."
+    },
+    "update_failed": {
+      "message": "Kan ikke lese fra ladeboksen: {error}"
+    }
+  },
+  "entity": {
+    "number": {
+      "ems_charging_current": {
+        "name": "Ladestrøm"
+      }
+    },
+    "select": {
+      "ems_relay_matrix": {
+        "name": "Faser",
+        "state": {
+          "phase_1": "Fase 1",
+          "three_phases": "3 faser"
+        }
+      }
+    },
+    "sensor": {
+      "voltage_l1": {
+        "name": "Spenning L1"
+      },
+      "voltage_l2": {
+        "name": "Spenning L2"
+      },
+      "voltage_l3": {
+        "name": "Spenning L3"
+      },
+      "current_l1": {
+        "name": "Strøm L1"
+      },
+      "current_l2": {
+        "name": "Strøm L2"
+      },
+      "current_l3": {
+        "name": "Strøm L3"
+      },
+      "active_power_l1": {
+        "name": "Aktiv effekt L1"
+      },
+      "active_power_l2": {
+        "name": "Aktiv effekt L2"
+      },
+      "active_power_l3": {
+        "name": "Aktiv effekt L3"
+      },
+      "total_active_power": {
+        "name": "Total aktiv effekt"
+      },
+      "total_energy": {
+        "name": "Total energi"
+      },
+      "frequency": {
+        "name": "Nettfrekvens"
+      },
+      "charging_state": {
+        "name": "Ladestatus",
+        "state": {
+          "idle": "Inaktiv",
+          "ev_connected": "Kjøretøy tilkoblet",
+          "authentication_waiting": "Venter på autentisering",
+          "authentication_confirmed": "Autentisering bekreftet",
+          "charging_active": "Lading pågår",
+          "charging_paused": "Lading satt på pause",
+          "charging_completed": "Lading fullført",
+          "rfid_pairing": "RFID-paring",
+          "error": "Feil",
+          "unknown": "Ukjent"
+        }
+      },
+      "pp_state": {
+        "name": "Nærhetssignal (PP)",
+        "state": {
+          "not_connected_or_fixed_cable": "Kabel ikke tilkoblet eller fastmontert",
+          "cable_not_connected": "Kabel ikke tilkoblet",
+          "fixed_cable_mounted": "Fast kabel montert",
+          "amp_13": "13 A",
+          "amp_20": "20 A",
+          "amp_32": "32 A",
+          "amp_63": "63 A",
+          "error": "Feil",
+          "unknown": "Ukjent"
+        }
+      },
+      "cp_state": {
+        "name": "Styresignal (CP)",
+        "state": {
+          "state_a": "A: kjøretøy ikke registrert",
+          "state_b": "B: kjøretøy registrert",
+          "state_c": "C: kjøretøy lader",
+          "state_d": "D: lading med ventilasjon",
+          "state_e": "E: kortslutning i CP",
+          "state_f": "F: EVSE ikke tilgjengelig",
+          "unknown": "Ukjent"
+        }
+      },
+      "granted_current": {
+        "name": "Frigitt ladestrøm"
+      },
+      "granted_power": {
+        "name": "Frigitt ladeeffekt"
+      },
+      "charging_duration": {
+        "name": "Ladetid"
+      },
+      "charging_energy": {
+        "name": "Ladet energi"
+      },
+      "charging_tag": {
+        "name": "Autorisasjonsbrikke"
+      },
+      "charging_session_id": {
+        "name": "Ladeøkt-ID"
+      },
+      "timeout_period": {
+        "name": "EMS-tidsavbrudd"
+      },
+      "timeout_fallback_relay_matrix": {
+        "name": "EMS-reservereléoppsett",
+        "state": {
+          "phase_1": "Fase 1",
+          "phase_2": "Fase 2",
+          "phase_3": "Fase 3",
+          "three_phases": "3 faser",
+          "unknown": "Ukjent"
+        }
+      },
+      "timeout_fallback_current": {
+        "name": "EMS-reservestrøm"
+      }
+    },
+    "binary_sensor": {
+      "relay_welded": {
+        "name": "Sammensveiset relé",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "residual_dc_current": {
+        "name": "DC-jordfeilstrøm",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "socket_lock_error": {
+        "name": "Feil i kontaktlås",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "charging_overcurrent": {
+        "name": "Overstrøm ved lading",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "ventilation_unavailable": {
+        "name": "Ventilasjon ikke tilgjengelig",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "cp_short_circuit": {
+        "name": "Kortslutning i CP",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "cp_loop_broken": {
+        "name": "Brudd i CP-sløyfe",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "pp_short_circuit": {
+        "name": "Kortslutning i PP",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "internal_error": {
+        "name": "Intern feil",
+        "state": {
+          "on": "Feil oppdaget",
+          "off": "Ingen feil"
+        }
+      },
+      "relay_l1": {
+        "name": "Relé L1"
+      },
+      "relay_l2": {
+        "name": "Relé L2"
+      },
+      "relay_l3": {
+        "name": "Relé L3"
+      },
+      "ems_control": {
+        "name": "EMS-styring",
+        "state": {
+          "on": "Aktiv",
+          "off": "Inaktiv"
+        }
+      },
+      "meter_available": {
+        "name": "Energimåler tilgjengelig"
+      }
+    }
+  },
+  "issues": {
+    "invalid_phase_rotation": {
+      "title": "Ugyldig faserekkefølge på wallboxen",
+      "description": "Wallboxen {title} melder fasetilordningen {line_mapping}, som er en ugyldig faserekkefølge (venstredreiende felt). Få nettilkoblingen og fasetilordningen som ble satt ved installasjonen, kontrollert av en autorisert elektroinstallatør. Faserekkefølgen kontrolleres først igjen når integrasjonen lastes inn på nytt eller Home Assistant startes på nytt."
+    }
+  }
 }
