@@ -106,7 +106,12 @@ The number and select entities write the same EMS registers as the services belo
 
 These entities are only enabled while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`).
 
-Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. The last setpoint written by Home Assistant stays in effect until another system overwrites it: with an EMS timeout above `0 s` the Wallbox falls back to the timeout fallback phases and current, with a timeout of `0 s` the setpoint stays, including a paused charge. To hand the Wallbox back to its own control, call `set_ems_control_enabled` with `enabled: false`.
+Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. Home Assistant also stops the EMS keep-alive. If no other system writes a new setpoint, what happens next depends on the EMS timeout:
+
+- above `0 s`: the Wallbox switches to the timeout fallback phases and current once the timeout expires;
+- `0 s`: the last setpoint written by Home Assistant stays in effect, including a paused charge.
+
+To hand the Wallbox back to its own control, call `set_ems_control_enabled` with `enabled: false`.
 
 After every write, from these entities or from the services, the integration reads the Wallbox again so the readback sensors update right away.
 
