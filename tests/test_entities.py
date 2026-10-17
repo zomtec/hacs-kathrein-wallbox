@@ -240,6 +240,20 @@ async def test_restored_sensor_stays_available_across_meter_gaps(
     assert not entity.available
 
 
+@pytest.mark.parametrize(
+    ("meter_detected", "expected"),
+    [(True, True), (False, False), (None, None)],
+)
+async def test_meter_binary_sensor_reports_stored_detection(
+    coordinator, meter_detected, expected
+) -> None:
+    """Report the one-time meter detection, not the latest meter reading."""
+    coordinator.meter_detected = meter_detected
+    coordinator.meter_available = False
+
+    assert _binary_sensor(coordinator, "meter_available").is_on is expected
+
+
 async def test_binary_sensors_decode_fault_and_relay_bits(
     coordinator, mock_modbus_unit
 ) -> None:
