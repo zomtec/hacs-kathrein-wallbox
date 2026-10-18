@@ -2,7 +2,7 @@
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import KathreinControlEntity
@@ -24,7 +24,7 @@ RELAY_MATRIX_DESCRIPTION = SelectEntityDescription(
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KathreinConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the EMS phase selection."""
     coordinator = entry.runtime_data.coordinator

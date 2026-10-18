@@ -30,9 +30,7 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
 
     def __init__(self, coordinator: KathreinCoordinator, key: str) -> None:
         super().__init__(coordinator)
-        serial = coordinator.identity.serial
-        # The coordinator refuses to publish data without a serial number.
-        assert serial is not None
+        serial = coordinator.serial
         self._attr_unique_id = wallbox_unique_id(serial, key)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, serial)},

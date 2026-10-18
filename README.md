@@ -145,7 +145,7 @@ Unsupported values, devices that are not a Kathrein Wallbox, and inactive Wallbo
 Example service call to request `16 A` (replace the placeholder with the Wallbox's device ID; in the automation editor, pick the Wallbox from the device list instead):
 
 ```yaml
-service: kathrein_wallbox.set_charging_current
+action: kathrein_wallbox.set_charging_current
 data:
   device_id: "<device-id>"
   value: 16

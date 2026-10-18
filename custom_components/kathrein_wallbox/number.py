@@ -8,7 +8,7 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import UnitOfElectricCurrent
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import KathreinControlEntity
@@ -37,7 +37,7 @@ CHARGING_CURRENT_DESCRIPTION = NumberEntityDescription(
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KathreinConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the EMS charging current control."""
     coordinator = entry.runtime_data.coordinator

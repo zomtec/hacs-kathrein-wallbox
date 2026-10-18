@@ -7,7 +7,7 @@ from typing import Any
 import probatio
 from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import ATTR_DEVICE_ID, CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import (
@@ -37,7 +37,6 @@ from .select import RELAY_MATRIX_DESCRIPTION
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-ATTR_DEVICE_ID = "device_id"
 ATTR_ENABLED = "enabled"
 ATTR_VALUE = "value"
 
@@ -306,10 +305,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> 
     )
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
-    serial = coordinator.identity.serial
-    # The coordinator refuses to publish data without a serial number.
-    assert serial is not None
-    _async_sync_control_entities(hass, entry, serial, coordinator.control_allowed)
+    _async_sync_control_entities(
+        hass, entry, coordinator.serial, coordinator.control_allowed
+    )
     _async_check_phase_rotation(hass, entry, coordinator.identity)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True

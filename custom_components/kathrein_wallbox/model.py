@@ -167,7 +167,7 @@ EMS_RELAY_MATRIX_OPTIONS = {
 
 
 class WallboxIdentity(Component):
-    """The compact identity range read during config flow validation."""
+    """The compact identity range read by the config flow and the coordinator."""
 
     mapping_version = integer(MAPPING_VERSION_ADDRESS, signed=False)
     device_number = string(DEVICE_NUMBER_ADDRESS, IDENTITY_STRING_REGISTER_COUNT)

@@ -9,7 +9,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import CoordinatorGetter, KathreinWallboxEntity
@@ -90,7 +90,7 @@ ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KathreinConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Wallbox diagnostic binary sensors."""
     coordinator = entry.runtime_data.coordinator

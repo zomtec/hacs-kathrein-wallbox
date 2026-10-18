@@ -48,7 +48,7 @@ async def _async_coordinator(
     )
     entry.add_to_hass(hass)
     coordinator = KathreinCoordinator(hass, entry, unit)
-    await coordinator.identity.async_update()
+    await coordinator._async_setup()
     yield coordinator
     # Stop the poll and keep-alive timers so they do not outlive the test.
     await coordinator.async_shutdown()

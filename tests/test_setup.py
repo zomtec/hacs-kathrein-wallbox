@@ -4,7 +4,7 @@ from datetime import timedelta
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import (
@@ -13,7 +13,6 @@ from custom_components.kathrein_wallbox import (
     async_unload_entry,
 )
 from custom_components.kathrein_wallbox.const import (
-    CONF_SCAN_INTERVAL,
     CONF_UNIT_ID,
     DOMAIN,
     PLATFORMS,
@@ -49,7 +48,7 @@ async def test_setup_entry_initializes_coordinator_before_platforms(
 
     async def _async_first_refresh(coordinator: KathreinCoordinator) -> None:
         await first_refresh()
-        await coordinator.identity.async_update()
+        await coordinator._async_setup()
 
     monkeypatch.setattr(
         KathreinCoordinator, "async_config_entry_first_refresh", _async_first_refresh

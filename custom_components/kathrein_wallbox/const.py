@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 
 DOMAIN = "kathrein_wallbox"
 MANUFACTURER = "Kathrein"
@@ -15,7 +15,6 @@ MIN_PORT = 1
 MAX_PORT = 65535
 MIN_UNIT_ID = 0
 MAX_UNIT_ID = 255
-CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=15)
 MIN_SCAN_INTERVAL_SECONDS = 5
 MAX_SCAN_INTERVAL_SECONDS = 300
