@@ -68,7 +68,7 @@ When a configured Wallbox gets a new IP address, discovery stores the new addres
 
 | Group | Entities |
 | --- | --- |
-| Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. |
+| Meter | Per-phase voltage, current, and active power; total active power and energy; grid frequency. Created only when a meter is detected. |
 | Charging | Charging state, session duration and energy, granted charging current and power; authorization tag and session ID of the current or last charging session. |
 | EVSE diagnostics | Proximity pilot (PP) and control pilot (CP) states; relay states; EVSE fault flags. |
 | EMS | Readbacks for the timeout period and the timeout fallback relay matrix and current. |
@@ -80,7 +80,7 @@ Detail entities are disabled by default and can be enabled from the entity regis
 
 The authorization tag sensor shows the tag that authorized the current or last charging session as reported by the Wallbox, for example `RFID:A07E3F27FFE0`, or `VOID` when the Wallbox is set to charge without authentication. The tag is personal data: Home Assistant records its history once you enable it. The charging session ID is the GUID the Wallbox assigns to each charging session. If the Wallbox does not answer for these registers (`0x0070`-`0x0099`), both sensors become unavailable without affecting the other entities.
 
-Meter readings are optional and do not prevent EVSE and charging data from updating. The meter is checked on the first successful read of its registers after setup against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`), and the result is stored. A detected meter stays detected; later failed reads only make meter entities unavailable until the meter answers again, and implausible single values are shown as unknown. Without a detected meter, its registers are not read again until the integration is reloaded; each reload or Home Assistant restart repeats the check once. Meter entities are disabled by default while no meter is detected.
+Meter readings are optional and do not prevent EVSE and charging data from updating. The meter is checked on the first successful read of its registers after setup against plausible mains references (voltage `80`-`300 V`, frequency `45`-`65 Hz`), and the result is stored. A detected meter stays detected; later failed reads only make meter entities unavailable until the meter answers again, and implausible single values are shown as unknown. Without a detected meter, its registers are not read again until the integration is reloaded; each reload or Home Assistant restart repeats the check once. Meter entities, including the charging session energy, are created only when a meter is detected at setup; a meter detected later gets its entities at the next reload. The meter diagnostics binary sensor is always created.
 
 ## Control by Home Assistant
 
@@ -228,7 +228,7 @@ actions:
 | --- | --- |
 | Cannot connect during setup | Confirm the host, port, and unit ID; make sure the Modbus server is enabled in the Wallbox web interface under **Settings > Modbus TCP control** and the Home Assistant host can reach the Wallbox on the network. |
 | Device is not supported | Confirm the device reports mapping version `0x0002` and a readable serial number. |
-| Meter entities are unavailable | Meter data is optional. Check the meter diagnostics binary sensor and the reference ranges above. If the Wallbox has a meter that was not detected, reload the integration to repeat the check. |
+| Meter entities are missing or unavailable | Meter data is optional. Check the meter diagnostics binary sensor and the reference ranges above. If the Wallbox has a meter that was not detected, reload the integration to repeat the check; the meter entities are created once it is detected. |
 | Repair issue about an invalid phase rotation | The Wallbox reports a line mapping marked as invalid phase rotation (L1-L3-L2, L2-L1-L3 or L3-L2-L1). Have the supply connection and the line mapping set during installation checked by a qualified electrician. The integration checks the line mapping only at startup; reload the integration or restart Home Assistant after the fix. |
 | Need more information for a report | Download diagnostics from the Kathrein Wallbox config entry under **Settings > Devices & services** and attach them to an issue, after reviewing the data. |
 
