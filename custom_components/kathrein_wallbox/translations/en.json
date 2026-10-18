@@ -275,8 +275,7 @@
           "charging_paused": "Charging paused",
           "charging_completed": "Charging completed",
           "rfid_pairing": "RFID pairing",
-          "error": "Error",
-          "unknown": "Unknown"
+          "error": "Error"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Error",
-          "unknown": "Unknown"
+          "error": "Error"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: EV charging",
           "state_d": "D: EV charging with fan",
           "state_e": "E: CP short circuit",
-          "state_f": "F: EVSE unavailable",
-          "unknown": "Unknown"
+          "state_f": "F: EVSE unavailable"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Phase 1",
           "phase_2": "Phase 2",
           "phase_3": "Phase 3",
-          "three_phases": "3 Phases",
-          "unknown": "Unknown"
+          "three_phases": "3 Phases"
         }
       },
       "timeout_fallback_current": {

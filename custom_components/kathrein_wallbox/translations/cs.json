@@ -275,8 +275,7 @@
           "charging_paused": "Nabíjení pozastaveno",
           "charging_completed": "Nabíjení dokončeno",
           "rfid_pairing": "Párování RFID",
-          "error": "Chyba",
-          "unknown": "Neznámý"
+          "error": "Chyba"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Chyba",
-          "unknown": "Neznámý"
+          "error": "Chyba"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: vozidlo se nabíjí",
           "state_d": "D: nabíjení s ventilací",
           "state_e": "E: zkrat CP",
-          "state_f": "F: EVSE není k dispozici",
-          "unknown": "Neznámý"
+          "state_f": "F: EVSE není k dispozici"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Fáze 1",
           "phase_2": "Fáze 2",
           "phase_3": "Fáze 3",
-          "three_phases": "3 fáze",
-          "unknown": "Neznámý"
+          "three_phases": "3 fáze"
         }
       },
       "timeout_fallback_current": {

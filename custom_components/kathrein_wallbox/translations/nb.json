@@ -275,8 +275,7 @@
           "charging_paused": "Lading satt på pause",
           "charging_completed": "Lading fullført",
           "rfid_pairing": "RFID-paring",
-          "error": "Feil",
-          "unknown": "Ukjent"
+          "error": "Feil"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Feil",
-          "unknown": "Ukjent"
+          "error": "Feil"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: kjøretøy lader",
           "state_d": "D: lading med ventilasjon",
           "state_e": "E: kortslutning i CP",
-          "state_f": "F: EVSE ikke tilgjengelig",
-          "unknown": "Ukjent"
+          "state_f": "F: EVSE ikke tilgjengelig"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Fase 1",
           "phase_2": "Fase 2",
           "phase_3": "Fase 3",
-          "three_phases": "3 faser",
-          "unknown": "Ukjent"
+          "three_phases": "3 faser"
         }
       },
       "timeout_fallback_current": {
