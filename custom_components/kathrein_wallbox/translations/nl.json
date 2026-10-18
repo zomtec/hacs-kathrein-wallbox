@@ -275,8 +275,7 @@
           "charging_paused": "Laden gepauzeerd",
           "charging_completed": "Laden voltooid",
           "rfid_pairing": "RFID-koppeling",
-          "error": "Fout",
-          "unknown": "Onbekend"
+          "error": "Fout"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Fout",
-          "unknown": "Onbekend"
+          "error": "Fout"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: voertuig laadt",
           "state_d": "D: voertuig laadt met ventilatie",
           "state_e": "E: CP-kortsluiting",
-          "state_f": "F: laadstation niet beschikbaar",
-          "unknown": "Onbekend"
+          "state_f": "F: laadstation niet beschikbaar"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Fase 1",
           "phase_2": "Fase 2",
           "phase_3": "Fase 3",
-          "three_phases": "3 fasen",
-          "unknown": "Onbekend"
+          "three_phases": "3 fasen"
         }
       },
       "timeout_fallback_current": {

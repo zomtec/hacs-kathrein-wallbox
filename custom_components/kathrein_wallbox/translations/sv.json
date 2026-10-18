@@ -275,8 +275,7 @@
           "charging_paused": "Laddning pausad",
           "charging_completed": "Laddning klar",
           "rfid_pairing": "RFID-parkoppling",
-          "error": "Fel",
-          "unknown": "Okänd"
+          "error": "Fel"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Fel",
-          "unknown": "Okänd"
+          "error": "Fel"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: fordon laddar",
           "state_d": "D: laddning med ventilation",
           "state_e": "E: kortslutning i CP",
-          "state_f": "F: EVSE inte tillgänglig",
-          "unknown": "Okänd"
+          "state_f": "F: EVSE inte tillgänglig"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Fas 1",
           "phase_2": "Fas 2",
           "phase_3": "Fas 3",
-          "three_phases": "3 faser",
-          "unknown": "Okänd"
+          "three_phases": "3 faser"
         }
       },
       "timeout_fallback_current": {

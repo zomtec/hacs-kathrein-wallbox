@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
+from enum import IntEnum
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -11,7 +12,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    STATE_UNKNOWN,
     EntityCategory,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
@@ -46,7 +46,7 @@ PARALLEL_UPDATES = 0
 PP_CABLE_NOT_CONNECTED = "cable_not_connected"
 PP_FIXED_CABLE_MOUNTED = "fixed_cable_mounted"
 
-CHARGING_STATES: dict[int, str] = {
+CHARGING_STATES: dict[ChargingState, str] = {
     ChargingState.IDLE: "idle",
     ChargingState.EV_CONNECTED: "ev_connected",
     ChargingState.AUTHENTICATION_WAITING: "authentication_waiting",
@@ -57,7 +57,7 @@ CHARGING_STATES: dict[int, str] = {
     ChargingState.RFID_PAIRING: "rfid_pairing",
     ChargingState.ERROR: "error",
 }
-PP_STATES: dict[int, str] = {
+PP_STATES: dict[PPState, str] = {
     PPState.CABLE_NOT_CONNECTED_OR_FIXED: "not_connected_or_fixed_cable",
     PPState.AMP_13: "amp_13",
     PPState.AMP_20: "amp_20",
@@ -65,7 +65,7 @@ PP_STATES: dict[int, str] = {
     PPState.AMP_63: "amp_63",
     PPState.ERROR: "error",
 }
-CP_STATES: dict[int, str] = {
+CP_STATES: dict[CPState, str] = {
     CPState.A: "state_a",
     CPState.B: "state_b",
     CPState.C: "state_c",
@@ -73,7 +73,7 @@ CP_STATES: dict[int, str] = {
     CPState.E: "state_e",
     CPState.F: "state_f",
 }
-RELAY_MATRIX_STATES: dict[int, str] = {
+RELAY_MATRIX_STATES: dict[RelayMatrix, str] = {
     RelayMatrix.PHASE_1: "phase_1",
     RelayMatrix.PHASE_2: "phase_2",
     RelayMatrix.PHASE_3: "phase_3",
@@ -89,11 +89,9 @@ class KathreinSensorDescription(SensorEntityDescription):
     component: str | None = None
 
 
-def _state(value: int | None, states: dict[int, str]) -> str | None:
-    """Translate a register value to its enum state key."""
-    if value is None:
-        return None
-    return states.get(value, STATE_UNKNOWN)
+def _state[E: IntEnum](value: E | None, states: dict[E, str]) -> str | None:
+    """Translate a decoded register value to its enum state key."""
+    return None if value is None else states[value]
 
 
 def _pp_state(coordinator: KathreinCoordinator) -> str | None:
@@ -230,7 +228,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         key="charging_state",
         translation_key="charging_state",
         device_class=SensorDeviceClass.ENUM,
-        options=[*CHARGING_STATES.values(), STATE_UNKNOWN],
+        options=[*CHARGING_STATES.values()],
         value_fn=lambda c: _state(c.device.evse.charging_state, CHARGING_STATES),
     ),
     KathreinSensorDescription(
@@ -242,7 +240,6 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
             *PP_STATES.values(),
             PP_CABLE_NOT_CONNECTED,
             PP_FIXED_CABLE_MOUNTED,
-            STATE_UNKNOWN,
         ],
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=_pp_state,
@@ -252,7 +249,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         translation_key="cp_state",
         entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.ENUM,
-        options=[*CP_STATES.values(), STATE_UNKNOWN],
+        options=[*CP_STATES.values()],
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: _state(c.device.evse.cp_state, CP_STATES),
     ),
@@ -321,7 +318,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         translation_key="timeout_fallback_relay_matrix",
         entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.ENUM,
-        options=[*RELAY_MATRIX_STATES.values(), STATE_UNKNOWN],
+        options=[*RELAY_MATRIX_STATES.values()],
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: _state(
             c.device.ems_control.timeout_fallback_relay_matrix, RELAY_MATRIX_STATES

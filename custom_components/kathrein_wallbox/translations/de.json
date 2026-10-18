@@ -275,8 +275,7 @@
           "charging_paused": "Ladevorgang pausiert",
           "charging_completed": "Ladevorgang abgeschlossen",
           "rfid_pairing": "RFID-Kopplung",
-          "error": "Fehler",
-          "unknown": "Unbekannt"
+          "error": "Fehler"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Fehler",
-          "unknown": "Unbekannt"
+          "error": "Fehler"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: Fahrzeug lädt",
           "state_d": "D: Fahrzeug lädt mit Lüftung",
           "state_e": "E: CP Kurzschluss",
-          "state_f": "F: Wallbox nicht verfügbar",
-          "unknown": "Unbekannt"
+          "state_f": "F: Wallbox nicht verfügbar"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Phase 1",
           "phase_2": "Phase 2",
           "phase_3": "Phase 3",
-          "three_phases": "3 Phasen",
-          "unknown": "Unbekannt"
+          "three_phases": "3 Phasen"
         }
       },
       "timeout_fallback_current": {

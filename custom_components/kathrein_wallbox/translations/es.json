@@ -275,8 +275,7 @@
           "charging_paused": "Carga pausada",
           "charging_completed": "Carga completada",
           "rfid_pairing": "Vinculación RFID",
-          "error": "Error",
-          "unknown": "Desconocido"
+          "error": "Error"
         }
       },
       "pp_state": {
@@ -289,8 +288,7 @@
           "amp_20": "20 A",
           "amp_32": "32 A",
           "amp_63": "63 A",
-          "error": "Error",
-          "unknown": "Desconocido"
+          "error": "Error"
         }
       },
       "cp_state": {
@@ -301,8 +299,7 @@
           "state_c": "C: vehículo cargando",
           "state_d": "D: vehículo cargando con ventilación",
           "state_e": "E: cortocircuito del CP",
-          "state_f": "F: EVSE no disponible",
-          "unknown": "Desconocido"
+          "state_f": "F: EVSE no disponible"
         }
       },
       "granted_current": {
@@ -332,8 +329,7 @@
           "phase_1": "Fase 1",
           "phase_2": "Fase 2",
           "phase_3": "Fase 3",
-          "three_phases": "3 fases",
-          "unknown": "Desconocido"
+          "three_phases": "3 fases"
         }
       },
       "timeout_fallback_current": {

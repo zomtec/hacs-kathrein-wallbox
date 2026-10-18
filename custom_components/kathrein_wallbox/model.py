@@ -7,6 +7,7 @@ from modbus_connection import ModbusUnit
 from modbus_connection.model import (
     Component,
     Device,
+    enum,
     flags,
     float32,
     gauge,
@@ -262,10 +263,10 @@ class WallboxSessionEnergy(Component):
 class WallboxEVSE(Component):
     """Charging and EVSE registers, independent of the optional meter."""
 
-    charging_state = integer(CHARGING_STATE_ADDRESS, signed=False)
+    charging_state = enum(CHARGING_STATE_ADDRESS, ChargingState)
     error_states = flags(ERROR_STATES_ADDRESS, ErrorState)
-    pp_state = integer(PP_STATE_ADDRESS, signed=False)
-    cp_state = integer(CP_STATE_ADDRESS, signed=False)
+    pp_state = enum(PP_STATE_ADDRESS, PPState)
+    cp_state = enum(CP_STATE_ADDRESS, CPState)
     relay_state = flags(RELAY_STATE_ADDRESS, RelayState)
     granted_current = gauge(
         GRANTED_CURRENT_ADDRESS, AMPERES_PER_MILLIAMPERE, signed=False, unit="A"
@@ -309,8 +310,8 @@ class WallboxEMSControl(Component):
     timeout_period = integer(
         EMS_TIMEOUT_PERIOD_ADDRESS, signed=False, writable=True, unit="s"
     )
-    timeout_fallback_relay_matrix = integer(
-        EMS_TIMEOUT_FALLBACK_RELAY_MATRIX_ADDRESS, signed=False, writable=True
+    timeout_fallback_relay_matrix = enum(
+        EMS_TIMEOUT_FALLBACK_RELAY_MATRIX_ADDRESS, RelayMatrix, writable=True
     )
     timeout_fallback_current = gauge(
         EMS_TIMEOUT_FALLBACK_CURRENT_ADDRESS,

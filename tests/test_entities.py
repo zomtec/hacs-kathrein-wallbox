@@ -154,6 +154,48 @@ async def test_sensor_maps_register_values(
 
 
 @pytest.mark.parametrize(
+    ("key", "address", "value"),
+    [
+        ("charging_state", 0x0060, 98),
+        ("pp_state", 0x0062, 7),
+        ("cp_state", 0x0063, 9),
+        ("timeout_fallback_relay_matrix", 0x00A4, 6),
+    ],
+)
+async def test_status_sensor_reports_unmapped_value_as_unknown(
+    hass,
+    mock_modbus_unit,
+    setup_integration,
+    enable_entity,
+    entity_id_of,
+    poll,
+    caplog,
+    key,
+    address,
+    value,
+) -> None:
+    """Show HA's unknown state for an unmapped value and warn once per value."""
+    enable_entity("sensor", key)
+    mock_modbus_unit.holding[address] = value
+
+    await setup_integration()
+    await poll()
+
+    state = hass.states.get(entity_id_of("sensor", key))
+    assert state is not None
+    assert state.state == STATE_UNKNOWN
+    assert STATE_UNKNOWN not in state.attributes["options"]
+    warnings = [
+        record
+        for record in caplog.records
+        if record.levelname == "WARNING"
+        and f"'{key}'" in record.getMessage()
+        and f"value {value};" in record.getMessage()
+    ]
+    assert len(warnings) == 1
+
+
+@pytest.mark.parametrize(
     ("tag_info", "expected"),
     [
         ("RFID:A07E3F27FFE0", "RFID:A07E3F27FFE0"),
