@@ -5,11 +5,12 @@ from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from conftest import SERIAL_REGISTERS, RecordingMockModbusUnit
 from homeassistant.config_entries import SOURCE_DHCP, SOURCE_USER
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 from modbus_connection import ModbusError
+from modbus_connection.encode import encode_string
+from modbus_connection.mock import MockModbusUnit
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox import config_flow
@@ -22,10 +23,10 @@ from custom_components.kathrein_wallbox.model import (
     DEVICE_TYPE_ADDRESS,
     MAPPING_VERSION_ADDRESS,
     SERIAL_ADDRESS,
+    SERIAL_REGISTER_COUNT,
 )
 
 
-@pytest.mark.asyncio
 async def test_user_flow_creates_entry_with_normalized_connection_data(
     hass, monkeypatch, enable_custom_integrations
 ) -> None:
@@ -67,7 +68,6 @@ async def test_user_flow_creates_entry_with_normalized_connection_data(
         (ModbusError, "cannot_connect"),
     ],
 )
-@pytest.mark.asyncio
 async def test_user_flow_reports_validation_errors(
     hass, monkeypatch, enable_custom_integrations, error_type, expected_error
 ) -> None:
@@ -121,7 +121,6 @@ def skip_entry_setup():
         yield
 
 
-@pytest.mark.asyncio
 async def test_user_flow_aborts_for_already_configured_wallbox(
     hass, monkeypatch, wallbox_entry
 ) -> None:
@@ -143,7 +142,6 @@ async def test_user_flow_aborts_for_already_configured_wallbox(
     assert result["reason"] == "already_configured"
 
 
-@pytest.mark.asyncio
 async def test_reconfigure_updates_connection_data(
     hass, monkeypatch, wallbox_entry
 ) -> None:
@@ -166,7 +164,6 @@ async def test_reconfigure_updates_connection_data(
     assert wallbox_entry.title == "Kathrein 22 kW"
 
 
-@pytest.mark.asyncio
 async def test_reconfigure_aborts_for_a_different_wallbox(
     hass, monkeypatch, wallbox_entry
 ) -> None:
@@ -194,7 +191,6 @@ async def test_reconfigure_aborts_for_a_different_wallbox(
         (ModbusError, "cannot_connect"),
     ],
 )
-@pytest.mark.asyncio
 async def test_reconfigure_reports_validation_errors(
     hass, monkeypatch, wallbox_entry, error_type, expected_error
 ) -> None:
@@ -214,7 +210,6 @@ async def test_reconfigure_reports_validation_errors(
     assert result["errors"] == {"base": expected_error}
 
 
-@pytest.mark.asyncio
 async def test_options_flow_offers_polling_and_control(hass, wallbox_entry) -> None:
     """Leave connection settings to reconfigure and prefill the current options."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
@@ -224,7 +219,6 @@ async def test_options_flow_offers_polling_and_control(hass, wallbox_entry) -> N
     assert result["data_schema"]({}) == OPTIONS
 
 
-@pytest.mark.asyncio
 async def test_options_flow_defaults_to_no_control(
     hass, enable_custom_integrations
 ) -> None:
@@ -237,7 +231,6 @@ async def test_options_flow_defaults_to_no_control(
     assert result["data_schema"]({})["allow_control"] is False
 
 
-@pytest.mark.asyncio
 async def test_options_flow_updates_options(hass, wallbox_entry) -> None:
     """Store the new options without touching the connection data."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
@@ -252,19 +245,16 @@ async def test_options_flow_updates_options(hass, wallbox_entry) -> None:
 
 
 DEVICE_TYPE_REGISTERS = [0x4B57, 0x422D, 0x4143, 0x3131]
-DEVICE_SERIAL = "G0R1234567"
 
 
 @pytest.fixture
-def wallbox_unit(mock_modbus_unit) -> RecordingMockModbusUnit:
+def wallbox_unit(mock_modbus_unit) -> MockModbusUnit:
     """Serve a supported Wallbox through the flow's temporary Modbus unit."""
     mock_modbus_unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION]
     mock_modbus_unit.holding[DEVICE_TYPE_ADDRESS] = DEVICE_TYPE_REGISTERS
 
     @asynccontextmanager
-    async def temporary_unit(
-        hass, params, unit_id
-    ) -> AsyncIterator[RecordingMockModbusUnit]:
+    async def temporary_unit(hass, params, unit_id) -> AsyncIterator[MockModbusUnit]:
         assert (params.host, params.port, unit_id) == ("wallbox.local", 502, 1)
         yield mock_modbus_unit
 
@@ -272,22 +262,22 @@ def wallbox_unit(mock_modbus_unit) -> RecordingMockModbusUnit:
         yield mock_modbus_unit
 
 
-def _report_wrong_mapping(unit: RecordingMockModbusUnit) -> None:
+def _report_wrong_mapping(unit: MockModbusUnit) -> None:
     unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION + 1]
 
 
-def _report_no_serial(unit: RecordingMockModbusUnit) -> None:
-    unit.holding[SERIAL_ADDRESS] = [0] * len(SERIAL_REGISTERS)
+def _report_no_serial(unit: MockModbusUnit) -> None:
+    unit.holding[SERIAL_ADDRESS] = [0] * SERIAL_REGISTER_COUNT
 
 
-def _fail_requests(unit: RecordingMockModbusUnit) -> None:
+def _fail_requests(unit: MockModbusUnit) -> None:
     unit.fail_requests(ModbusError("connection refused"))
 
 
-def _repair(unit: RecordingMockModbusUnit) -> None:
+def _repair(unit: MockModbusUnit, serial: str) -> None:
     unit.fail_requests(None)
     unit.holding[MAPPING_VERSION_ADDRESS] = [EXPECTED_MAPPING_VERSION]
-    unit.holding[SERIAL_ADDRESS] = SERIAL_REGISTERS
+    unit.holding[SERIAL_ADDRESS] = encode_string(serial, length=SERIAL_REGISTER_COUNT)
 
 
 DEVICE_FAILURES = pytest.mark.parametrize(
@@ -300,9 +290,8 @@ DEVICE_FAILURES = pytest.mark.parametrize(
 )
 
 
-@pytest.mark.asyncio
 async def test_user_flow_reads_the_device_identity(
-    hass, enable_custom_integrations, wallbox_unit
+    hass, enable_custom_integrations, wallbox_unit, serial
 ) -> None:
     """Use the serial as unique ID and the reported device type as title."""
     result = await hass.config_entries.flow.async_init(
@@ -315,10 +304,9 @@ async def test_user_flow_reads_the_device_identity(
 
     assert result["type"] == "create_entry"
     assert result["title"] == "KWB-AC11"
-    assert result["result"].unique_id == DEVICE_SERIAL
+    assert result["result"].unique_id == serial
 
 
-@pytest.mark.asyncio
 async def test_user_flow_falls_back_to_the_default_title(
     hass, enable_custom_integrations, wallbox_unit
 ) -> None:
@@ -337,12 +325,12 @@ async def test_user_flow_falls_back_to_the_default_title(
 
 
 @DEVICE_FAILURES
-@pytest.mark.asyncio
 async def test_user_flow_recovers_after_device_error(
     hass,
     enable_custom_integrations,
     wallbox_unit,
-    break_device: Callable[[RecordingMockModbusUnit], None],
+    serial,
+    break_device: Callable[[MockModbusUnit], None],
     expected_error: str,
 ) -> None:
     """Show the error, then create the entry once the device answers correctly."""
@@ -356,28 +344,28 @@ async def test_user_flow_recovers_after_device_error(
     assert result["type"] == "form"
     assert result["errors"] == {"base": expected_error}
 
-    _repair(wallbox_unit)
+    _repair(wallbox_unit, serial)
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], CONNECTION
     )
 
     assert result["type"] == "create_entry"
-    assert result["result"].unique_id == DEVICE_SERIAL
+    assert result["result"].unique_id == serial
 
 
 @DEVICE_FAILURES
-@pytest.mark.asyncio
 async def test_reconfigure_recovers_after_device_error(
     hass,
     enable_custom_integrations,
     wallbox_unit,
-    break_device: Callable[[RecordingMockModbusUnit], None],
+    serial,
+    break_device: Callable[[MockModbusUnit], None],
     expected_error: str,
 ) -> None:
     """Show the error, then update the entry once the device answers correctly."""
     entry = MockConfigEntry(
         domain=DOMAIN,
-        unique_id=DEVICE_SERIAL,
+        unique_id=serial,
         data={**CONNECTION, "host": "old-wallbox.local"},
         options=OPTIONS,
         title="Kathrein",
@@ -391,7 +379,7 @@ async def test_reconfigure_recovers_after_device_error(
     assert result["type"] == "form"
     assert result["errors"] == {"base": expected_error}
 
-    _repair(wallbox_unit)
+    _repair(wallbox_unit, serial)
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], CONNECTION
     )
@@ -411,15 +399,14 @@ def _dhcp_info(serial: str) -> DhcpServiceInfo:
     )
 
 
-@pytest.mark.asyncio
 async def test_dhcp_discovery_creates_entry_after_confirmation(
-    hass, monkeypatch, enable_custom_integrations
+    hass, monkeypatch, enable_custom_integrations, serial
 ) -> None:
     """Read the discovered address and keep control off by default."""
-    validate = AsyncMock(return_value=(DEVICE_SERIAL, "KWB-AC11"))
+    validate = AsyncMock(return_value=(serial, "KWB-AC11"))
     monkeypatch.setattr(config_flow, "_async_validate_input", validate)
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(DEVICE_SERIAL)
+        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(serial)
     )
     assert result["type"] == "form"
     assert result["step_id"] == "dhcp_confirm"
@@ -430,7 +417,7 @@ async def test_dhcp_discovery_creates_entry_after_confirmation(
     )
 
     assert result["type"] == "create_entry"
-    assert result["result"].unique_id == DEVICE_SERIAL
+    assert result["result"].unique_id == serial
     assert result["data"] == {"host": DISCOVERED_IP, "port": 502, "unit_id": 1}
     assert result["options"] == {"scan_interval": 15, "allow_control": False}
     assert validate.await_args.args[1]["host"] == DISCOVERED_IP
@@ -440,7 +427,6 @@ OTHER_SERIAL = "G0R7654321"
 CONNECTION_REFUSED = ModbusError("connection refused")
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("stored_host_answer", "discovered_ip_answer", "expected_host"),
     [
@@ -479,9 +465,8 @@ async def test_dhcp_discovery_updates_address_only_after_a_move(
     assert wallbox_entry.data == {**CONNECTION, "host": expected_host}
 
 
-@pytest.mark.asyncio
 async def test_dhcp_confirmation_reports_validation_errors(
-    hass, monkeypatch, enable_custom_integrations
+    hass, monkeypatch, enable_custom_integrations, serial
 ) -> None:
     """Keep the confirmation form open when the Wallbox cannot be read."""
     monkeypatch.setattr(
@@ -490,7 +475,7 @@ async def test_dhcp_confirmation_reports_validation_errors(
         AsyncMock(side_effect=ModbusError("connection refused")),
     )
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(DEVICE_SERIAL)
+        DOMAIN, context={"source": SOURCE_DHCP}, data=_dhcp_info(serial)
     )
 
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})

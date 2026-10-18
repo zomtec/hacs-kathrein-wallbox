@@ -1,7 +1,5 @@
 """Tests for the Kathrein Wallbox EMS services."""
 
-from collections.abc import AsyncGenerator
-
 import probatio
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -10,12 +8,7 @@ from homeassistant.helpers import device_registry as dr
 from modbus_connection import ModbusError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.kathrein_wallbox import async_setup
-from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
-from custom_components.kathrein_wallbox.coordinator import (
-    KathreinCoordinator,
-    WallboxRuntimeData,
-)
+from custom_components.kathrein_wallbox.const import DOMAIN
 from custom_components.kathrein_wallbox.services import (
     SERVICE_SET_CHARGING_CURRENT,
     SERVICE_SET_EMS_CONTROL_ENABLED,
@@ -30,56 +23,18 @@ DEVICE_INFO_11_KW = 0x0001
 EMS_CONTROL_ADDRESS = 0x00A0
 
 
-def _writes(unit) -> list[tuple[int, list[int]]]:
-    return [(event.address, event.values) for event in unit.write_events]
-
-
-def _async_add_device(hass, entry: MockConfigEntry) -> dr.DeviceEntry:
-    """Register a device for the given config entry."""
-    return dr.async_get(hass).async_get_or_create(
-        config_entry_id=entry.entry_id, identifiers={(entry.domain, entry.entry_id)}
-    )
-
-
 def _device_id(hass, entry: MockConfigEntry) -> str:
     """Return the ID of the device registered for the given config entry."""
     [device] = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
     return device.id
 
 
-async def _async_ems_entry(
-    hass, mock_modbus_unit, allow_control: bool
-) -> AsyncGenerator[MockConfigEntry]:
-    """Add a loaded config entry connected to the in-memory unit."""
-    entry = MockConfigEntry(
-        domain=DOMAIN, title="Wallbox", options={CONF_ALLOW_CONTROL: allow_control}
-    )
-    entry.add_to_hass(hass)
-    coordinator = KathreinCoordinator(hass, entry, mock_modbus_unit)
-    await coordinator.identity.async_update()
+@pytest.fixture
+async def ems_entry(entry, mock_modbus_unit, setup_integration) -> MockConfigEntry:
+    """Set up a Wallbox entry whose EMS control is switched on."""
     mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
-    await coordinator.ems_control.async_update()
-    entry.runtime_data = WallboxRuntimeData(coordinator=coordinator)
-    entry.mock_state(hass, ConfigEntryState.LOADED)
-    _async_add_device(hass, entry)
-    await async_setup(hass, {})
-    yield entry
-    # Writes schedule a debounced refresh that must not outlive the test.
-    await coordinator.async_shutdown()
-
-
-@pytest.fixture
-async def ems_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
-    """Add a loaded config entry that allows control by Home Assistant."""
-    async for entry in _async_ems_entry(hass, mock_modbus_unit, True):
-        yield entry
-
-
-@pytest.fixture
-async def read_only_entry(hass, mock_modbus_unit) -> AsyncGenerator[MockConfigEntry]:
-    """Add a loaded config entry that does not allow control by Home Assistant."""
-    async for entry in _async_ems_entry(hass, mock_modbus_unit, False):
-        yield entry
+    await setup_integration()
+    return entry
 
 
 async def _async_call(hass, entry, service, service_data) -> None:
@@ -124,7 +79,7 @@ async def test_ems_services_write_expected_register(
     writes = [(address, [value])]
     if service in (SERVICE_SET_RELAY_MATRIX, SERVICE_SET_CHARGING_CURRENT):
         writes.insert(0, (EMS_CONTROL_ADDRESS, [0x8000]))
-    assert _writes(mock_modbus_unit) == writes
+    assert mock_modbus_unit.writes == writes
 
 
 @pytest.mark.parametrize(
@@ -137,15 +92,16 @@ async def test_ems_services_write_expected_register(
         (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, {"value": 7}),
     ],
 )
+@pytest.mark.parametrize("allow_control", [False])
 async def test_ems_services_need_control_allowed(
-    hass, mock_modbus_unit, read_only_entry, service, service_data
+    hass, mock_modbus_unit, ems_entry, service, service_data
 ) -> None:
     """Reject setpoint services without writing while control is not allowed."""
     with pytest.raises(ServiceValidationError) as error:
-        await _async_call(hass, read_only_entry, service, service_data)
+        await _async_call(hass, ems_entry, service, service_data)
 
     assert error.value.translation_key == "control_not_allowed"
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 @pytest.mark.parametrize(
@@ -169,7 +125,7 @@ async def test_ems_services_reject_unsupported_values(
     with pytest.raises(probatio.Invalid):
         await _async_call(hass, ems_entry, service, {"value": value})
 
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 @pytest.mark.parametrize(
@@ -185,7 +141,7 @@ async def test_ems_services_reject_current_below_minimum(
 
     assert error.value.translation_key == "current_below_minimum"
     assert error.value.translation_placeholders == {"min_current": "6"}
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 @pytest.mark.parametrize(
@@ -196,39 +152,44 @@ async def test_ems_services_reject_current_below_minimum(
     ],
 )
 async def test_11_kw_wallbox_accepts_maximum_ems_current(
-    hass, mock_modbus_unit, ems_entry, service, value, address
+    hass, mock_modbus_unit, entry, setup_integration, service, value, address
 ) -> None:
     """Allow exactly 16 A on an 11 kW wallbox."""
     mock_modbus_unit.holding[DEVICE_INFO_ADDRESS] = DEVICE_INFO_11_KW
-    await ems_entry.runtime_data.coordinator.identity.async_update()
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
+    await setup_integration()
 
-    await _async_call(hass, ems_entry, service, {"value": value})
+    await _async_call(hass, entry, service, {"value": value})
 
-    assert _writes(mock_modbus_unit)[-1] == (address, [16000])
+    assert mock_modbus_unit.writes[-1] == (address, [16000])
 
 
 @pytest.mark.parametrize(
     "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
 )
 async def test_11_kw_wallbox_rejects_ems_current_above_limit(
-    hass, mock_modbus_unit, ems_entry, service
+    hass, mock_modbus_unit, entry, setup_integration, service
 ) -> None:
     """Reject current values above 16 A without writing a register."""
     mock_modbus_unit.holding[DEVICE_INFO_ADDRESS] = DEVICE_INFO_11_KW
-    await ems_entry.runtime_data.coordinator.identity.async_update()
+    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
+    await setup_integration()
 
     with pytest.raises(ServiceValidationError) as error:
-        await _async_call(hass, ems_entry, service, {"value": "20"})
+        await _async_call(hass, entry, service, {"value": "20"})
 
     assert error.value.translation_key == "current_limit_11_kw"
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 def _other_device_id(hass) -> str:
     """Return the ID of a device that belongs to another integration."""
     entry = MockConfigEntry(domain="other")
     entry.add_to_hass(hass)
-    return _async_add_device(hass, entry).id
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id, identifiers={(entry.domain, entry.entry_id)}
+    )
+    return device.id
 
 
 @pytest.mark.parametrize(
@@ -249,14 +210,16 @@ async def test_ems_service_rejects_device_that_is_no_wallbox(
         )
 
     assert error.value.translation_key == "device_not_found"
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 async def test_ems_service_rejects_entry_that_is_not_loaded(
     hass, mock_modbus_unit, ems_entry
 ) -> None:
     """Reject service calls for a wallbox entry that failed to set up."""
-    ems_entry.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+    mock_modbus_unit.fail_requests(ModbusError("connection refused"))
+    assert not await hass.config_entries.async_reload(ems_entry.entry_id)
+    assert ems_entry.state is ConfigEntryState.SETUP_RETRY
 
     with pytest.raises(ServiceValidationError) as error:
         await _async_call(
@@ -264,7 +227,7 @@ async def test_ems_service_rejects_entry_that_is_not_loaded(
         )
 
     assert error.value.translation_key == "entry_not_loaded"
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 async def test_ems_service_reports_device_write_failure(
@@ -290,33 +253,29 @@ async def test_ems_service_reports_device_write_failure(
     ],
 )
 async def test_ems_timeout_services_reject_disabled_ems_control(
-    hass, mock_modbus_unit, ems_entry, service, value
+    hass, mock_modbus_unit, entry, setup_integration, service, value
 ) -> None:
     """Reject timeout settings without writing while EMS control is off."""
-    coordinator = ems_entry.runtime_data.coordinator
     mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
-    await coordinator.ems_control.async_update()
+    await setup_integration()
 
     with pytest.raises(ServiceValidationError) as error:
-        await _async_call(hass, ems_entry, service, {"value": value})
+        await _async_call(hass, entry, service, {"value": value})
 
     assert error.value.translation_key == "ems_control_disabled"
-    assert mock_modbus_unit.write_events == []
+    assert mock_modbus_unit.writes == []
 
 
 async def test_ems_control_service_enables_disabled_ems_control(
-    hass, mock_modbus_unit, ems_entry
+    hass, mock_modbus_unit, entry, setup_integration
 ) -> None:
     """Keep EMS control itself switchable while it is off."""
-    coordinator = ems_entry.runtime_data.coordinator
     mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
-    await coordinator.ems_control.async_update()
+    await setup_integration()
 
-    await _async_call(
-        hass, ems_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True}
-    )
+    await _async_call(hass, entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": True})
 
-    assert _writes(mock_modbus_unit) == [(EMS_CONTROL_ADDRESS, [0x8000])]
+    assert mock_modbus_unit.writes == [(EMS_CONTROL_ADDRESS, [0x8000])]
 
 
 @pytest.mark.parametrize(
@@ -327,28 +286,28 @@ async def test_ems_control_service_enables_disabled_ems_control(
     ],
 )
 async def test_ems_setpoint_services_enable_disabled_ems_control(
-    hass, mock_modbus_unit, ems_entry, service, value, address, register
+    hass, mock_modbus_unit, entry, setup_integration, service, value, address, register
 ) -> None:
     """Enable EMS control before writing a setpoint while it is off."""
-    coordinator = ems_entry.runtime_data.coordinator
     mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0
-    await coordinator.ems_control.async_update()
+    await setup_integration()
 
-    await _async_call(hass, ems_entry, service, {"value": value})
+    await _async_call(hass, entry, service, {"value": value})
 
-    assert _writes(mock_modbus_unit) == [
+    assert mock_modbus_unit.writes == [
         (EMS_CONTROL_ADDRESS, [0x8000]),
         (address, [register]),
     ]
 
 
+@pytest.mark.parametrize("allow_control", [False])
 @pytest.mark.parametrize(("enabled", "value"), [(True, 0x8000), (False, 0)])
 async def test_ems_control_service_works_without_control_allowed(
-    hass, mock_modbus_unit, read_only_entry, enabled, value
+    hass, mock_modbus_unit, ems_entry, enabled, value
 ) -> None:
     """Switch EMS control even while control by Home Assistant is not allowed."""
     await _async_call(
-        hass, read_only_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": enabled}
+        hass, ems_entry, SERVICE_SET_EMS_CONTROL_ENABLED, {"enabled": enabled}
     )
 
-    assert _writes(mock_modbus_unit) == [(EMS_CONTROL_ADDRESS, [value])]
+    assert mock_modbus_unit.writes == [(EMS_CONTROL_ADDRESS, [value])]
