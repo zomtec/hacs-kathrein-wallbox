@@ -10,19 +10,19 @@ from homeassistant.helpers import device_registry as dr
 from modbus_connection import ModbusError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.kathrein_wallbox import (
+from custom_components.kathrein_wallbox import async_setup
+from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
+from custom_components.kathrein_wallbox.coordinator import (
+    KathreinCoordinator,
+    WallboxRuntimeData,
+)
+from custom_components.kathrein_wallbox.services import (
     SERVICE_SET_CHARGING_CURRENT,
     SERVICE_SET_EMS_CONTROL_ENABLED,
     SERVICE_SET_RELAY_MATRIX,
     SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
     SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX,
     SERVICE_SET_TIMEOUT_PERIOD,
-    async_setup,
-)
-from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
-from custom_components.kathrein_wallbox.coordinator import (
-    KathreinCoordinator,
-    WallboxRuntimeData,
 )
 
 DEVICE_INFO_ADDRESS = 0x0019
