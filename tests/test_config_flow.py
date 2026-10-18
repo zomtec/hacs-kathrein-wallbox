@@ -210,25 +210,77 @@ async def test_reconfigure_reports_validation_errors(
     assert result["errors"] == {"base": expected_error}
 
 
+def _prefilled(result: dict) -> dict:
+    """Return the values a form shows for its fields."""
+    return {
+        str(key): (key.description or {}).get("suggested_value")
+        for key in result["data_schema"].schema
+    }
+
+
+async def test_user_flow_prefills_the_defaults(
+    hass, enable_custom_integrations
+) -> None:
+    """Show the connection and option fields with their default values."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+
+    assert _prefilled(result) == {
+        "host": None,
+        "port": 502,
+        "unit_id": 0,
+        "scan_interval": 15,
+        "allow_control": False,
+    }
+
+
+async def test_reconfigure_prefills_and_keeps_cleared_fields(
+    hass, monkeypatch, wallbox_entry
+) -> None:
+    """Prefill the stored connection and keep a cleared port and unit ID."""
+    validate = AsyncMock(return_value=("SERIAL123", "Kathrein"))
+    monkeypatch.setattr(config_flow, "_async_validate_input", validate)
+    result = await wallbox_entry.start_reconfigure_flow(hass)
+    assert _prefilled(result) == CONNECTION
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"host": "new-wallbox.local"}
+    )
+
+    assert result["reason"] == "reconfigure_successful"
+    assert wallbox_entry.data == NEW_CONNECTION
+    assert validate.await_args.args[1] == NEW_CONNECTION
+
+
 async def test_options_flow_offers_polling_and_control(hass, wallbox_entry) -> None:
     """Leave connection settings to reconfigure and prefill the current options."""
     result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
 
     assert result["type"] == "form"
-    assert list(result["data_schema"].schema) == ["scan_interval", "allow_control"]
-    assert result["data_schema"]({}) == OPTIONS
+    assert _prefilled(result) == OPTIONS
 
 
-async def test_options_flow_defaults_to_no_control(
+async def test_options_flow_defaults_for_an_entry_without_options(
     hass, enable_custom_integrations
 ) -> None:
-    """Prefill control as not allowed for an entry without that option."""
+    """Prefill the default interval and no control for an entry without options."""
     entry = MockConfigEntry(domain=DOMAIN, data=CONNECTION, options={})
     entry.add_to_hass(hass)
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
-    assert result["data_schema"]({})["allow_control"] is False
+    assert _prefilled(result) == {"scan_interval": 15, "allow_control": False}
+
+
+async def test_options_flow_keeps_cleared_fields(hass, wallbox_entry) -> None:
+    """Keep the current options for fields submitted empty."""
+    result = await hass.config_entries.options.async_init(wallbox_entry.entry_id)
+
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {})
+
+    assert result["type"] == "create_entry"
+    assert wallbox_entry.options == OPTIONS
 
 
 async def test_options_flow_updates_options(hass, wallbox_entry) -> None:

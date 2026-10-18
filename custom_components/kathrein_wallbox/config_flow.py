@@ -44,97 +44,60 @@ ERROR_UNSUPPORTED_DEVICE = "unsupported_device"
 DHCP_HOSTNAME_PREFIX = "kwb"
 
 
-def _number_selector(minimum: int, maximum: int) -> selector.NumberSelector:
+def _number_selector(minimum: int, maximum: int) -> probatio.All[int]:
     """Return a whole-number input box limited to the given range."""
-    return selector.NumberSelector(
-        selector.NumberSelectorConfig(
-            min=minimum,
-            max=maximum,
-            step=1,
-            mode=selector.NumberSelectorMode.BOX,
-        )
+    return probatio.All(
+        selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=minimum,
+                max=maximum,
+                step=1,
+                mode=selector.NumberSelectorMode.BOX,
+            )
+        ),
+        probatio.Coerce(int),
     )
 
 
-def _modbus_schema(defaults: Mapping[str, Any]) -> probatio.Schema:
-    """Build the port and unit ID form schema with the given default values."""
-    return probatio.Schema(
-        {
-            probatio.Optional(
-                CONF_PORT, default=defaults.get(CONF_PORT, DEFAULT_PORT)
-            ): _number_selector(MIN_PORT, MAX_PORT),
-            probatio.Optional(
-                CONF_UNIT_ID, default=defaults.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)
-            ): _number_selector(MIN_UNIT_ID, MAX_UNIT_ID),
-        }
-    )
-
-
-def _connection_schema(defaults: Mapping[str, Any]) -> probatio.Schema:
-    """Build the connection form schema with the given default values."""
-    return probatio.Schema(
-        {
-            probatio.Required(
-                CONF_HOST, default=defaults.get(CONF_HOST, probatio.UNDEFINED)
-            ): str
-        }
-    ).extend(_modbus_schema(defaults).schema)
-
-
-def _options_schema(
-    default_seconds: int, default_allow_control: bool
-) -> probatio.Schema:
-    """Build the polling interval and control form schema with the given defaults."""
-    return probatio.Schema(
-        {
-            probatio.Optional(CONF_SCAN_INTERVAL, default=default_seconds): (
-                _number_selector(MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS)
-            ),
-            probatio.Optional(CONF_ALLOW_CONTROL, default=default_allow_control): bool,
-        }
-    )
-
-
-def _setup_options_schema() -> probatio.Schema:
-    """Build the options part of a setup form with the default values."""
-    return _options_schema(
-        int(DEFAULT_SCAN_INTERVAL.total_seconds()), DEFAULT_ALLOW_CONTROL
-    )
-
-
-def _options_data(user_input: Mapping[str, Any]) -> dict[str, Any]:
-    """Return the entry options from a submitted form."""
-    return {
-        CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
-        CONF_ALLOW_CONTROL: user_input[CONF_ALLOW_CONTROL],
+# Forms are prefilled with suggested values; a cleared field keeps the shown value.
+MODBUS_SCHEMA = probatio.Schema(
+    {
+        probatio.Optional(CONF_PORT): _number_selector(MIN_PORT, MAX_PORT),
+        probatio.Optional(CONF_UNIT_ID): _number_selector(MIN_UNIT_ID, MAX_UNIT_ID),
     }
+)
+CONNECTION_SCHEMA = probatio.Schema({probatio.Required(CONF_HOST): str}).extend(
+    MODBUS_SCHEMA.schema
+)
+OPTIONS_SCHEMA = probatio.Schema(
+    {
+        probatio.Optional(CONF_SCAN_INTERVAL): _number_selector(
+            MIN_SCAN_INTERVAL_SECONDS, MAX_SCAN_INTERVAL_SECONDS
+        ),
+        probatio.Optional(CONF_ALLOW_CONTROL): bool,
+    }
+)
+DEFAULT_OPTIONS = {
+    CONF_SCAN_INTERVAL: int(DEFAULT_SCAN_INTERVAL.total_seconds()),
+    CONF_ALLOW_CONTROL: DEFAULT_ALLOW_CONTROL,
+}
+SETUP_DEFAULTS = {
+    CONF_PORT: DEFAULT_PORT,
+    CONF_UNIT_ID: DEFAULT_UNIT_ID,
+    **DEFAULT_OPTIONS,
+}
 
 
 class InvalidWallbox(Exception):
     """Raised when the device does not report a supported mapping."""
 
 
-def _normalize_connection_data(user_input: dict[str, Any]) -> dict[str, Any]:
-    """Normalize numeric connection settings returned by number selectors."""
-    normalized = dict(user_input)
-    for key in (CONF_PORT, CONF_UNIT_ID):
-        if key in normalized:
-            normalized[key] = int(normalized[key])
-    return normalized
-
-
 async def _async_validate_input(
     hass: HomeAssistant, user_input: dict[str, Any]
 ) -> tuple[str, str]:
     """Check the mapping version and retrieve the device identity."""
-    connection_data = _normalize_connection_data(user_input)
-    params = ModbusTcpParams(
-        host=connection_data[CONF_HOST],
-        port=connection_data[CONF_PORT],
-    )
-    async with async_get_temporary_unit(
-        hass, params, connection_data[CONF_UNIT_ID]
-    ) as unit:
+    params = ModbusTcpParams(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
+    async with async_get_temporary_unit(hass, params, user_input[CONF_UNIT_ID]) as unit:
         identity = WallboxIdentity(unit)
         await identity.async_update()
 
@@ -198,16 +161,15 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any]
     ) -> tuple[ConfigFlowResult | None, dict[str, str]]:
         """Create the entry if the device validates, otherwise return form errors."""
+        user_input = {**SETUP_DEFAULTS, **user_input}
         identity, error = await _async_validate_or_error(self.hass, user_input)
         if identity is None:
             return None, {"base": error} if error is not None else {}
         serial, device_type = identity
         await self.async_set_unique_id(serial)
         self._abort_if_unique_id_configured()
-        options = _options_data(user_input)
-        data = _normalize_connection_data(
-            {key: value for key, value in user_input.items() if key not in options}
-        )
+        options = {key: user_input[key] for key in DEFAULT_OPTIONS}
+        data = {key: value for key, value in user_input.items() if key not in options}
         return (
             self.async_create_entry(title=device_type, data=data, options=options),
             {},
@@ -225,7 +187,9 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_connection_schema({}).extend(_setup_options_schema().schema),
+            data_schema=self.add_suggested_values_to_schema(
+                CONNECTION_SCHEMA.extend(OPTIONS_SCHEMA.schema), SETUP_DEFAULTS
+            ),
             errors=errors,
         )
 
@@ -261,7 +225,9 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="dhcp_confirm",
-            data_schema=_modbus_schema({}).extend(_setup_options_schema().schema),
+            data_schema=self.add_suggested_values_to_schema(
+                MODBUS_SCHEMA.extend(OPTIONS_SCHEMA.schema), SETUP_DEFAULTS
+            ),
             description_placeholders={CONF_HOST: self._discovered_host},
             errors=errors,
         )
@@ -274,6 +240,7 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
 
         if user_input is not None:
+            user_input = {**entry.data, **user_input}
             identity, error = await _async_validate_or_error(self.hass, user_input)
             if identity is not None:
                 serial, device_type = identity
@@ -281,7 +248,7 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_mismatch()
                 return self.async_update_reload_and_abort(
                     entry,
-                    data_updates=_normalize_connection_data(user_input),
+                    data_updates=user_input,
                     title=device_type,
                 )
             if error is not None:
@@ -289,7 +256,9 @@ class KathreinWallboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_connection_schema(entry.data),
+            data_schema=self.add_suggested_values_to_schema(
+                CONNECTION_SCHEMA, entry.data
+            ),
             errors=errors,
         )
 
@@ -301,13 +270,16 @@ class KathreinWallboxOptionsFlowHandler(config_entries.OptionsFlowWithReload):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Edit the options; connection settings belong to reconfigure."""
+        current = {
+            CONF_SCAN_INTERVAL: int(
+                get_scan_interval(self.config_entry).total_seconds()
+            ),
+            CONF_ALLOW_CONTROL: get_allow_control(self.config_entry),
+        }
         if user_input is not None:
-            return self.async_create_entry(data=_options_data(user_input))
+            return self.async_create_entry(data={**current, **user_input})
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_options_schema(
-                int(get_scan_interval(self.config_entry).total_seconds()),
-                get_allow_control(self.config_entry),
-            ),
+            data_schema=self.add_suggested_values_to_schema(OPTIONS_SCHEMA, current),
         )

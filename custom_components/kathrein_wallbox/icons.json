@@ -35,5 +35,25 @@
         "default": "mdi:home-lightning-bolt-outline"
       }
     }
+  },
+  "services": {
+    "set_ems_control_enabled": {
+      "service": "mdi:home-lightning-bolt-outline"
+    },
+    "set_relay_matrix": {
+      "service": "mdi:electric-switch"
+    },
+    "set_charging_current": {
+      "service": "mdi:current-ac"
+    },
+    "set_timeout_period": {
+      "service": "mdi:timer-alert"
+    },
+    "set_timeout_fallback_relay_matrix": {
+      "service": "mdi:electric-switch"
+    },
+    "set_timeout_fallback_current": {
+      "service": "mdi:current-ac"
+    }
   }
 }

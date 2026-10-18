@@ -29,7 +29,7 @@ async def test_setup_entry_initializes_coordinator_before_platforms(
 ) -> None:
     """Show the first refresh on every platform and keep the selected interval."""
     hass.config_entries.async_update_entry(
-        entry, data={**entry.data, CONF_SCAN_INTERVAL: 20}
+        entry, options={**entry.options, CONF_SCAN_INTERVAL: 20}
     )
     mock_modbus_unit.holding[CHARGING_STATE_ADDRESS] = 4
 
