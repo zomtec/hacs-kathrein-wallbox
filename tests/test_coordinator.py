@@ -35,19 +35,15 @@ EMS_TIMEOUT_PERIOD_ADDRESS = 0x00A3
 
 
 async def test_missing_meter_does_not_fail_wallbox_poll(
-    mock_modbus_unit, setup_integration, enable_entity, state_of
+    mock_modbus_unit, setup_integration, state_of
 ) -> None:
     """Keep essential EVSE polling available when the optional meter is absent."""
-    enable_entity("sensor", "total_active_power")
-    enable_entity("sensor", "charging_energy")
     mock_modbus_unit.holding[CHARGING_STATE_ADDRESS] = 4
     mock_modbus_unit.fail_read(VOLTAGE_L1_ADDRESS, IllegalDataAddressError())
 
     await setup_integration()
 
     assert state_of("sensor", "charging_state") == "charging_active"
-    assert state_of("sensor", "total_active_power") == STATE_UNAVAILABLE
-    assert state_of("sensor", "charging_energy") == STATE_UNAVAILABLE
 
 
 def _fail_identity(unit: MockModbusUnit) -> None:
@@ -162,11 +158,9 @@ async def test_detected_meter_is_stored_and_never_reported_missing(
 
 
 async def test_missing_meter_is_stored_and_not_checked_again(
-    entry, mock_modbus_unit, setup_integration, enable_entity, poll, state_of
+    entry, mock_modbus_unit, setup_integration, poll, state_of
 ) -> None:
     """Decide on a missing meter once and ignore later meter readings."""
-    enable_entity("sensor", "total_active_power")
-    enable_entity("sensor", "charging_energy")
     await setup_integration()
 
     assert entry.data[CONF_METER_DETECTED] is False
@@ -176,8 +170,6 @@ async def test_missing_meter_is_stored_and_not_checked_again(
 
     assert entry.data[CONF_METER_DETECTED] is False
     assert state_of("binary_sensor", "meter_available") == STATE_OFF
-    assert state_of("sensor", "total_active_power") == STATE_UNAVAILABLE
-    assert state_of("sensor", "charging_energy") == STATE_UNAVAILABLE
 
 
 async def test_meter_check_waits_for_a_successful_read(

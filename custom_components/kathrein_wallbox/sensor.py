@@ -42,6 +42,9 @@ from .model import (
 
 PARALLEL_UPDATES = 0
 
+# Session energy is read only while the meter answers.
+METER_COMPONENTS = {COMPONENT_METER, COMPONENT_SESSION_ENERGY}
+
 # PP value 0 is ambiguous; the device info cable bit picks one of these.
 PP_CABLE_NOT_CONNECTED = "cable_not_connected"
 PP_FIXED_CABLE_MOUNTED = "fixed_cable_mounted"
@@ -346,7 +349,9 @@ async def async_setup_entry(
     """Set up Wallbox sensors."""
     coordinator = entry.runtime_data.coordinator
     async_add_entities(
-        KathreinSensor(coordinator, description) for description in SENSOR_DESCRIPTIONS
+        KathreinSensor(coordinator, description)
+        for description in SENSOR_DESCRIPTIONS
+        if coordinator.meter_detected or description.component not in METER_COMPONENTS
     )
 
 
@@ -362,11 +367,6 @@ class KathreinSensor(KathreinWallboxEntity, SensorEntity):
     ) -> None:
         super().__init__(coordinator, description.key, description.component)
         self.entity_description = description
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        """Disable sensors of an optional component that did not answer at creation."""
-        return super().entity_registry_enabled_default and self.available
 
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:

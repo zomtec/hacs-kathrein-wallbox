@@ -25,6 +25,14 @@ VOLTAGE_L1_ADDRESS = 0x0030
 CHARGING_STATE_ADDRESS = 0x0060
 SESSION_ID = "36598160-9E55-4B09-1702-7ED324945443"
 
+METER_SENSOR_KEYS = {
+    *(f"{q}_l{p}" for q in ("voltage", "current", "active_power") for p in (1, 2, 3)),
+    "total_active_power",
+    "total_energy",
+    "frequency",
+    "charging_energy",
+}
+
 ENTITY_KEYS = {
     "sensor": {
         "voltage_l1",
@@ -77,8 +85,11 @@ def _registry_entries(hass, entry) -> list[er.RegistryEntry]:
     return er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)
 
 
-async def test_entity_keys_are_stable(hass, entry, serial, setup_integration) -> None:
+async def test_entity_keys_are_stable(
+    hass, entry, serial, mock_modbus_unit, setup_integration
+) -> None:
     """Keep entity keys unchanged because they are part of the unique IDs."""
+    mock_modbus_unit.holding[VOLTAGE_L1_ADDRESS] = encode_float32(230.0)
     await setup_integration()
 
     assert {
@@ -313,29 +324,44 @@ async def test_current_and_timeout_sensors_have_device_class(
     assert sensor_options["suggested_display_precision"] == 0
 
 
-async def test_meter_sensor_is_unavailable_without_optional_meter(
-    hass, setup_integration, enable_entity, entity_id_of, state_of
+def _sensor_keys(hass, entry, serial) -> set[str]:
+    return {
+        entity.unique_id.removeprefix(f"{serial}_")
+        for entity in _registry_entries(hass, entry)
+        if entity.domain == "sensor"
+    }
+
+
+@pytest.mark.parametrize(
+    "meter_error", [None, IllegalDataAddressError()], ids=["missing", "undecided"]
+)
+async def test_meter_sensors_are_not_created_without_detected_meter(
+    hass, entry, serial, mock_modbus_unit, setup_integration, state_of, meter_error
 ) -> None:
-    """Disable meter entities until a plausible meter has been detected."""
-    enable_entity("sensor", "voltage_l1")
+    """Create no meter sensors but keep the meter diagnostics without a meter."""
+    mock_modbus_unit.fail_read(VOLTAGE_L1_ADDRESS, meter_error)
 
     await setup_integration()
 
-    assert state_of("sensor", "voltage_l1") == STATE_UNAVAILABLE
-    entity = er.async_get(hass).async_get(entity_id_of("sensor", "total_active_power"))
-    assert entity.disabled_by is er.RegistryEntryDisabler.INTEGRATION
+    assert _sensor_keys(hass, entry, serial) == (
+        ENTITY_KEYS["sensor"] - METER_SENSOR_KEYS
+    )
+    assert state_of("binary_sensor", "meter_available") != STATE_UNAVAILABLE
 
 
-async def test_meter_sensor_is_enabled_once_a_meter_is_detected(
-    hass, mock_modbus_unit, setup_integration, entity_id_of
+async def test_meter_sensors_are_created_once_a_reload_detects_a_meter(
+    hass, entry, serial, mock_modbus_unit, setup_integration, state_of
 ) -> None:
-    """Enable meter entities once a plausible meter has been detected."""
+    """Create the meter sensors with their defaults when a reload detects a meter."""
+    await setup_integration()
     mock_modbus_unit.holding[VOLTAGE_L1_ADDRESS] = encode_float32(230.0)
 
-    await setup_integration()
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
 
-    entity = er.async_get(hass).async_get(entity_id_of("sensor", "total_active_power"))
-    assert entity.disabled_by is None
+    assert _sensor_keys(hass, entry, serial) == ENTITY_KEYS["sensor"]
+    for key in ("total_active_power", "total_energy", "charging_energy"):
+        assert state_of("sensor", key) != STATE_UNAVAILABLE
 
 
 @pytest.mark.parametrize(
