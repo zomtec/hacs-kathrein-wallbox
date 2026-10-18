@@ -14,8 +14,6 @@ from homeassistant.helpers import device_registry as dr
 from .const import DOMAIN
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .model import (
-    EMS_CHARGING_PAUSED_A,
-    EMS_MAX_CHARGING_CURRENT_A,
     EMS_RELAY_MATRIX_OPTIONS,
     EMS_TIMEOUT_PERIODS_S,
 )
@@ -35,10 +33,8 @@ EMS_TIMEOUT_PERIOD_OPTIONS = {
 }
 
 
-EMS_CURRENT_AMPERES = probatio.All(
-    probatio.Coerce(float),
-    probatio.Range(min=EMS_CHARGING_PAUSED_A, max=EMS_MAX_CHARGING_CURRENT_A),
-)
+# Range checks live in validate_ems_current to raise translated errors.
+EMS_CURRENT_AMPERES = probatio.Coerce(float)
 
 
 @dataclass(frozen=True, kw_only=True)

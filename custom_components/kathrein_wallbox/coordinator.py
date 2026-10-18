@@ -32,6 +32,7 @@ from .model import (
     EMS_CHARGING_PAUSED_A,
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
+    EMS_MAX_CHARGING_CURRENT_A,
     EMS_MIN_CHARGING_CURRENT_A,
     MAX_CURRENT_11_KW_A,
     WallboxDevice,
@@ -213,7 +214,7 @@ class KathreinCoordinator(DataUpdateCoordinator[UpdateReport]):
                 translation_domain=DOMAIN,
                 translation_key="current_not_whole",
             )
-        if EMS_CHARGING_PAUSED_A < current < EMS_MIN_CHARGING_CURRENT_A:
+        if current != EMS_CHARGING_PAUSED_A and current < EMS_MIN_CHARGING_CURRENT_A:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="current_below_minimum",
@@ -226,6 +227,14 @@ class KathreinCoordinator(DataUpdateCoordinator[UpdateReport]):
                 translation_domain=DOMAIN,
                 translation_key="current_limit_11_kw",
                 translation_placeholders={"max_current": str(MAX_CURRENT_11_KW_A)},
+            )
+        if current > EMS_MAX_CHARGING_CURRENT_A:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="current_above_maximum",
+                translation_placeholders={
+                    "max_current": str(EMS_MAX_CHARGING_CURRENT_A)
+                },
             )
 
     async def async_shutdown(self) -> None:

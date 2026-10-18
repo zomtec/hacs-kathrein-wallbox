@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "EMS charging current must not exceed {max_current} A."
+    },
     "write_failed": {
       "message": "Unable to write to the Wallbox: {error}"
     },

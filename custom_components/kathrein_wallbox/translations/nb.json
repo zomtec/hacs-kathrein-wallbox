@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "EMS-ladestrømmen kan ikke overstige {max_current} A."
+    },
     "write_failed": {
       "message": "Kan ikke skrive til ladeboksen: {error}"
     },

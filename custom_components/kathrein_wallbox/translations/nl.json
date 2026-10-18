@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "De EMS-laadstroom mag maximaal {max_current} A zijn."
+    },
     "write_failed": {
       "message": "Schrijven naar de wallbox is mislukt: {error}"
     },

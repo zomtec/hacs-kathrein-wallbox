@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Nabíjecí stanice s výkonem 11 kW podporují maximální nabíjecí proud EMS {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "Nabíjecí proud EMS nesmí překročit {max_current} A."
+    },
     "write_failed": {
       "message": "Zápis do nabíjecí stanice se nezdařil: {error}"
     },

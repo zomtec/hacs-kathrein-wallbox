@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Wallboxy 11 kW obsługują maksymalny prąd ładowania EMS wynoszący {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "Prąd ładowania EMS nie może przekraczać {max_current} A."
+    },
     "write_failed": {
       "message": "Nie można zapisać do wallboxa: {error}"
     },
