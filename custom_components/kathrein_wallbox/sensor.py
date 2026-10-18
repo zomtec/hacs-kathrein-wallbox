@@ -5,7 +5,6 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from homeassistant.components.sensor import (
-    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
@@ -21,7 +20,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfTime,
 )
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
@@ -362,18 +361,12 @@ async def async_setup_entry(
     """Set up Wallbox sensors."""
     coordinator = entry.runtime_data.coordinator
     async_add_entities(
-        (
-            KathreinRestoredSensor
-            if description.state_class
-            in (SensorStateClass.TOTAL, SensorStateClass.TOTAL_INCREASING)
-            else KathreinSensor
-        )(coordinator, description)
-        for description in SENSOR_DESCRIPTIONS
+        KathreinSensor(coordinator, description) for description in SENSOR_DESCRIPTIONS
     )
 
 
-class KathreinSensorBase(KathreinWallboxEntity, SensorEntity):
-    """Common description handling for Wallbox sensors."""
+class KathreinSensor(KathreinWallboxEntity, SensorEntity):
+    """A sensor backed by a typed Wallbox register."""
 
     entity_description: KathreinSensorDescription
 
@@ -403,40 +396,3 @@ class KathreinSensorBase(KathreinWallboxEntity, SensorEntity):
     def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the decoded register value or the enum state key."""
         return self.entity_description.value_fn(self.coordinator)
-
-
-class KathreinSensor(KathreinSensorBase):
-    """A sensor backed by a typed Wallbox register."""
-
-
-class KathreinRestoredSensor(KathreinSensorBase, RestoreSensor):
-    """Keep total energy available across communication gaps and restarts."""
-
-    @property
-    def available(self) -> bool:
-        """Keep long-term energy statistics available across communication gaps."""
-        return self.entity_description.available_fn(self.coordinator)
-
-    async def async_added_to_hass(self) -> None:
-        """Restore the previous value and process the current device reading."""
-        await super().async_added_to_hass()
-        if (last_data := await self.async_get_last_sensor_data()) is not None:
-            self._attr_native_value = last_data.native_value
-        self._process_value()
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Keep the last good value when a register is temporarily unavailable."""
-        self._process_value()
-        super()._handle_coordinator_update()
-
-    def _process_value(self) -> None:
-        """Update the restored value only when the register is valid."""
-        if (value := self.entity_description.value_fn(self.coordinator)) is not None:
-            self._attr_native_value = value
-
-    @property
-    def native_value(self) -> StateType | date | datetime | Decimal:
-        """Return live energy or the last restored/valid reading."""
-        value = self.entity_description.value_fn(self.coordinator)
-        return value if value is not None else self._attr_native_value

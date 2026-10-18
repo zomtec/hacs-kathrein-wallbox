@@ -32,9 +32,7 @@ rules:
   config-entry-unloading: done
   docs-configuration-parameters: done
   docs-installation-parameters: done
-  entity-unavailable:
-    status: done
-    comment: Total energy stays available across communication gaps to keep long-term statistics.
+  entity-unavailable: done
   integration-owner: done
   log-when-unavailable: done
   parallel-updates: done
