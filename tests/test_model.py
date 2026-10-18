@@ -13,8 +13,6 @@ from custom_components.kathrein_wallbox.const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     EXPECTED_MAPPING_VERSION,
-    MAX_SCAN_INTERVAL_SECONDS,
-    MIN_SCAN_INTERVAL_SECONDS,
     get_allow_control,
     get_scan_interval,
 )
@@ -145,24 +143,12 @@ async def test_session_energy_decodes_as_big_endian_uint32(mock_modbus_unit) -> 
     ("data", "options", "expected"),
     [
         ({CONF_SCAN_INTERVAL: 30}, {CONF_SCAN_INTERVAL: 15}, timedelta(seconds=15)),
-        ({CONF_SCAN_INTERVAL: 30}, {}, timedelta(seconds=30)),
+        ({CONF_SCAN_INTERVAL: 30}, {}, DEFAULT_SCAN_INTERVAL),
         ({}, {}, DEFAULT_SCAN_INTERVAL),
-        (
-            {CONF_SCAN_INTERVAL: 1},
-            {},
-            timedelta(seconds=MIN_SCAN_INTERVAL_SECONDS),
-        ),
-        (
-            {CONF_SCAN_INTERVAL: 10_000},
-            {},
-            timedelta(seconds=MAX_SCAN_INTERVAL_SECONDS),
-        ),
     ],
 )
-def test_get_scan_interval_prefers_options_then_data_then_default(
-    data, options, expected
-) -> None:
-    """Resolve the polling interval from options, data, or the default."""
+def test_get_scan_interval_reads_options_or_default(data, options, expected) -> None:
+    """Resolve the polling interval from the options only, else the default."""
     entry = MockConfigEntry(domain=DOMAIN, data=data, options=options)
 
     assert get_scan_interval(entry) == expected

@@ -37,15 +37,10 @@ CONF_UNIT_ID = "unit_id"
 
 
 def get_scan_interval(entry: ConfigEntry) -> timedelta:
-    """Resolve the polling interval from entry options, data, or the default."""
-    seconds = int(
-        entry.options.get(
-            CONF_SCAN_INTERVAL,
-            entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.total_seconds()),
-        )
-    )
-    seconds = max(MIN_SCAN_INTERVAL_SECONDS, min(seconds, MAX_SCAN_INTERVAL_SECONDS))
-    return timedelta(seconds=seconds)
+    """Return the polling interval from the entry options or the default."""
+    if CONF_SCAN_INTERVAL not in entry.options:
+        return DEFAULT_SCAN_INTERVAL
+    return timedelta(seconds=entry.options[CONF_SCAN_INTERVAL])
 
 
 def get_allow_control(entry: ConfigEntry) -> bool:
