@@ -16,10 +16,8 @@ from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .model import (
     EMS_CHARGING_PAUSED_A,
     EMS_MAX_CHARGING_CURRENT_A,
-    EMS_MIN_CHARGING_CURRENT_A,
     EMS_RELAY_MATRIX_OPTIONS,
     EMS_TIMEOUT_PERIODS_S,
-    MAX_CURRENT_11_KW_A,
 )
 
 ATTR_ENABLED = "enabled"
@@ -37,19 +35,8 @@ EMS_TIMEOUT_PERIOD_OPTIONS = {
 }
 
 
-def _whole_amperes(value: Any) -> int:
-    """Accept a whole number of amperes given as number or text."""
-    try:
-        amperes = float(value)
-    except (TypeError, ValueError) as err:
-        raise probatio.Invalid("expected a whole number of amperes") from err
-    if not amperes.is_integer():
-        raise probatio.Invalid("expected a whole number of amperes")
-    return int(amperes)
-
-
 EMS_CURRENT_AMPERES = probatio.All(
-    _whole_amperes,
+    probatio.Coerce(float),
     probatio.Range(min=EMS_CHARGING_PAUSED_A, max=EMS_MAX_CHARGING_CURRENT_A),
 )
 
@@ -138,22 +125,6 @@ def _validate_ems_enabled(coordinator: KathreinCoordinator) -> None:
         )
 
 
-def _validate_ems_current(coordinator: KathreinCoordinator, current: int) -> None:
-    """Reject EMS currents the Wallbox cannot charge with."""
-    if EMS_CHARGING_PAUSED_A < current < EMS_MIN_CHARGING_CURRENT_A:
-        raise ServiceValidationError(
-            translation_domain=DOMAIN,
-            translation_key="current_below_minimum",
-            translation_placeholders={"min_current": str(EMS_MIN_CHARGING_CURRENT_A)},
-        )
-    if coordinator.device.identity.is_11_kw and current > MAX_CURRENT_11_KW_A:
-        raise ServiceValidationError(
-            translation_domain=DOMAIN,
-            translation_key="current_limit_11_kw",
-            translation_placeholders={"max_current": str(MAX_CURRENT_11_KW_A)},
-        )
-
-
 def _setpoint_handler(
     hass: HomeAssistant, service: EmsSetpointService
 ) -> Callable[[ServiceCall], Coroutine[Any, Any, None]]:
@@ -164,11 +135,11 @@ def _setpoint_handler(
         coordinator.validate_control_allowed()
         if not service.enables_ems:
             _validate_ems_enabled(coordinator)
-        value = service.to_register(call.data[ATTR_VALUE])
+        value = call.data[ATTR_VALUE]
         if service.is_current:
-            _validate_ems_current(coordinator, value)
+            coordinator.validate_ems_current(value)
         await coordinator.async_write_ems(
-            service.field, value, enable_ems=service.enables_ems
+            service.field, service.to_register(value), enable_ems=service.enables_ems
         )
 
     return _async_handle

@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "A corrente de carregamento EMS deve ser 0 A (pausar o carregamento) ou de pelo menos {min_current} A."
     },
+    "current_not_whole": {
+      "message": "A corrente de carregamento EMS deve ser indicada em amperes inteiros, por exemplo 6 A ou 16 A."
+    },
     "current_limit_11_kw": {
       "message": "As wallbox de 11 kW suportam uma corrente de carregamento EMS máxima de {max_current} A."
     },

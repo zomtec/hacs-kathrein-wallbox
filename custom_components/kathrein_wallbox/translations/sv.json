@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "EMS-laddströmmen måste vara 0 A (pausa laddningen) eller minst {min_current} A."
     },
+    "current_not_whole": {
+      "message": "EMS-laddströmmen måste anges i hela ampere, till exempel 6 A eller 16 A."
+    },
     "current_limit_11_kw": {
       "message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."
     },

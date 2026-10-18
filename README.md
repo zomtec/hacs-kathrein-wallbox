@@ -103,7 +103,7 @@ The number and select entities write the same EMS registers as the services belo
 
 | Entity | Register | Values |
 | --- | --- | --- |
-| `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
+| `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A and values that are not whole amperes are rejected with an error and nothing is written, as with the services. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
 These entities only exist while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`).
@@ -138,7 +138,7 @@ These Home Assistant services write EMS setpoints to Modbus holding registers. E
 
 `set_ems_control_enabled` is always available, even while control by Home Assistant is not allowed. `set_relay_matrix` and `set_charging_current` enable EMS control before writing the setpoint. While control by Home Assistant is not allowed, all other services are rejected with an error and write nothing. While EMS control is off, the timeout services are rejected with an error and write nothing.
 
-Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
+Requests of `1` to `5 A` are rejected with an error for both the charging-current setpoint and timeout fallback, because the Wallbox cannot charge below `6 A`. Values that are not whole amperes, such as `6.5`, are rejected with an error instead of being rounded. For an 11 kW Wallbox, requests above `16 A` are rejected for both the charging-current setpoint and timeout fallback. A `0 A` value pauses charging and grants no charging current; it is accepted by both the charging-current setpoint and the timeout fallback. The timeout fallback relay-matrix sensor reports `phase_1`, `phase_2`, `phase_3`, or `three_phases`; the services only accept the values the register manual defines as supported.
 
 Unsupported values, devices that are not a Kathrein Wallbox, and inactive Wallboxes are rejected with a validation error before anything is written. A failed register write is reported as an error.
 
