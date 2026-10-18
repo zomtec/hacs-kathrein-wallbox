@@ -17,7 +17,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from modbus_connection import IllegalDataAddressError
-from modbus_connection.encode import encode_float32, encode_string
+from modbus_connection.encode import encode_float32, encode_string, encode_uint32
 
 from custom_components.kathrein_wallbox.const import CONF_METER_DETECTED, DOMAIN
 
@@ -350,27 +350,29 @@ async def test_pp_sensor_uses_identity_to_describe_fixed_cable(
     assert state_of("sensor", "pp_state") == expected
 
 
-async def test_total_energy_stays_available_across_communication_gaps(
+async def test_energy_sensors_become_unavailable_when_the_wallbox_is_unreachable(
     mock_modbus_unit, setup_integration, poll, state_of
 ) -> None:
-    """Keep total energy through a failed poll, but not once the meter is lost."""
+    """Report total and charging energy unavailable like all other sensors."""
     mock_modbus_unit.holding[VOLTAGE_L1_ADDRESS] = encode_float32(230.0)
     mock_modbus_unit.holding[0x005C] = encode_float32(1000.0)
+    mock_modbus_unit.holding[0x0069] = encode_uint32(1500)
     await setup_integration()
 
     assert state_of("sensor", "total_energy") == "1000.0"
+    assert state_of("sensor", "charging_energy") == "1500"
 
     mock_modbus_unit.fail_read(CHARGING_STATE_ADDRESS, IllegalDataAddressError())
     await poll()
 
-    assert state_of("sensor", "charging_state") == STATE_UNAVAILABLE
-    assert state_of("sensor", "total_energy") == "1000.0"
+    assert state_of("sensor", "total_energy") == STATE_UNAVAILABLE
+    assert state_of("sensor", "charging_energy") == STATE_UNAVAILABLE
 
     mock_modbus_unit.fail_read(CHARGING_STATE_ADDRESS, None)
-    mock_modbus_unit.fail_read(VOLTAGE_L1_ADDRESS, IllegalDataAddressError())
     await poll()
 
-    assert state_of("sensor", "total_energy") == STATE_UNAVAILABLE
+    assert state_of("sensor", "total_energy") == "1000.0"
+    assert state_of("sensor", "charging_energy") == "1500"
 
 
 @pytest.mark.parametrize(
