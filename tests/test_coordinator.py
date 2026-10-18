@@ -1,5 +1,6 @@
 """Tests for coordinator polling and optional register blocks."""
 
+import logging
 from datetime import timedelta
 
 import pytest
@@ -208,6 +209,64 @@ async def test_meter_check_after_reload(
     assert coordinator.meter_detected is expected
     assert entry.data[CONF_METER_DETECTED] is expected
     await coordinator.async_shutdown()
+
+
+def _coordinator_logs(caplog) -> list[tuple[int, str]]:
+    return [
+        (level, message)
+        for logger, level, message in caplog.record_tuples
+        if logger == KathreinCoordinator.__module__
+    ]
+
+
+@pytest.mark.parametrize(
+    ("address", "subject"),
+    [
+        (0x0070, "Charging session registers are"),
+        (0x0030, "Energy meter registers are"),
+        (0x0069, "Session energy register is"),
+    ],
+    ids=["charging_session", "meter", "session_energy"],
+)
+async def test_optional_block_logs_loss_and_return_once(
+    coordinator, mock_modbus_unit, caplog, address, subject
+) -> None:
+    """Log a lost optional block once as a warning and its return once as info."""
+    caplog.set_level(logging.INFO)
+    mock_modbus_unit.holding[0x0030] = FLOAT_230
+    await coordinator.async_refresh()
+
+    mock_modbus_unit.fail_read(address, ModbusError("connection reset"))
+    for _ in range(2):
+        await coordinator.async_refresh()
+    mock_modbus_unit.fail_read(address, None)
+    for _ in range(2):
+        await coordinator.async_refresh()
+
+    assert _coordinator_logs(caplog) == [
+        (logging.WARNING, f"{subject} no longer available: connection reset"),
+        (logging.INFO, f"{subject} available again"),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("address", "meter_raw"),
+    [(0x0070, FLOAT_230), (0x0030, FLOAT_230), (0x0030, [0, 0]), (0x0069, FLOAT_230)],
+    ids=["charging_session", "meter", "meter_not_detected", "session_energy"],
+)
+async def test_optional_block_first_read_is_not_logged(
+    coordinator, mock_modbus_unit, caplog, address, meter_raw
+) -> None:
+    """Log nothing when a block or an undetected meter answers for the first time."""
+    caplog.set_level(logging.INFO)
+    mock_modbus_unit.holding[0x0030] = meter_raw
+    mock_modbus_unit.fail_read(address, ModbusError("connection reset"))
+    await coordinator.async_refresh()
+
+    mock_modbus_unit.fail_read(address, None)
+    await coordinator.async_refresh()
+
+    assert _coordinator_logs(caplog) == []
 
 
 EMS_CONTROL_ADDRESS = 0x00A0
