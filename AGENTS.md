@@ -11,7 +11,8 @@ Modbus TCP. Domain: `kathrein_wallbox`, `iot_class: local_polling`, depends on t
 
 | Path | Responsibility |
 |------|----------------|
-| `custom_components/kathrein_wallbox/__init__.py` | Entry setup/unload, service registration |
+| `custom_components/kathrein_wallbox/__init__.py` | Entry setup/unload |
+| `services.py` | Service registration, schemas and input validation |
 | `coordinator.py` | `DataUpdateCoordinator`, the only place that polls the device |
 | `model.py` | Register definitions (`modbus_connection` components), decoding, enums |
 | `entity.py` | Shared base entity (`unique_id`, `device_info`) |
