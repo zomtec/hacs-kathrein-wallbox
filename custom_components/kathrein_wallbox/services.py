@@ -131,7 +131,7 @@ def _get_coordinator(hass: HomeAssistant, device_id: str) -> KathreinCoordinator
 
 def _validate_ems_enabled(coordinator: KathreinCoordinator) -> None:
     """Reject EMS timeout settings while EMS control is off."""
-    if not coordinator.ems_control.is_enabled:
+    if not coordinator.device.ems_control.is_enabled:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             translation_key="ems_control_disabled",
@@ -146,7 +146,7 @@ def _validate_ems_current(coordinator: KathreinCoordinator, current: int) -> Non
             translation_key="current_below_minimum",
             translation_placeholders={"min_current": str(EMS_MIN_CHARGING_CURRENT_A)},
         )
-    if coordinator.identity.is_11_kw and current > MAX_CURRENT_11_KW_A:
+    if coordinator.device.identity.is_11_kw and current > MAX_CURRENT_11_KW_A:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             translation_key="current_limit_11_kw",

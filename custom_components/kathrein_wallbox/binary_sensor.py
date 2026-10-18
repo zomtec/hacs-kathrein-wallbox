@@ -41,7 +41,7 @@ def _fault(key: str, flag: ErrorState) -> KathreinBinarySensorDescription:
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
-        is_on_fn=lambda c: _flag_set(c.evse.error_states, flag),
+        is_on_fn=lambda c: _flag_set(c.device.evse.error_states, flag),
     )
 
 
@@ -53,7 +53,7 @@ def _relay(key: str, flag: RelayState) -> KathreinBinarySensorDescription:
         device_class=BinarySensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
-        is_on_fn=lambda c: _flag_set(c.evse.relay_state, flag),
+        is_on_fn=lambda c: _flag_set(c.device.evse.relay_state, flag),
     )
 
 
@@ -74,7 +74,7 @@ ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
         key="ems_control",
         translation_key="ems_control",
         entity_category=EntityCategory.DIAGNOSTIC,
-        is_on_fn=lambda c: c.ems_control.is_enabled,
+        is_on_fn=lambda c: c.device.ems_control.is_enabled,
     ),
     KathreinBinarySensorDescription(
         key="meter_available",

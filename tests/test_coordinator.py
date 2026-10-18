@@ -7,7 +7,12 @@ import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.util import dt as dt_util
-from modbus_connection import IllegalDataAddressError, ModbusError
+from modbus_connection import (
+    IllegalDataAddressError,
+    ModbusConnectionError,
+    ModbusError,
+    ModbusTimeoutError,
+)
 from modbus_connection.encode import encode_float32, encode_uint32
 from modbus_connection.mock import MockModbusUnit
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
@@ -282,6 +287,40 @@ async def test_optional_block_first_read_is_not_logged(
     await poll()
 
     assert _integration_logs(caplog) == []
+
+
+@pytest.mark.parametrize(
+    "address",
+    [CHARGING_TAG_INFO_ADDRESS, VOLTAGE_L1_ADDRESS, CHARGING_ENERGY_ADDRESS],
+    ids=["charging_session", "meter", "session_energy"],
+)
+async def test_connection_loss_in_optional_block_fails_poll(
+    mock_modbus_unit, setup_integration, poll, state_of, caplog, address
+) -> None:
+    """Fail the whole poll instead of blaming an optional block for a lost link."""
+    caplog.set_level(logging.INFO)
+    mock_modbus_unit.holding[VOLTAGE_L1_ADDRESS] = encode_float32(230.0)
+    await setup_integration()
+
+    mock_modbus_unit.fail_read(address, ModbusConnectionError("connection reset"))
+    await poll()
+
+    assert state_of("sensor", "charging_state") == STATE_UNAVAILABLE
+    assert "no longer available" not in caplog.text
+
+
+async def test_optional_block_timeout_keeps_wallbox_available(
+    mock_modbus_unit, setup_integration, enable_entity, poll, state_of
+) -> None:
+    """Mark only the slow block unavailable once the Wallbox has answered."""
+    enable_entity("sensor", "charging_tag")
+    await setup_integration()
+
+    mock_modbus_unit.fail_read(CHARGING_TAG_INFO_ADDRESS, ModbusTimeoutError())
+    await poll()
+
+    assert state_of("sensor", "charging_state") != STATE_UNAVAILABLE
+    assert state_of("sensor", "charging_tag") == STATE_UNAVAILABLE
 
 
 def _report_ems_setpoint(unit, timeout_s: int, control: int = 0x8000) -> None:

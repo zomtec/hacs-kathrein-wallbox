@@ -3,8 +3,10 @@
 import math
 from enum import IntEnum, IntFlag
 
+from modbus_connection import ModbusUnit
 from modbus_connection.model import (
     Component,
+    Device,
     flags,
     float32,
     gauge,
@@ -324,3 +326,28 @@ class WallboxEMSControl(Component):
         return self.control_register is not None and bool(
             self.control_register & EMS_CONTROL_ENABLED
         )
+
+
+# Component names are the WallboxDevice attributes the coordinator polls.
+COMPONENT_EVSE = "evse"
+COMPONENT_EMS_CONTROL = "ems_control"
+COMPONENT_CHARGING_SESSION = "charging_session"
+COMPONENT_METER = "meter"
+COMPONENT_SESSION_ENERGY = "session_energy"
+
+
+class WallboxDevice(Device):
+    """The Wallbox components, with the static identity read once at setup."""
+
+    def __init__(self, unit: ModbusUnit) -> None:
+        super().__init__(unit)
+        self.identity = WallboxIdentity(unit)
+        self.evse = WallboxEVSE(unit)
+        self.ems_control = WallboxEMSControl(unit)
+        self.charging_session = WallboxChargingSession(unit)
+        self.meter = WallboxMeter(unit)
+        self.session_energy = WallboxSessionEnergy(unit)
+
+    async def _async_setup(self) -> None:
+        """Read the static device identity once before the first poll."""
+        await self.identity.async_update()

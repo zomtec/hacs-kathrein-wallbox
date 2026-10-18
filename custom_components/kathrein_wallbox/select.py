@@ -41,7 +41,7 @@ class KathreinRelayMatrixSelect(KathreinControlEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the selected phases, or None for an unsupported register value."""
-        value = self.coordinator.ems_control.relay_matrix
+        value = self.coordinator.device.ems_control.relay_matrix
         if value is None:
             return None
         return RELAY_MATRIX_OPTION_BY_VALUE.get(value)

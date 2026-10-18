@@ -53,14 +53,14 @@ class KathreinChargingCurrentNumber(KathreinControlEntity, NumberEntity):
     @property
     def native_max_value(self) -> float:
         """Limit the setpoint to the power class of the Wallbox."""
-        if self.coordinator.identity.is_11_kw:
+        if self.coordinator.device.identity.is_11_kw:
             return MAX_CURRENT_11_KW_A
         return super().native_max_value
 
     @property
     def native_value(self) -> float | None:
         """Return the current setpoint, or None for a cancel or unknown value."""
-        current = self.coordinator.ems_control.charging_current
+        current = self.coordinator.device.ems_control.charging_current
         if current is None or not _is_valid_setpoint(current):
             return None
         return current
