@@ -2,8 +2,11 @@
 
 from collections.abc import Callable
 
-from homeassistant.const import CONF_HOST
+from homeassistant.const import CONF_HOST, Platform
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from yarl import URL
 
@@ -55,14 +58,20 @@ class KathreinWallboxEntity(CoordinatorEntity[KathreinCoordinator]):
         )
 
 
-class KathreinControlEntity(KathreinWallboxEntity):
-    """Represent a control that the user must allow Home Assistant to use."""
-
-    def __init__(self, coordinator: KathreinCoordinator, key: str) -> None:
-        super().__init__(coordinator, key)
-        self._attr_entity_registry_enabled_default = coordinator.control_allowed
-
-    @property
-    def available(self) -> bool:
-        """Allow control only while control by Home Assistant is allowed."""
-        return super().available and self.coordinator.control_allowed
+@callback
+def async_setup_control_entity(
+    hass: HomeAssistant,
+    coordinator: KathreinCoordinator,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+    platform: Platform,
+    key: str,
+    create_entity: CoordinatorGetter[KathreinWallboxEntity],
+) -> None:
+    """Add a control entity while control is allowed, otherwise remove its entry."""
+    if coordinator.control_allowed:
+        async_add_entities([create_entity(coordinator)])
+        return
+    registry = er.async_get(hass)
+    unique_id = wallbox_unique_id(coordinator.serial, key)
+    if entity_id := registry.async_get_entity_id(platform, DOMAIN, unique_id):
+        registry.async_remove(entity_id)

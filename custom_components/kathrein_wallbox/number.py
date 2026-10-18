@@ -6,12 +6,12 @@ from homeassistant.components.number import (
     NumberEntityDescription,
     NumberMode,
 )
-from homeassistant.const import UnitOfElectricCurrent
+from homeassistant.const import Platform, UnitOfElectricCurrent
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
-from .entity import KathreinControlEntity
+from .entity import KathreinWallboxEntity, async_setup_control_entity
 from .model import (
     EMS_CHARGING_PAUSED_A,
     EMS_MAX_CHARGING_CURRENT_A,
@@ -40,10 +40,17 @@ async def async_setup_entry(
 ) -> None:
     """Set up the EMS charging current control."""
     coordinator = entry.runtime_data.coordinator
-    async_add_entities([KathreinChargingCurrentNumber(coordinator)])
+    async_setup_control_entity(
+        hass,
+        coordinator,
+        async_add_entities,
+        Platform.NUMBER,
+        CHARGING_CURRENT_DESCRIPTION.key,
+        KathreinChargingCurrentNumber,
+    )
 
 
-class KathreinChargingCurrentNumber(KathreinControlEntity, NumberEntity):
+class KathreinChargingCurrentNumber(KathreinWallboxEntity, NumberEntity):
     """Set the EMS charging current in whole amperes; 0 A pauses charging."""
 
     def __init__(self, coordinator: KathreinCoordinator) -> None:

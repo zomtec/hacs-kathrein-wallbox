@@ -25,7 +25,6 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from modbus_connection import ModbusError
 
 from custom_components.kathrein_wallbox.number import KathreinChargingCurrentNumber
-from custom_components.kathrein_wallbox.select import KathreinRelayMatrixSelect
 
 DEVICE_INFO_ADDRESS = 0x0019
 DEVICE_INFO_11_KW = 0x0001
@@ -214,25 +213,7 @@ async def test_charging_current_number_enables_disabled_ems_control(
     assert state_of("binary_sensor", "ems_control") == STATE_ON
 
 
-# Setup never adds the controls without control allowed; test their guards directly.
-@pytest.mark.parametrize("allow_control", [False])
-@pytest.mark.parametrize(
-    "entity_class",
-    [
-        KathreinChargingCurrentNumber,
-        KathreinRelayMatrixSelect,
-    ],
-)
-async def test_controls_need_control_allowed(
-    entry, mock_modbus_unit, setup_integration, entity_class
-) -> None:
-    """Disable all controls while control by Home Assistant is not allowed."""
-    mock_modbus_unit.holding[EMS_CONTROL_ADDRESS] = 0x8000
-    await setup_integration()
-
-    assert entity_class(entry.runtime_data.coordinator).available is False
-
-
+# Setup never adds the controls without control allowed; test the guard directly.
 @pytest.mark.parametrize("allow_control", [False])
 async def test_write_is_rejected_without_control_allowed(
     entry, mock_modbus_unit, setup_integration
