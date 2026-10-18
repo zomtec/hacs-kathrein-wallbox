@@ -125,6 +125,7 @@ async def test_device_info_links_device_number_and_web_interface(
         ("charging_state", 0x0060, 99, STATE_UNKNOWN),
         ("cp_state", 0x0063, 2, "state_c"),
         ("granted_current", 0x0065, 6000, "6.0"),
+        ("granted_current", 0x0065, 6001, "6.001"),
         ("granted_power", 0x0066, 4140, "4140"),
         ("timeout_fallback_current", 0x00A5, 16000, "16.0"),
         ("timeout_period", 0x00A3, 60, "60"),
@@ -304,6 +305,7 @@ async def test_meter_sensor_is_enabled_once_a_meter_is_detected(
         ("frequency", 0x005E, 50.0, "50.0"),
         ("frequency", 0x005E, 230.0, STATE_UNKNOWN),
         ("current_l1", 0x0036, math.nan, STATE_UNKNOWN),
+        ("current_l1", 0x0036, math.inf, STATE_UNKNOWN),
         ("total_active_power", 0x0054, 1000.0, "1000.0"),
     ],
 )
@@ -399,14 +401,23 @@ async def test_meter_binary_sensor_reports_stored_detection(
     assert state_of("binary_sensor", "meter_available") == expected
 
 
+# The second case adds bits the register map does not define.
+@pytest.mark.parametrize(
+    ("error_states", "relay_state"), [(0x0001, 0x0004), (0x0101, 0x00F4)]
+)
 async def test_binary_sensors_decode_fault_and_relay_bits(
-    mock_modbus_unit, setup_integration, enable_entity, state_of
+    mock_modbus_unit,
+    setup_integration,
+    enable_entity,
+    state_of,
+    error_states,
+    relay_state,
 ) -> None:
     """Expose fault and relay register bits as booleans."""
     for key in ("relay_welded", "internal_error", "relay_l3", "relay_l1"):
         enable_entity("binary_sensor", key)
-    mock_modbus_unit.holding[0x0061] = 0x0001
-    mock_modbus_unit.holding[0x0064] = 0x0004
+    mock_modbus_unit.holding[0x0061] = error_states
+    mock_modbus_unit.holding[0x0064] = relay_state
 
     await setup_integration()
 

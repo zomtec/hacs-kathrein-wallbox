@@ -61,7 +61,15 @@ async def _async_select_phases(hass, entity_id_of, option: str) -> None:
 
 @pytest.mark.parametrize(
     ("register", "expected"),
-    [(16000, "16.0"), (13000, "13.0"), (0, "0.0"), (0xFFFF, STATE_UNKNOWN)],
+    [
+        (16000, "16.0"),
+        (13000, "13.0"),
+        (6500, "6.5"),
+        (0, "0.0"),
+        (5999, STATE_UNKNOWN),
+        (32001, STATE_UNKNOWN),
+        (0xFFFF, STATE_UNKNOWN),
+    ],
 )
 async def test_charging_current_number_reads_setpoint(
     mock_modbus_unit, setup_integration, state_of, register, expected

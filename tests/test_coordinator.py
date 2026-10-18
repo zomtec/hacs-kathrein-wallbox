@@ -324,6 +324,20 @@ async def test_keep_alive_rewrites_setpoint_within_timeout(
     assert _setpoint_writes(mock_modbus_unit) == [[13000]]
 
 
+@pytest.mark.parametrize("setpoint", [6001, 13500])
+async def test_keep_alive_rewrites_setpoint_as_read(
+    hass, mock_modbus_unit, setup_integration, setpoint
+) -> None:
+    """Rewrite exactly the setpoint register value, also between whole amperes."""
+    _report_ems_setpoint(mock_modbus_unit, 60)
+    mock_modbus_unit.holding[EMS_CHARGING_CURRENT_ADDRESS] = setpoint
+    await setup_integration()
+
+    await _async_advance(hass, 31)
+
+    assert _setpoint_writes(mock_modbus_unit) == [[setpoint]]
+
+
 async def test_keep_alive_stops_without_timeout(
     hass, mock_modbus_unit, setup_integration, poll
 ) -> None:
