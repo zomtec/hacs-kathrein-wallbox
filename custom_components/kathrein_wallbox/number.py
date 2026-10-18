@@ -73,13 +73,10 @@ class KathreinChargingCurrentNumber(KathreinWallboxEntity, NumberEntity):
         return current
 
     async def async_set_native_value(self, value: float) -> None:
-        """Enable EMS control and write the setpoint; below 6 A pauses charging."""
-        current = round(value)
-        # The Wallbox cannot charge below 6 A, so 1 to 5 A means no charging.
-        if current < EMS_MIN_CHARGING_CURRENT_A:
-            current = EMS_CHARGING_PAUSED_A
+        """Enable EMS control and write a validated setpoint; 0 A pauses charging."""
+        self.coordinator.validate_ems_current(value)
         await self.coordinator.async_write_ems(
-            "charging_current", current, enable_ems=True
+            "charging_current", int(value), enable_ems=True
         )
 
 

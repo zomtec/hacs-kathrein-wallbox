@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "EMS-ladestrømmen må være 0 A (pause lading) eller minst {min_current} A."
     },
+    "current_not_whole": {
+      "message": "EMS-ladestrømmen må angis i hele ampere, for eksempel 6 A eller 16 A."
+    },
     "current_limit_11_kw": {
       "message": "Ladebokser på 11 kW støtter en maksimal EMS-ladestrøm på {max_current} A."
     },

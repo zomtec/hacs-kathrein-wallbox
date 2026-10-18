@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "EMS charging current must be 0 A to pause charging or at least {min_current} A."
     },
+    "current_not_whole": {
+      "message": "EMS charging current must be set in whole amperes, for example 6 A or 16 A."
+    },
     "current_limit_11_kw": {
       "message": "11 kW Wallboxes support a maximum EMS charging current of {max_current} A."
     },

@@ -112,7 +112,6 @@ async def test_ems_services_need_control_allowed(
         (SERVICE_SET_RELAY_MATRIX, "three_lines"),
         (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "phase_3"),
         (SERVICE_SET_CHARGING_CURRENT, 33),
-        (SERVICE_SET_CHARGING_CURRENT, 16.5),
         (SERVICE_SET_CHARGING_CURRENT, "fast"),
         (SERVICE_SET_TIMEOUT_PERIOD, "45"),
         (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, "40"),
@@ -180,6 +179,21 @@ async def test_11_kw_wallbox_rejects_ems_current_above_limit(
 
     assert error.value.translation_key == "current_limit_11_kw"
     assert error.value.translation_placeholders == {"max_current": "16"}
+    assert mock_modbus_unit.writes == []
+
+
+@pytest.mark.parametrize(
+    "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
+)
+@pytest.mark.parametrize("value", [16.5, "6.5"])
+async def test_ems_services_reject_fractional_current(
+    hass, mock_modbus_unit, ems_entry, service, value
+) -> None:
+    """Reject fractions of an ampere with a translated error instead of rounding."""
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_call(hass, ems_entry, service, {"value": value})
+
+    assert error.value.translation_key == "current_not_whole"
     assert mock_modbus_unit.writes == []
 
 

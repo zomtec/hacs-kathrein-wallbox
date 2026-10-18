@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "Prąd ładowania EMS musi wynosić 0 A (wstrzymanie ładowania) lub co najmniej {min_current} A."
     },
+    "current_not_whole": {
+      "message": "Prąd ładowania EMS musi być podany w pełnych amperach, na przykład 6 A lub 16 A."
+    },
     "current_limit_11_kw": {
       "message": "Wallboxy 11 kW obsługują maksymalny prąd ładowania EMS wynoszący {max_current} A."
     },

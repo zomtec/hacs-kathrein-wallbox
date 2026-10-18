@@ -196,6 +196,9 @@
     "current_below_minimum": {
       "message": "De EMS-laadstroom moet 0 A (laden pauzeren) of minimaal {min_current} A zijn."
     },
+    "current_not_whole": {
+      "message": "De EMS-laadstroom moet in hele ampères worden opgegeven, bijvoorbeeld 6 A of 16 A."
+    },
     "current_limit_11_kw": {
       "message": "Wallboxen van 11 kW ondersteunen een maximale EMS-laadstroom van {max_current} A."
     },

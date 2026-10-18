@@ -121,14 +121,13 @@ async def test_charging_current_number_writes_milliamperes(
     assert state_of(NUMBER_DOMAIN, "ems_charging_current") == "13.0"
 
 
-@pytest.mark.parametrize("value", [0, 1, 5])
-async def test_charging_current_number_pauses_below_minimum(
-    hass, mock_modbus_unit, setup_integration, entity_id_of, state_of, value
+async def test_charging_current_number_pauses_with_zero(
+    hass, mock_modbus_unit, setup_integration, entity_id_of, state_of
 ) -> None:
-    """Pause charging with 0 A and for 1 to 5 A, which the Wallbox cannot charge with."""
+    """Pause charging with 0 A."""
     await setup_integration()
 
-    await _async_set_charging_current(hass, entity_id_of, value)
+    await _async_set_charging_current(hass, entity_id_of, 0)
 
     assert mock_modbus_unit.writes == [
         ENABLE_EMS,
@@ -137,19 +136,26 @@ async def test_charging_current_number_pauses_below_minimum(
     assert state_of(NUMBER_DOMAIN, "ems_charging_current") == "0.0"
 
 
-@pytest.mark.parametrize(("value", "milliamperes"), [(6.5, 6000), (7.5, 8000)])
-async def test_charging_current_number_rounds_to_whole_amperes(
-    hass, mock_modbus_unit, setup_integration, entity_id_of, value, milliamperes
+@pytest.mark.parametrize(
+    ("value", "translation_key"),
+    [
+        (1, "current_below_minimum"),
+        (5, "current_below_minimum"),
+        (6.5, "current_not_whole"),
+        (7.5, "current_not_whole"),
+    ],
+)
+async def test_charging_current_number_rejects_unsupported_currents(
+    hass, mock_modbus_unit, setup_integration, entity_id_of, value, translation_key
 ) -> None:
-    """Round a fractional setpoint to whole amperes, a half to the even number."""
+    """Reject 1 to 5 A and fractions like the action, without writing."""
     await setup_integration()
 
-    await _async_set_charging_current(hass, entity_id_of, value)
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_set_charging_current(hass, entity_id_of, value)
 
-    assert mock_modbus_unit.writes == [
-        ENABLE_EMS,
-        (EMS_CHARGING_CURRENT_ADDRESS, [milliamperes]),
-    ]
+    assert error.value.translation_key == translation_key
+    assert mock_modbus_unit.writes == []
 
 
 @pytest.mark.parametrize(

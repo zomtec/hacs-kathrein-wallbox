@@ -29,8 +29,11 @@ from .model import (
     COMPONENT_EVSE,
     COMPONENT_METER,
     COMPONENT_SESSION_ENERGY,
+    EMS_CHARGING_PAUSED_A,
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
+    EMS_MIN_CHARGING_CURRENT_A,
+    MAX_CURRENT_11_KW_A,
     WallboxDevice,
 )
 
@@ -201,6 +204,28 @@ class KathreinCoordinator(DataUpdateCoordinator[UpdateReport]):
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="control_not_allowed",
+            )
+
+    def validate_ems_current(self, current: float) -> None:
+        """Reject EMS currents the Wallbox cannot charge with."""
+        if not current.is_integer():
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="current_not_whole",
+            )
+        if EMS_CHARGING_PAUSED_A < current < EMS_MIN_CHARGING_CURRENT_A:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="current_below_minimum",
+                translation_placeholders={
+                    "min_current": str(EMS_MIN_CHARGING_CURRENT_A)
+                },
+            )
+        if self.device.identity.is_11_kw and current > MAX_CURRENT_11_KW_A:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="current_limit_11_kw",
+                translation_placeholders={"max_current": str(MAX_CURRENT_11_KW_A)},
             )
 
     async def async_shutdown(self) -> None:
