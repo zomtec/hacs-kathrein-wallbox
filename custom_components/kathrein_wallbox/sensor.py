@@ -25,8 +25,11 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
-from .entity import CoordinatorGetter, KathreinWallboxEntity, always_available
+from .entity import CoordinatorGetter, KathreinWallboxEntity
 from .model import (
+    COMPONENT_CHARGING_SESSION,
+    COMPONENT_METER,
+    COMPONENT_SESSION_ENERGY,
     MAINS_FREQUENCY_RANGE_HZ,
     MAINS_VOLTAGE_RANGE_V,
     ChargingState,
@@ -83,7 +86,7 @@ class KathreinSensorDescription(SensorEntityDescription):
     """Describe a Wallbox sensor and how to read its value."""
 
     value_fn: CoordinatorGetter[StateType]
-    available_fn: CoordinatorGetter[bool] = always_available
+    component: str | None = None
 
 
 def _state(value: int | None, states: dict[int, str]) -> str | None:
@@ -95,28 +98,13 @@ def _state(value: int | None, states: dict[int, str]) -> str | None:
 
 def _pp_state(coordinator: KathreinCoordinator) -> str | None:
     """Resolve the ambiguous PP value 0 using the fixed-cable bit."""
-    value = coordinator.evse.pp_state
+    value = coordinator.device.evse.pp_state
     if value != PPState.CABLE_NOT_CONNECTED_OR_FIXED:
         return _state(value, PP_STATES)
-    cable_is_fixed = coordinator.identity.cable_is_fixed
+    cable_is_fixed = coordinator.device.identity.cable_is_fixed
     if cable_is_fixed is None:
         return PP_STATES[PPState.CABLE_NOT_CONNECTED_OR_FIXED]
     return PP_FIXED_CABLE_MOUNTED if cable_is_fixed else PP_CABLE_NOT_CONNECTED
-
-
-def _meter_available(coordinator: KathreinCoordinator) -> bool:
-    """Return whether a plausible energy meter was detected."""
-    return coordinator.meter_available
-
-
-def _session_energy_available(coordinator: KathreinCoordinator) -> bool:
-    """Return whether the session energy register is readable."""
-    return coordinator.session_energy_available
-
-
-def _charging_session_available(coordinator: KathreinCoordinator) -> bool:
-    """Return whether the session tag and GUID registers are readable."""
-    return coordinator.charging_session_available
 
 
 SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
@@ -127,8 +115,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: within(c.meter.voltage_l1, MAINS_VOLTAGE_RANGE_V),
-        available_fn=_meter_available,
+        value_fn=lambda c: within(c.device.meter.voltage_l1, MAINS_VOLTAGE_RANGE_V),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="voltage_l2",
@@ -137,8 +125,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: within(c.meter.voltage_l2, MAINS_VOLTAGE_RANGE_V),
-        available_fn=_meter_available,
+        value_fn=lambda c: within(c.device.meter.voltage_l2, MAINS_VOLTAGE_RANGE_V),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="voltage_l3",
@@ -147,8 +135,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: within(c.meter.voltage_l3, MAINS_VOLTAGE_RANGE_V),
-        available_fn=_meter_available,
+        value_fn=lambda c: within(c.device.meter.voltage_l3, MAINS_VOLTAGE_RANGE_V),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="current_l1",
@@ -157,8 +145,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.current_l1),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.current_l1),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="current_l2",
@@ -167,8 +155,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.current_l2),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.current_l2),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="current_l3",
@@ -177,8 +165,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.current_l3),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.current_l3),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="active_power_l1",
@@ -187,8 +175,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.active_power_l1),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.active_power_l1),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="active_power_l2",
@@ -197,8 +185,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.active_power_l2),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.active_power_l2),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="active_power_l3",
@@ -207,8 +195,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.active_power_l3),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.active_power_l3),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="total_active_power",
@@ -216,8 +204,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: finite(c.meter.total_active_power),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.total_active_power),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="total_energy",
@@ -225,8 +213,8 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda c: finite(c.meter.total_energy),
-        available_fn=_meter_available,
+        value_fn=lambda c: finite(c.device.meter.total_energy),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="frequency",
@@ -235,15 +223,15 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.FREQUENCY,
         native_unit_of_measurement=UnitOfFrequency.HERTZ,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: within(c.meter.frequency, MAINS_FREQUENCY_RANGE_HZ),
-        available_fn=_meter_available,
+        value_fn=lambda c: within(c.device.meter.frequency, MAINS_FREQUENCY_RANGE_HZ),
+        component=COMPONENT_METER,
     ),
     KathreinSensorDescription(
         key="charging_state",
         translation_key="charging_state",
         device_class=SensorDeviceClass.ENUM,
         options=[*CHARGING_STATES.values(), STATE_UNKNOWN],
-        value_fn=lambda c: _state(c.evse.charging_state, CHARGING_STATES),
+        value_fn=lambda c: _state(c.device.evse.charging_state, CHARGING_STATES),
     ),
     KathreinSensorDescription(
         key="pp_state",
@@ -266,7 +254,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.ENUM,
         options=[*CP_STATES.values(), STATE_UNKNOWN],
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: _state(c.evse.cp_state, CP_STATES),
+        value_fn=lambda c: _state(c.device.evse.cp_state, CP_STATES),
     ),
     KathreinSensorDescription(
         key="granted_current",
@@ -275,7 +263,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        value_fn=lambda c: c.evse.granted_current,
+        value_fn=lambda c: c.device.evse.granted_current,
     ),
     KathreinSensorDescription(
         key="granted_power",
@@ -283,7 +271,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: c.evse.granted_power,
+        value_fn=lambda c: c.device.evse.granted_power,
     ),
     KathreinSensorDescription(
         key="charging_duration",
@@ -292,7 +280,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfTime.SECONDS,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        value_fn=lambda c: c.evse.charging_duration,
+        value_fn=lambda c: c.device.evse.charging_duration,
     ),
     KathreinSensorDescription(
         key="charging_energy",
@@ -300,22 +288,22 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda c: c.session_energy.charging_energy,
-        available_fn=_session_energy_available,
+        value_fn=lambda c: c.device.session_energy.charging_energy,
+        component=COMPONENT_SESSION_ENERGY,
     ),
     KathreinSensorDescription(
         key="charging_tag",
         translation_key="charging_tag",
         entity_registry_enabled_default=False,
-        value_fn=lambda c: c.charging_session.charging_tag,
-        available_fn=_charging_session_available,
+        value_fn=lambda c: c.device.charging_session.charging_tag,
+        component=COMPONENT_CHARGING_SESSION,
     ),
     KathreinSensorDescription(
         key="charging_session_id",
         translation_key="charging_session_id",
         entity_registry_enabled_default=False,
-        value_fn=lambda c: c.charging_session.charging_session_id,
-        available_fn=_charging_session_available,
+        value_fn=lambda c: c.device.charging_session.charging_session_id,
+        component=COMPONENT_CHARGING_SESSION,
     ),
     KathreinSensorDescription(
         key="timeout_period",
@@ -326,7 +314,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: c.ems_control.timeout_period,
+        value_fn=lambda c: c.device.ems_control.timeout_period,
     ),
     KathreinSensorDescription(
         key="timeout_fallback_relay_matrix",
@@ -336,7 +324,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         options=[*RELAY_MATRIX_STATES.values(), STATE_UNKNOWN],
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: _state(
-            c.ems_control.timeout_fallback_relay_matrix, RELAY_MATRIX_STATES
+            c.device.ems_control.timeout_fallback_relay_matrix, RELAY_MATRIX_STATES
         ),
     ),
     KathreinSensorDescription(
@@ -348,7 +336,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: c.ems_control.timeout_fallback_current,
+        value_fn=lambda c: c.device.ems_control.timeout_fallback_current,
     ),
 )
 
@@ -375,22 +363,13 @@ class KathreinSensor(KathreinWallboxEntity, SensorEntity):
         coordinator: KathreinCoordinator,
         description: KathreinSensorDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.component)
         self.entity_description = description
 
     @property
-    def available(self) -> bool:
-        """Hide sensors whose optional register block is absent or invalid."""
-        return super().available and self.entity_description.available_fn(
-            self.coordinator
-        )
-
-    @property
     def entity_registry_enabled_default(self) -> bool:
-        """Disable sensors of an optional register block until it is detected."""
-        return super().entity_registry_enabled_default and (
-            self.entity_description.available_fn(self.coordinator)
-        )
+        """Disable sensors of an optional component that did not answer at creation."""
+        return super().entity_registry_enabled_default and self.available
 
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:

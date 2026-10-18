@@ -4,7 +4,12 @@ from homeassistant.core import HomeAssistant
 from modbus_connection import ModbusError
 
 from .coordinator import KathreinConfigEntry
-from .model import SERIAL_ADDRESS, SERIAL_REGISTER_COUNT
+from .model import (
+    COMPONENT_METER,
+    COMPONENT_SESSION_ENERGY,
+    SERIAL_ADDRESS,
+    SERIAL_REGISTER_COUNT,
+)
 
 
 async def async_get_config_entry_diagnostics(
@@ -14,8 +19,8 @@ async def async_get_config_entry_diagnostics(
     """Return the raw mapped registers without exposing the serial number."""
     coordinator = entry.runtime_data.coordinator
     try:
-        identity_registers = await coordinator.identity.async_read_raw()
-        evse_registers = await coordinator.evse.async_read_raw()
+        identity_registers = await coordinator.device.identity.async_read_raw()
+        evse_registers = await coordinator.device.evse.async_read_raw()
     except ModbusError:
         return {"error": "Unable to read Wallbox registers"}
 
@@ -25,11 +30,11 @@ async def async_get_config_entry_diagnostics(
             registers.setdefault(register_type, {}).update(values)
 
     try:
-        meter_registers = await coordinator.meter.async_read_raw()
+        meter_registers = await coordinator.device.meter.async_read_raw()
     except ModbusError:
         meter_registers = {}
     try:
-        session_registers = await coordinator.session_energy.async_read_raw()
+        session_registers = await coordinator.device.session_energy.async_read_raw()
     except ModbusError:
         session_registers = {}
     for component_registers in (meter_registers, session_registers):
@@ -41,9 +46,10 @@ async def async_get_config_entry_diagnostics(
         holding.pop(address, None)
 
     return {
-        "model": coordinator.identity.device_type,
-        "mapping_version": coordinator.identity.mapping_version,
-        "meter_available": coordinator.meter_available,
-        "session_energy_available": coordinator.session_energy_available,
+        "model": coordinator.device.identity.device_type,
+        "mapping_version": coordinator.device.identity.mapping_version,
+        "meter_available": COMPONENT_METER in coordinator.data.updated,
+        "session_energy_available": COMPONENT_SESSION_ENERGY
+        in coordinator.data.updated,
         "registers": registers,
     }

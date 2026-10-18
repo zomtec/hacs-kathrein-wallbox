@@ -1,6 +1,7 @@
 """Polling coordinator for Kathrein Wallbox register data."""
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -13,6 +14,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 from modbus_connection import ModbusError, ModbusUnit
+from modbus_connection.model import UpdateReport
 
 from .const import (
     CONF_METER_DETECTED,
@@ -22,14 +24,14 @@ from .const import (
     get_allow_control,
 )
 from .model import (
+    COMPONENT_CHARGING_SESSION,
+    COMPONENT_EMS_CONTROL,
+    COMPONENT_EVSE,
+    COMPONENT_METER,
+    COMPONENT_SESSION_ENERGY,
     EMS_CONTROL_DISABLED,
     EMS_CONTROL_ENABLED,
-    WallboxChargingSession,
-    WallboxEMSControl,
-    WallboxEVSE,
-    WallboxIdentity,
-    WallboxMeter,
-    WallboxSessionEnergy,
+    WallboxDevice,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,9 +41,26 @@ KEEP_ALIVE_WRITES_PER_TIMEOUT = 2
 # Never rewrite the setpoint more often than this, whatever the EMS timeout.
 KEEP_ALIVE_MIN_INTERVAL = timedelta(seconds=5)
 
+ESSENTIAL_COMPONENTS = (COMPONENT_EVSE, COMPONENT_EMS_CONTROL)
+# Subjects of the log lines when an optional component is lost or back.
+OPTIONAL_COMPONENT_SUBJECTS = {
+    COMPONENT_CHARGING_SESSION: "Charging session registers are",
+    COMPONENT_METER: "Energy meter registers are",
+    COMPONENT_SESSION_ENERGY: "Session energy register is",
+}
 
-class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
-    """Fetch the Wallbox model at a fixed polling interval."""
+
+def _update_failed(err: ModbusError) -> UpdateFailed:
+    """Wrap a Modbus error as a translated coordinator update failure."""
+    return UpdateFailed(
+        translation_domain=DOMAIN,
+        translation_key="update_failed",
+        translation_placeholders={"error": str(err)},
+    )
+
+
+class KathreinCoordinator(DataUpdateCoordinator[UpdateReport]):
+    """Poll the Wallbox components at a fixed interval."""
 
     config_entry: KathreinConfigEntry
     # Set by _async_setup, which refuses a Wallbox without a serial number.
@@ -61,23 +80,12 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
             name=DEVICE_NAME,
             update_interval=update_interval or DEFAULT_SCAN_INTERVAL,
         )
-        self.unit = unit
-        self.identity = WallboxIdentity(unit)
-        self.meter = WallboxMeter(unit)
-        self.session_energy = WallboxSessionEnergy(unit)
-        self.evse = WallboxEVSE(unit)
-        self.charging_session = WallboxChargingSession(unit)
-        self.ems_control = WallboxEMSControl(unit)
+        self.device = WallboxDevice(unit)
         # A detected meter is final; otherwise check again once per setup.
         self.meter_detected: bool | None = (
             True if entry.data.get(CONF_METER_DETECTED) else None
         )
-        self.meter_available = False
-        self.session_energy_available = False
-        self.charging_session_available = False
-        self._meter_unavailable_logged = False
-        self._session_energy_unavailable_logged = False
-        self._charging_session_unavailable_logged = False
+        self._lost_components: set[str] = set()
         self.control_allowed = get_allow_control(entry)
         self._keep_alive_interval: timedelta | None = None
         self._cancel_keep_alive: CALLBACK_TYPE | None = None
@@ -86,101 +94,67 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     async def _async_setup(self) -> None:
         """Read the static device identity once before the first poll."""
         try:
-            await self.identity.async_update()
+            await self.device.async_ensure_setup()
         except ModbusError as err:
-            raise UpdateFailed(
-                translation_domain=DOMAIN,
-                translation_key="update_failed",
-                translation_placeholders={"error": str(err)},
-            ) from err
+            raise _update_failed(err) from err
 
-        if not self.identity.serial:
+        if not self.device.identity.serial:
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="missing_serial_number",
             )
-        self.serial = self.identity.serial
+        self.serial = self.device.identity.serial
 
-    async def _async_update_data(self) -> WallboxData:
-        """Read essential registers and isolate the optional energy meter."""
-        try:
-            await self.evse.async_update()
-            await self.ems_control.async_update()
-        except ModbusError as err:
-            raise UpdateFailed(
-                translation_domain=DOMAIN,
-                translation_key="update_failed",
-                translation_placeholders={"error": str(err)},
-            ) from err
+    async def _async_update_data(self) -> UpdateReport:
+        """Poll the essential components and isolate the optional ones."""
+        report = await self._async_poll(ESSENTIAL_COMPONENTS)
+        if report.failed:
+            raise _update_failed(next(iter(report.failed.values())))
 
         self._async_schedule_keep_alive()
 
-        await self._async_update_charging_session()
-        await self._async_update_meter()
+        optional = [COMPONENT_CHARGING_SESSION]
+        if self.meter_detected is not False:
+            optional.append(COMPONENT_METER)
+        await self._async_poll(optional, report)
+        self._async_settle_meter(report)
+        if COMPONENT_METER in report.updated:
+            await self._async_poll([COMPONENT_SESSION_ENERGY], report)
 
-        return WallboxData(
-            identity=self.identity,
-            meter=self.meter,
-            session_energy=self.session_energy,
-            evse=self.evse,
-            charging_session=self.charging_session,
-            ems_control=self.ems_control,
-        )
+        self._async_log_optional_components(report)
+        return report
 
-    async def _async_update_charging_session(self) -> None:
-        """Read the session tag and GUID without blocking the EVSE data."""
+    async def _async_poll(
+        self, names: Iterable[str], report: UpdateReport | None = None
+    ) -> UpdateReport:
+        """Poll components, failing the update when the connection is lost."""
         try:
-            await self.charging_session.async_update()
+            return await self.device.async_poll(names, report)
         except ModbusError as err:
-            if self.charging_session_available:
-                _LOGGER.warning(
-                    "Charging session registers are no longer available: %s", err
-                )
-                self._charging_session_unavailable_logged = True
-            self.charging_session_available = False
-        else:
-            if self._charging_session_unavailable_logged:
-                _LOGGER.info("Charging session registers are available again")
-                self._charging_session_unavailable_logged = False
-            self.charging_session_available = True
+            raise _update_failed(err) from err
 
-    async def _async_update_meter(self) -> None:
-        """Read the optional meter and session energy if a meter was detected."""
-        if self.meter_detected is False:
-            return
-        try:
-            await self.meter.async_update()
-        except ModbusError as err:
-            if self.meter_available:
+    @callback
+    def _async_settle_meter(self, report: UpdateReport) -> None:
+        """Check a new meter once and drop the readings of an undetected one."""
+        if self.meter_detected is None and COMPONENT_METER in report.updated:
+            self._async_store_meter_detected(self.device.meter.has_plausible_reference)
+        if not self.meter_detected:
+            # A read without a detected meter only settles detection.
+            report.updated.discard(COMPONENT_METER)
+
+    @callback
+    def _async_log_optional_components(self, report: UpdateReport) -> None:
+        """Log once when an optional component stops answering and when it is back."""
+        previous = self.data.updated if self.data else set()
+        for name, err in report.failed.items():
+            if name in previous:
                 _LOGGER.warning(
-                    "Energy meter registers are no longer available: %s", err
+                    "%s no longer available: %s", OPTIONAL_COMPONENT_SUBJECTS[name], err
                 )
-                self._meter_unavailable_logged = True
-            self.meter_available = False
-            self.session_energy_available = False
-            return
-        if self.meter_detected is None:
-            self._async_store_meter_detected(self.meter.has_plausible_reference)
-        self.meter_available = bool(self.meter_detected)
-        if not self.meter_available:
-            return
-        if self._meter_unavailable_logged:
-            _LOGGER.info("Energy meter registers are available again")
-            self._meter_unavailable_logged = False
-        try:
-            await self.session_energy.async_update()
-        except ModbusError as err:
-            if self.session_energy_available:
-                _LOGGER.warning(
-                    "Session energy register is no longer available: %s", err
-                )
-                self._session_energy_unavailable_logged = True
-            self.session_energy_available = False
-        else:
-            if self._session_energy_unavailable_logged:
-                _LOGGER.info("Session energy register is available again")
-                self._session_energy_unavailable_logged = False
-            self.session_energy_available = True
+                self._lost_components.add(name)
+        for name in self._lost_components & report.updated:
+            _LOGGER.info("%s available again", OPTIONAL_COMPONENT_SUBJECTS[name])
+            self._lost_components.discard(name)
 
     @callback
     def _async_store_meter_detected(self, detected: bool) -> None:
@@ -211,7 +185,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         """Write EMS fields in order, report device failures and refresh."""
         try:
             for field, value in writes:
-                await self.ems_control.write(field, value)
+                await self.device.ems_control.write(field, value)
         except ModbusError as err:
             raise HomeAssistantError(
                 translation_domain=DOMAIN,
@@ -237,7 +211,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     @callback
     def _async_schedule_keep_alive(self) -> None:
         """Run the keep-alive timer at a pace matching the current EMS timeout."""
-        timeout_period = self.ems_control.timeout_period
+        timeout_period = self.device.ems_control.timeout_period
         interval = None
         if self.control_allowed and timeout_period:
             interval = max(
@@ -264,11 +238,11 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
 
     async def _async_keep_alive(self, _now: datetime) -> None:
         """Rewrite the charging current setpoint to reset the EMS timeout."""
-        current = self.ems_control.charging_current
-        if not self.ems_control.is_enabled or current is None:
+        current = self.device.ems_control.charging_current
+        if not self.device.ems_control.is_enabled or current is None:
             return
         try:
-            await self.ems_control.write("charging_current", current)
+            await self.device.ems_control.write("charging_current", current)
         except ModbusError as err:
             if not self._keep_alive_failed:
                 _LOGGER.warning("EMS keep-alive write failed: %s", err)
@@ -277,18 +251,6 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
         if self._keep_alive_failed:
             _LOGGER.info("EMS keep-alive write succeeded again")
         self._keep_alive_failed = False
-
-
-@dataclass(slots=True)
-class WallboxData:
-    """Decoded identity, optional meter, EVSE, session and EMS control components."""
-
-    identity: WallboxIdentity
-    meter: WallboxMeter
-    session_energy: WallboxSessionEnergy
-    evse: WallboxEVSE
-    charging_session: WallboxChargingSession
-    ems_control: WallboxEMSControl
 
 
 @dataclass(slots=True)

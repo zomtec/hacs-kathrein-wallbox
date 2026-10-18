@@ -99,7 +99,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: KathreinConfigEntry) -> 
     _async_sync_control_entities(
         hass, entry, coordinator.serial, coordinator.control_allowed
     )
-    _async_check_phase_rotation(hass, entry, coordinator.identity)
+    _async_check_phase_rotation(hass, entry, coordinator.device.identity)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

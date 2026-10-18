@@ -49,8 +49,9 @@ Orientation: the Home Assistant
 [Integration Quality Scale](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
 (Bronze, then Silver). It is a guide, not a hard gate.
 
-- **Data flow:** all device I/O goes through the coordinator. Entities only read
-  `coordinator.data`; they never poll or talk to the device on their own.
+- **Data flow:** all device I/O goes through the coordinator. Entities only read what
+  the coordinator has read (`coordinator.data` or the device model); they never poll
+  or talk to the device on their own.
 - **Runtime state:** store it in `entry.runtime_data` (typed config entry). Do not use
   `hass.data[DOMAIN]`.
 - **Async only:** no blocking calls in the event loop. Use `async_*` APIs; if a blocking
