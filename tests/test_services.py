@@ -111,10 +111,8 @@ async def test_ems_services_need_control_allowed(
         (SERVICE_SET_RELAY_MATRIX, "phase_2"),
         (SERVICE_SET_RELAY_MATRIX, "three_lines"),
         (SERVICE_SET_TIMEOUT_FALLBACK_RELAY_MATRIX, "phase_3"),
-        (SERVICE_SET_CHARGING_CURRENT, 33),
         (SERVICE_SET_CHARGING_CURRENT, "fast"),
         (SERVICE_SET_TIMEOUT_PERIOD, "45"),
-        (SERVICE_SET_TIMEOUT_FALLBACK_CURRENT, "40"),
     ],
 )
 async def test_ems_services_reject_unsupported_values(
@@ -130,16 +128,32 @@ async def test_ems_services_reject_unsupported_values(
 @pytest.mark.parametrize(
     "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
 )
-@pytest.mark.parametrize("value", [1, "5"])
+@pytest.mark.parametrize("value", [1, "5", -1])
 async def test_ems_services_reject_current_below_minimum(
     hass, mock_modbus_unit, ems_entry, service, value
 ) -> None:
-    """Reject 1 to 5 A with a clear error instead of writing a register."""
+    """Reject negative values and 1 to 5 A with a clear error instead of writing."""
     with pytest.raises(ServiceValidationError) as error:
         await _async_call(hass, ems_entry, service, {"value": value})
 
     assert error.value.translation_key == "current_below_minimum"
     assert error.value.translation_placeholders == {"min_current": "6"}
+    assert mock_modbus_unit.writes == []
+
+
+@pytest.mark.parametrize(
+    "service", [SERVICE_SET_CHARGING_CURRENT, SERVICE_SET_TIMEOUT_FALLBACK_CURRENT]
+)
+@pytest.mark.parametrize("value", [33, "40"])
+async def test_ems_services_reject_current_above_maximum(
+    hass, mock_modbus_unit, ems_entry, service, value
+) -> None:
+    """Reject values above 32 A with a translated error instead of writing."""
+    with pytest.raises(ServiceValidationError) as error:
+        await _async_call(hass, ems_entry, service, {"value": value})
+
+    assert error.value.translation_key == "current_above_maximum"
+    assert error.value.translation_placeholders == {"max_current": "32"}
     assert mock_modbus_unit.writes == []
 
 

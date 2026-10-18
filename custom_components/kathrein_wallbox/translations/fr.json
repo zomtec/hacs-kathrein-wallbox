@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Les wallbox de 11 kW prennent en charge un courant de charge EMS maximal de {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "Le courant de charge EMS ne doit pas dépasser {max_current} A."
+    },
     "write_failed": {
       "message": "Impossible d’écrire sur la wallbox : {error}"
     },

@@ -202,6 +202,9 @@
     "current_limit_11_kw": {
       "message": "Laddboxar på 11 kW stöder en maximal EMS-laddström på {max_current} A."
     },
+    "current_above_maximum": {
+      "message": "EMS-laddströmmen får inte överstiga {max_current} A."
+    },
     "write_failed": {
       "message": "Det gick inte att skriva till laddboxen: {error}"
     },
