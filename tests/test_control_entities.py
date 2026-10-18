@@ -1,4 +1,4 @@
-"""Tests for disabling control entities while control is not allowed."""
+"""Tests for creating control entities only while control is allowed."""
 
 from datetime import timedelta
 
@@ -7,7 +7,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL
+from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL, DOMAIN
 
 CONTROL_ENTITIES = (
     ("number", "ems_charging_current"),
@@ -29,61 +29,70 @@ async def _async_set_allow_control(hass, entry, allowed: bool) -> None:
     await hass.async_block_till_done()
 
 
-def _disabled_by(hass, entity_id_of) -> dict[str, er.RegistryEntryDisabler | None]:
+def _registry_entries(hass, serial) -> dict[str, er.RegistryEntry | None]:
     registry = er.async_get(hass)
     return {
-        key: registry.async_get(entity_id_of(platform, key)).disabled_by
+        key: registry.async_get(
+            registry.async_get_entity_id(platform, DOMAIN, f"{serial}_{key}") or ""
+        )
         for platform, key in CONTROL_ENTITIES
     }
 
 
-async def test_controls_are_created_disabled_without_control_allowed(
-    hass, setup_integration, entity_id_of
+async def test_controls_are_not_created_without_control_allowed(
+    hass, serial, setup_integration, entity_id_of
 ) -> None:
-    """Create control entities disabled while control is not allowed."""
+    """Create no control entities while control is not allowed."""
     await setup_integration()
 
-    assert set(_disabled_by(hass, entity_id_of).values()) == {
-        er.RegistryEntryDisabler.INTEGRATION
-    }
-    sensor_id = entity_id_of("sensor", "charging_state")
-    assert er.async_get(hass).async_get(sensor_id).disabled_by is None
+    assert _registry_entries(hass, serial) == dict.fromkeys(
+        ("ems_charging_current", "ems_relay_matrix")
+    )
+    assert hass.states.get(entity_id_of("sensor", "charging_state"))
 
 
 async def test_controls_follow_allow_control_option(
-    hass, entry, setup_integration, entity_id_of
+    hass, entry, serial, setup_integration, entity_id_of
 ) -> None:
-    """Disable controls when control is withdrawn and enable them when allowed."""
+    """Create controls when control is allowed and remove them when withdrawn."""
     await setup_integration()
 
     await _async_set_allow_control(hass, entry, True)
-    assert set(_disabled_by(hass, entity_id_of).values()) == {None}
+    entries = _registry_entries(hass, serial)
+    assert all(
+        registry_entry and registry_entry.disabled_by is None
+        for registry_entry in entries.values()
+    )
     assert hass.states.get(entity_id_of("number", "ems_charging_current"))
+    assert hass.states.get(entity_id_of("select", "ems_relay_matrix"))
 
     await _async_set_allow_control(hass, entry, False)
-    assert set(_disabled_by(hass, entity_id_of).values()) == {
-        er.RegistryEntryDisabler.INTEGRATION
-    }
+    assert set(_registry_entries(hass, serial).values()) == {None}
+    assert not hass.states.async_entity_ids(("number", "select"))
 
 
 @pytest.mark.parametrize("allow_control", [True])
-async def test_user_disabled_controls_stay_disabled(
-    hass, entry, setup_integration, entity_id_of
+async def test_user_settings_are_restored_when_control_is_allowed_again(
+    hass, entry, serial, setup_integration, entity_id_of
 ) -> None:
-    """Keep controls the user disabled, whatever the control option says."""
+    """Restore the entity ID and user disabling of controls allowed again."""
     await setup_integration()
-    er.async_get(hass).async_update_entity(
+    registry = er.async_get(hass)
+    registry.async_update_entity(
         entity_id_of("number", "ems_charging_current"),
+        new_entity_id="number.my_charging_current",
         disabled_by=er.RegistryEntryDisabler.USER,
     )
 
     await _async_set_allow_control(hass, entry, False)
     await _async_set_allow_control(hass, entry, True)
 
-    assert _disabled_by(hass, entity_id_of) == {
-        "ems_charging_current": er.RegistryEntryDisabler.USER,
-        "ems_relay_matrix": None,
-    }
+    entries = _registry_entries(hass, serial)
+    assert entries["ems_charging_current"].entity_id == "number.my_charging_current"
+    assert entries["ems_charging_current"].disabled_by is (
+        er.RegistryEntryDisabler.USER
+    )
+    assert entries["ems_relay_matrix"].disabled_by is None
 
 
 @pytest.mark.parametrize("allow_control", [True])

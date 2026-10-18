@@ -89,13 +89,13 @@ Home Assistant only reads the Wallbox until you turn on **Allow control by Home 
 While control is not allowed:
 
 - all sensors and binary sensors keep updating;
-- the `Charging current` number and the `Phases` select are disabled by the integration;
+- the `Charging current` number and the `Phases` select are not created;
 - every EMS service except `set_ems_control_enabled` is rejected with an error and writes nothing;
 - the [EMS keep-alive](#ems-keep-alive) does not run.
 
 Leave the option off if another energy manager controls the Wallbox. Turn it on if Home Assistant should control charging.
 
-When you allow control again, the integration enables only the control entities it disabled itself; entities you disabled yourself stay disabled.
+When you allow control again, Home Assistant creates them again and restores their settings, such as entity ID, name, and area; entities you disabled yourself stay disabled.
 
 ## EMS controls
 
@@ -106,7 +106,7 @@ The number and select entities write the same EMS registers as the services belo
 | `Charging current` number | `0x00A2` | `0` pauses charging; otherwise `6` to `32` A in 1 A steps, or `6` to `16` A on an 11 kW Wallbox. `1` to `5` A also pause charging, because the Wallbox cannot charge below `6` A. |
 | `Phases` select | `0x00A1` | `Phase 1` or `3 Phases`. |
 
-These entities are only enabled while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`).
+These entities only exist while control by Home Assistant is allowed. Every write from them first enables EMS control (`0x00A0`).
 
 Turning off **Allow control by Home Assistant** writes nothing to the Wallbox and leaves EMS control as it is, so another energy manager such as evcc can take over. Home Assistant also stops the [EMS keep-alive](#ems-keep-alive). If no other system writes a new setpoint, what happens next depends on the EMS timeout:
 
