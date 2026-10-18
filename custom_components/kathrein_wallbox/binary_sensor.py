@@ -1,6 +1,7 @@
 """Binary sensor platform for Wallbox relays, faults and EMS control."""
 
 from dataclasses import dataclass
+from enum import IntFlag
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -13,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import CoordinatorGetter, KathreinWallboxEntity
-from .model import EMS_CONTROL_ENABLED, ErrorState, RelayState
+from .model import ErrorState, RelayState
 
 PARALLEL_UPDATES = 0
 
@@ -25,11 +26,11 @@ class KathreinBinarySensorDescription(BinarySensorEntityDescription):
     is_on_fn: CoordinatorGetter[bool | None]
 
 
-def _bit_set(register: int | None, mask: int) -> bool | None:
-    """Return whether any bit of the mask is set in the register."""
-    if register is None:
+def _flag_set(flags: IntFlag | None, flag: IntFlag) -> bool | None:
+    """Return whether the flag is set in the decoded flag register."""
+    if flags is None:
         return None
-    return bool(register & mask)
+    return flag in flags
 
 
 def _fault(key: str, flag: ErrorState) -> KathreinBinarySensorDescription:
@@ -40,7 +41,7 @@ def _fault(key: str, flag: ErrorState) -> KathreinBinarySensorDescription:
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
-        is_on_fn=lambda c: _bit_set(c.evse.error_states, flag),
+        is_on_fn=lambda c: _flag_set(c.evse.error_states, flag),
     )
 
 
@@ -52,7 +53,7 @@ def _relay(key: str, flag: RelayState) -> KathreinBinarySensorDescription:
         device_class=BinarySensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
-        is_on_fn=lambda c: _bit_set(c.evse.relay_state, flag),
+        is_on_fn=lambda c: _flag_set(c.evse.relay_state, flag),
     )
 
 
@@ -73,9 +74,7 @@ ENTITY_DESCRIPTIONS: tuple[KathreinBinarySensorDescription, ...] = (
         key="ems_control",
         translation_key="ems_control",
         entity_category=EntityCategory.DIAGNOSTIC,
-        is_on_fn=lambda c: _bit_set(
-            c.ems_control.control_register, EMS_CONTROL_ENABLED
-        ),
+        is_on_fn=lambda c: c.ems_control.is_enabled,
     ),
     KathreinBinarySensorDescription(
         key="meter_available",

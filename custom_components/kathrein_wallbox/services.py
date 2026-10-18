@@ -14,13 +14,12 @@ from homeassistant.helpers import device_registry as dr
 from .const import DOMAIN
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .model import (
-    EMS_CHARGING_PAUSED_MA,
-    EMS_MAX_CHARGING_CURRENT_MA,
-    EMS_MIN_CHARGING_CURRENT_MA,
+    EMS_CHARGING_PAUSED_A,
+    EMS_MAX_CHARGING_CURRENT_A,
+    EMS_MIN_CHARGING_CURRENT_A,
     EMS_RELAY_MATRIX_OPTIONS,
     EMS_TIMEOUT_PERIODS_S,
-    MAX_CURRENT_11_KW_MA,
-    MILLIAMPERE_PER_AMPERE,
+    MAX_CURRENT_11_KW_A,
 )
 
 ATTR_ENABLED = "enabled"
@@ -49,17 +48,9 @@ def _whole_amperes(value: Any) -> int:
     return int(amperes)
 
 
-def _milliamperes(amperes: int) -> int:
-    """Convert a current in A to the mA register value."""
-    return amperes * MILLIAMPERE_PER_AMPERE
-
-
 EMS_CURRENT_AMPERES = probatio.All(
     _whole_amperes,
-    probatio.Range(
-        min=EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
-        max=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
-    ),
+    probatio.Range(min=EMS_CHARGING_PAUSED_A, max=EMS_MAX_CHARGING_CURRENT_A),
 )
 
 
@@ -87,7 +78,7 @@ EMS_SETPOINT_SERVICES = (
         name=SERVICE_SET_CHARGING_CURRENT,
         field="charging_current",
         value_schema=EMS_CURRENT_AMPERES,
-        to_register=_milliamperes,
+        to_register=int,
         is_current=True,
         enables_ems=True,
     ),
@@ -107,7 +98,7 @@ EMS_SETPOINT_SERVICES = (
         name=SERVICE_SET_TIMEOUT_FALLBACK_CURRENT,
         field="timeout_fallback_current",
         value_schema=EMS_CURRENT_AMPERES,
-        to_register=_milliamperes,
+        to_register=int,
         is_current=True,
     ),
 )
@@ -147,25 +138,19 @@ def _validate_ems_enabled(coordinator: KathreinCoordinator) -> None:
         )
 
 
-def _validate_ems_current(coordinator: KathreinCoordinator, current_ma: int) -> None:
+def _validate_ems_current(coordinator: KathreinCoordinator, current: int) -> None:
     """Reject EMS currents the Wallbox cannot charge with."""
-    if EMS_CHARGING_PAUSED_MA < current_ma < EMS_MIN_CHARGING_CURRENT_MA:
+    if EMS_CHARGING_PAUSED_A < current < EMS_MIN_CHARGING_CURRENT_A:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             translation_key="current_below_minimum",
-            translation_placeholders={
-                "min_current": str(
-                    EMS_MIN_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE
-                )
-            },
+            translation_placeholders={"min_current": str(EMS_MIN_CHARGING_CURRENT_A)},
         )
-    if coordinator.identity.is_11_kw and current_ma > MAX_CURRENT_11_KW_MA:
+    if coordinator.identity.is_11_kw and current > MAX_CURRENT_11_KW_A:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             translation_key="current_limit_11_kw",
-            translation_placeholders={
-                "max_current": str(MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE)
-            },
+            translation_placeholders={"max_current": str(MAX_CURRENT_11_KW_A)},
         )
 
 

@@ -1,5 +1,6 @@
 """Tests for Kathrein Wallbox register decoding."""
 
+import logging
 from datetime import timedelta
 
 import pytest
@@ -18,6 +19,9 @@ from custom_components.kathrein_wallbox.const import (
     get_scan_interval,
 )
 from custom_components.kathrein_wallbox.model import (
+    ErrorState,
+    RelayState,
+    WallboxEMSControl,
     WallboxEVSE,
     WallboxIdentity,
     WallboxMeter,
@@ -84,6 +88,47 @@ async def test_missing_meter_registers_do_not_block_evse_reads(
 
     assert evse.charging_state == 4
     assert evse.charging_duration == 0
+
+
+async def test_evse_decodes_amperes_and_flag_registers(
+    mock_modbus_unit, caplog
+) -> None:
+    """Decode the granted current in A and keep unmapped fault and relay bits."""
+    mock_modbus_unit.holding[0x0061] = 0x8101
+    mock_modbus_unit.holding[0x0064] = 0x00F5
+    mock_modbus_unit.holding[0x0065] = 6500
+
+    evse = WallboxEVSE(mock_modbus_unit)
+    await evse.async_update()
+
+    assert evse.granted_current == 6.5
+    assert evse.error_states == 0x8101
+    assert ErrorState.RELAY_WELDED in evse.error_states
+    assert ErrorState.INTERNAL_ERROR in evse.error_states
+    assert ErrorState.RESIDUAL_DC_CURRENT not in evse.error_states
+    assert evse.relay_state == 0x00F5
+    assert RelayState.RELAY_L3 in evse.relay_state
+    assert RelayState.RELAY_L2 not in evse.relay_state
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+
+async def test_ems_control_reads_and_writes_currents_in_amperes(
+    mock_modbus_unit,
+) -> None:
+    """Scale the EMS current setpoints between mA registers and A values."""
+    mock_modbus_unit.holding[0x00A2] = 13500
+    mock_modbus_unit.holding[0x00A5] = 6000
+
+    ems_control = WallboxEMSControl(mock_modbus_unit)
+    await ems_control.async_update()
+
+    assert ems_control.charging_current == 13.5
+    assert ems_control.timeout_fallback_current == 6.0
+
+    await ems_control.write("charging_current", ems_control.charging_current)
+    await ems_control.write("timeout_fallback_current", 16)
+
+    assert mock_modbus_unit.writes == [(0x00A2, [13500]), (0x00A5, [16000])]
 
 
 async def test_session_energy_decodes_as_big_endian_uint32(mock_modbus_unit) -> None:

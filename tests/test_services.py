@@ -179,6 +179,7 @@ async def test_11_kw_wallbox_rejects_ems_current_above_limit(
         await _async_call(hass, entry, service, {"value": "20"})
 
     assert error.value.translation_key == "current_limit_11_kw"
+    assert error.value.translation_placeholders == {"max_current": "16"}
     assert mock_modbus_unit.writes == []
 
 

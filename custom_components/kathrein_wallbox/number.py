@@ -13,11 +13,10 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
 from .entity import KathreinControlEntity
 from .model import (
-    EMS_CHARGING_PAUSED_MA,
-    EMS_MAX_CHARGING_CURRENT_MA,
-    EMS_MIN_CHARGING_CURRENT_MA,
-    MAX_CURRENT_11_KW_MA,
-    MILLIAMPERE_PER_AMPERE,
+    EMS_CHARGING_PAUSED_A,
+    EMS_MAX_CHARGING_CURRENT_A,
+    EMS_MIN_CHARGING_CURRENT_A,
+    MAX_CURRENT_11_KW_A,
 )
 
 PARALLEL_UPDATES = 1
@@ -27,8 +26,8 @@ CHARGING_CURRENT_DESCRIPTION = NumberEntityDescription(
     translation_key="ems_charging_current",
     device_class=NumberDeviceClass.CURRENT,
     native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-    native_min_value=EMS_CHARGING_PAUSED_MA // MILLIAMPERE_PER_AMPERE,
-    native_max_value=EMS_MAX_CHARGING_CURRENT_MA // MILLIAMPERE_PER_AMPERE,
+    native_min_value=EMS_CHARGING_PAUSED_A,
+    native_max_value=EMS_MAX_CHARGING_CURRENT_A,
     native_step=1,
     mode=NumberMode.BOX,
 )
@@ -55,31 +54,31 @@ class KathreinChargingCurrentNumber(KathreinControlEntity, NumberEntity):
     def native_max_value(self) -> float:
         """Limit the setpoint to the power class of the Wallbox."""
         if self.coordinator.identity.is_11_kw:
-            return MAX_CURRENT_11_KW_MA // MILLIAMPERE_PER_AMPERE
+            return MAX_CURRENT_11_KW_A
         return super().native_max_value
 
     @property
     def native_value(self) -> float | None:
         """Return the current setpoint, or None for a cancel or unknown value."""
-        current_ma = self.coordinator.ems_control.charging_current
-        if current_ma is None or not _is_valid_setpoint(current_ma):
+        current = self.coordinator.ems_control.charging_current
+        if current is None or not _is_valid_setpoint(current):
             return None
-        return current_ma / MILLIAMPERE_PER_AMPERE
+        return current
 
     async def async_set_native_value(self, value: float) -> None:
         """Enable EMS control and write the setpoint; below 6 A pauses charging."""
-        current_ma = round(value) * MILLIAMPERE_PER_AMPERE
+        current = round(value)
         # The Wallbox cannot charge below 6 A, so 1 to 5 A means no charging.
-        if current_ma < EMS_MIN_CHARGING_CURRENT_MA:
-            current_ma = EMS_CHARGING_PAUSED_MA
+        if current < EMS_MIN_CHARGING_CURRENT_A:
+            current = EMS_CHARGING_PAUSED_A
         await self.coordinator.async_write_ems(
-            "charging_current", current_ma, enable_ems=True
+            "charging_current", current, enable_ems=True
         )
 
 
-def _is_valid_setpoint(current_ma: int) -> bool:
-    """Return whether the register accepts the setpoint (0 or 6000 ... 32000 mA)."""
+def _is_valid_setpoint(current: float) -> bool:
+    """Return whether the register accepts the setpoint (0 or 6 ... 32 A)."""
     return (
-        current_ma == EMS_CHARGING_PAUSED_MA
-        or EMS_MIN_CHARGING_CURRENT_MA <= current_ma <= EMS_MAX_CHARGING_CURRENT_MA
+        current == EMS_CHARGING_PAUSED_A
+        or EMS_MIN_CHARGING_CURRENT_A <= current <= EMS_MAX_CHARGING_CURRENT_A
     )

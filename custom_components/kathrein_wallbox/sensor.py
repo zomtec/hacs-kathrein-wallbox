@@ -1,6 +1,5 @@
 """Sensor platform for Kathrein Wallbox."""
 
-import math
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
@@ -31,11 +30,12 @@ from .entity import CoordinatorGetter, KathreinWallboxEntity, always_available
 from .model import (
     MAINS_FREQUENCY_RANGE_HZ,
     MAINS_VOLTAGE_RANGE_V,
-    MILLIAMPERE_PER_AMPERE,
     ChargingState,
     CPState,
     PPState,
     RelayMatrix,
+    finite,
+    within,
 )
 
 PARALLEL_UPDATES = 0
@@ -87,28 +87,6 @@ class KathreinSensorDescription(SensorEntityDescription):
     available_fn: CoordinatorGetter[bool] = always_available
 
 
-def _finite(value: float | None) -> float | None:
-    """Drop NaN and infinite readings."""
-    if value is None or not math.isfinite(value):
-        return None
-    return value
-
-
-def _within(value: float | None, bounds: tuple[int, int]) -> float | None:
-    """Drop readings that are not finite or outside the inclusive bounds."""
-    value = _finite(value)
-    if value is None or not bounds[0] <= value <= bounds[1]:
-        return None
-    return value
-
-
-def _amperes(milliamperes: int | None) -> float | None:
-    """Convert a mA register value to A."""
-    if milliamperes is None:
-        return None
-    return milliamperes / MILLIAMPERE_PER_AMPERE
-
-
 def _state(value: int | None, states: dict[int, str]) -> str | None:
     """Translate a register value to its enum state key."""
     if value is None:
@@ -150,7 +128,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _within(c.meter.voltage_l1, MAINS_VOLTAGE_RANGE_V),
+        value_fn=lambda c: within(c.meter.voltage_l1, MAINS_VOLTAGE_RANGE_V),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -160,7 +138,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _within(c.meter.voltage_l2, MAINS_VOLTAGE_RANGE_V),
+        value_fn=lambda c: within(c.meter.voltage_l2, MAINS_VOLTAGE_RANGE_V),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -170,7 +148,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _within(c.meter.voltage_l3, MAINS_VOLTAGE_RANGE_V),
+        value_fn=lambda c: within(c.meter.voltage_l3, MAINS_VOLTAGE_RANGE_V),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -180,7 +158,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.current_l1),
+        value_fn=lambda c: finite(c.meter.current_l1),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -190,7 +168,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.current_l2),
+        value_fn=lambda c: finite(c.meter.current_l2),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -200,7 +178,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.current_l3),
+        value_fn=lambda c: finite(c.meter.current_l3),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -210,7 +188,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.active_power_l1),
+        value_fn=lambda c: finite(c.meter.active_power_l1),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -220,7 +198,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.active_power_l2),
+        value_fn=lambda c: finite(c.meter.active_power_l2),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -230,7 +208,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.active_power_l3),
+        value_fn=lambda c: finite(c.meter.active_power_l3),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -239,7 +217,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _finite(c.meter.total_active_power),
+        value_fn=lambda c: finite(c.meter.total_active_power),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -248,7 +226,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda c: _finite(c.meter.total_energy),
+        value_fn=lambda c: finite(c.meter.total_energy),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -258,7 +236,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         device_class=SensorDeviceClass.FREQUENCY,
         native_unit_of_measurement=UnitOfFrequency.HERTZ,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda c: _within(c.meter.frequency, MAINS_FREQUENCY_RANGE_HZ),
+        value_fn=lambda c: within(c.meter.frequency, MAINS_FREQUENCY_RANGE_HZ),
         available_fn=_meter_available,
     ),
     KathreinSensorDescription(
@@ -298,7 +276,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        value_fn=lambda c: _amperes(c.evse.granted_current),
+        value_fn=lambda c: c.evse.granted_current,
     ),
     KathreinSensorDescription(
         key="granted_power",
@@ -371,7 +349,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: _amperes(c.ems_control.timeout_fallback_current),
+        value_fn=lambda c: c.ems_control.timeout_fallback_current,
     ),
 )
 

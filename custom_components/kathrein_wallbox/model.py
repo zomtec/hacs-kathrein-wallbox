@@ -3,19 +3,27 @@
 import math
 from enum import IntEnum, IntFlag
 
-from modbus_connection.model import Component, float32, integer, string, uint32
+from modbus_connection.model import (
+    Component,
+    flags,
+    float32,
+    gauge,
+    integer,
+    string,
+    uint32,
+)
 
 # Readings outside these ranges are rejected as implausible.
 MAINS_VOLTAGE_RANGE_V = (80, 300)
 MAINS_FREQUENCY_RANGE_HZ = (45, 65)
 
-# Currents are reported and written in mA.
-MILLIAMPERE_PER_AMPERE = 1000
-MAX_CURRENT_11_KW_MA = 16000
-# EMS current setpoints accept 0 (pause) or 6000 ... 32000 mA.
-EMS_CHARGING_PAUSED_MA = 0
-EMS_MIN_CHARGING_CURRENT_MA = 6000
-EMS_MAX_CHARGING_CURRENT_MA = 32000
+# Currents are reported and written in mA; their fields scale them to A.
+AMPERES_PER_MILLIAMPERE = 0.001
+MAX_CURRENT_11_KW_A = 16
+# EMS current setpoints accept 0 A (pause) or 6 ... 32 A.
+EMS_CHARGING_PAUSED_A = 0
+EMS_MIN_CHARGING_CURRENT_A = 6
+EMS_MAX_CHARGING_CURRENT_A = 32
 # EMS timeout periods offered by the services; 0 disables the timeout.
 EMS_TIMEOUT_PERIODS_S = (0, 30, 60, 120, 180, 300, 600)
 
@@ -201,6 +209,21 @@ class WallboxIdentity(Component):
         return not bool(self.device_info & DEVICE_INFO_DETACHABLE_CABLE)
 
 
+def finite(value: float | None) -> float | None:
+    """Drop NaN and infinite readings."""
+    if value is None or not math.isfinite(value):
+        return None
+    return value
+
+
+def within(value: float | None, bounds: tuple[int, int]) -> float | None:
+    """Drop readings that are not finite or outside the inclusive bounds."""
+    value = finite(value)
+    if value is None or not bounds[0] <= value <= bounds[1]:
+        return None
+    return value
+
+
 class WallboxMeter(Component):
     """Optional energy-meter registers."""
 
@@ -221,18 +244,11 @@ class WallboxMeter(Component):
     @property
     def has_plausible_reference(self) -> bool:
         """Require at least one plausible mains voltage or frequency reading."""
-        voltage_low, voltage_high = MAINS_VOLTAGE_RANGE_V
         voltages = (self.voltage_l1, self.voltage_l2, self.voltage_l3)
-        if any(
-            value is not None
-            and math.isfinite(value)
-            and voltage_low <= value <= voltage_high
-            for value in voltages
-        ):
-            return True
-        frequency_low, frequency_high = MAINS_FREQUENCY_RANGE_HZ
-        frequency = self.frequency
-        return frequency is not None and frequency_low <= frequency <= frequency_high
+        return (
+            any(within(value, MAINS_VOLTAGE_RANGE_V) is not None for value in voltages)
+            or within(self.frequency, MAINS_FREQUENCY_RANGE_HZ) is not None
+        )
 
 
 class WallboxSessionEnergy(Component):
@@ -245,11 +261,13 @@ class WallboxEVSE(Component):
     """Charging and EVSE registers, independent of the optional meter."""
 
     charging_state = integer(CHARGING_STATE_ADDRESS, signed=False)
-    error_states = integer(ERROR_STATES_ADDRESS, signed=False)
+    error_states = flags(ERROR_STATES_ADDRESS, ErrorState)
     pp_state = integer(PP_STATE_ADDRESS, signed=False)
     cp_state = integer(CP_STATE_ADDRESS, signed=False)
-    relay_state = integer(RELAY_STATE_ADDRESS, signed=False)
-    granted_current = integer(GRANTED_CURRENT_ADDRESS, signed=False, unit="mA")
+    relay_state = flags(RELAY_STATE_ADDRESS, RelayState)
+    granted_current = gauge(
+        GRANTED_CURRENT_ADDRESS, AMPERES_PER_MILLIAMPERE, signed=False, unit="A"
+    )
     granted_power = integer(GRANTED_POWER_ADDRESS, signed=False, unit="W")
     charging_duration = uint32(CHARGING_DURATION_ADDRESS, unit="s")
 
@@ -279,8 +297,12 @@ class WallboxEMSControl(Component):
         EMS_CONTROL_REGISTER_ADDRESS, signed=False, writable=True
     )
     relay_matrix = integer(EMS_RELAY_MATRIX_ADDRESS, signed=False, writable=True)
-    charging_current = integer(
-        EMS_CHARGING_CURRENT_ADDRESS, signed=False, writable=True, unit="mA"
+    charging_current = gauge(
+        EMS_CHARGING_CURRENT_ADDRESS,
+        AMPERES_PER_MILLIAMPERE,
+        signed=False,
+        writable=True,
+        unit="A",
     )
     timeout_period = integer(
         EMS_TIMEOUT_PERIOD_ADDRESS, signed=False, writable=True, unit="s"
@@ -288,8 +310,12 @@ class WallboxEMSControl(Component):
     timeout_fallback_relay_matrix = integer(
         EMS_TIMEOUT_FALLBACK_RELAY_MATRIX_ADDRESS, signed=False, writable=True
     )
-    timeout_fallback_current = integer(
-        EMS_TIMEOUT_FALLBACK_CURRENT_ADDRESS, signed=False, writable=True, unit="mA"
+    timeout_fallback_current = gauge(
+        EMS_TIMEOUT_FALLBACK_CURRENT_ADDRESS,
+        AMPERES_PER_MILLIAMPERE,
+        signed=False,
+        writable=True,
+        unit="A",
     )
 
     @property
