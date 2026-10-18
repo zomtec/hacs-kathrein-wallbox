@@ -1,23 +1,22 @@
 """Tests for config-entry setup and unload."""
 
 from datetime import timedelta
-from unittest.mock import AsyncMock, Mock
 
-import pytest
-from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import CONF_SCAN_INTERVAL, STATE_UNAVAILABLE
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.kathrein_wallbox import (
-    CONFIG_SCHEMA,
-    async_setup_entry,
-    async_unload_entry,
+from custom_components.kathrein_wallbox import CONFIG_SCHEMA
+
+CHARGING_STATE_ADDRESS = 0x0060
+# One entity of each platform.
+PLATFORM_ENTITIES = (
+    ("sensor", "charging_state"),
+    ("binary_sensor", "ems_control"),
+    ("number", "ems_charging_current"),
+    ("select", "ems_relay_matrix"),
 )
-from custom_components.kathrein_wallbox.const import (
-    CONF_UNIT_ID,
-    DOMAIN,
-    PLATFORMS,
-)
-from custom_components.kathrein_wallbox.coordinator import KathreinCoordinator
 
 
 def test_config_schema_accepts_empty_config() -> None:
@@ -25,55 +24,42 @@ def test_config_schema_accepts_empty_config() -> None:
     assert CONFIG_SCHEMA({}) == {}
 
 
-@pytest.mark.asyncio
 async def test_setup_entry_initializes_coordinator_before_platforms(
-    hass, monkeypatch, mock_modbus_unit
+    hass, entry, mock_modbus_unit, setup_integration, state_of
 ) -> None:
-    """Refresh the coordinator and retain the selected scan interval."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        data={
-            CONF_HOST: "wallbox.local",
-            CONF_PORT: 502,
-            CONF_UNIT_ID: 1,
-            CONF_SCAN_INTERVAL: 20,
-        },
+    """Show the first refresh on every platform and keep the selected interval."""
+    hass.config_entries.async_update_entry(
+        entry, data={**entry.data, CONF_SCAN_INTERVAL: 20}
     )
-    entry.add_to_hass(hass)
-    monkeypatch.setattr(
-        "custom_components.kathrein_wallbox.async_get_unit",
-        Mock(return_value=mock_modbus_unit),
-    )
-    first_refresh = AsyncMock()
+    mock_modbus_unit.holding[CHARGING_STATE_ADDRESS] = 4
 
-    async def _async_first_refresh(coordinator: KathreinCoordinator) -> None:
-        await first_refresh()
-        await coordinator._async_setup()
+    await setup_integration()
 
-    monkeypatch.setattr(
-        KathreinCoordinator, "async_config_entry_first_refresh", _async_first_refresh
-    )
-    forward_platforms = AsyncMock()
-    monkeypatch.setattr(
-        hass.config_entries, "async_forward_entry_setups", forward_platforms
-    )
+    assert entry.state is ConfigEntryState.LOADED
+    assert state_of("sensor", "charging_state") == "charging_active"
+    for platform, key in PLATFORM_ENTITIES:
+        assert state_of(platform, key) != STATE_UNAVAILABLE
 
-    assert await async_setup_entry(hass, entry)
+    mock_modbus_unit.holding[CHARGING_STATE_ADDRESS] = 1
+    start = dt_util.utcnow()
+    async_fire_time_changed(hass, start + timedelta(seconds=15))
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert state_of("sensor", "charging_state") == "charging_active"
 
-    coordinator = entry.runtime_data.coordinator
-    assert coordinator.unit is mock_modbus_unit
-    assert coordinator.update_interval == timedelta(seconds=20)
-    first_refresh.assert_awaited_once()
-    forward_platforms.assert_awaited_once_with(entry, PLATFORMS)
+    async_fire_time_changed(hass, start + timedelta(seconds=20))
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert state_of("sensor", "charging_state") == "ev_connected"
 
 
-@pytest.mark.asyncio
-async def test_unload_entry_unloads_all_platforms(hass, monkeypatch) -> None:
-    """Delegate config-entry unload to all forwarded platforms."""
-    entry = MockConfigEntry(domain=DOMAIN)
-    unload_platforms = AsyncMock(return_value=True)
-    monkeypatch.setattr(hass.config_entries, "async_unload_platforms", unload_platforms)
+async def test_unload_entry_unloads_all_platforms(
+    hass, entry, setup_integration, state_of
+) -> None:
+    """Unload every platform together with the config entry."""
+    await setup_integration()
 
-    assert await async_unload_entry(hass, entry)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
 
-    unload_platforms.assert_awaited_once_with(entry, PLATFORMS)
+    assert entry.state is ConfigEntryState.NOT_LOADED
+    for platform, key in PLATFORM_ENTITIES:
+        assert state_of(platform, key) == STATE_UNAVAILABLE

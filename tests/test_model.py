@@ -25,7 +25,6 @@ from custom_components.kathrein_wallbox.model import (
 )
 
 
-@pytest.mark.asyncio
 async def test_meter_decodes_float32_and_detects_mains_reference(
     mock_modbus_unit,
 ) -> None:
@@ -41,7 +40,6 @@ async def test_meter_decodes_float32_and_detects_mains_reference(
     assert meter.has_plausible_reference
 
 
-@pytest.mark.asyncio
 async def test_zero_meter_registers_are_not_reported_as_a_meter(
     mock_modbus_unit,
 ) -> None:
@@ -56,7 +54,6 @@ async def test_zero_meter_registers_are_not_reported_as_a_meter(
     assert not meter.has_plausible_reference
 
 
-@pytest.mark.asyncio
 async def test_nan_meter_references_are_not_reported_as_a_meter(
     mock_modbus_unit,
 ) -> None:
@@ -72,7 +69,6 @@ async def test_nan_meter_references_are_not_reported_as_a_meter(
     assert not meter.has_plausible_reference
 
 
-@pytest.mark.asyncio
 async def test_missing_meter_registers_do_not_block_evse_reads(
     mock_modbus_unit,
 ) -> None:
@@ -90,7 +86,6 @@ async def test_missing_meter_registers_do_not_block_evse_reads(
     assert evse.charging_duration == 0
 
 
-@pytest.mark.asyncio
 async def test_session_energy_decodes_as_big_endian_uint32(mock_modbus_unit) -> None:
     """Read session energy independently from the EVSE state block."""
     mock_modbus_unit.holding[0x0069] = [0x0000, 0x05DC]
@@ -143,7 +138,6 @@ def test_get_allow_control_is_opt_in(options, expected) -> None:
     assert get_allow_control(entry) is expected
 
 
-@pytest.mark.asyncio
 async def test_identity_reads_mapping_version_and_serial(mock_modbus_unit) -> None:
     """Decode the version and null-terminated serial used by config flow."""
     mock_modbus_unit.holding[0x0000] = EXPECTED_MAPPING_VERSION
@@ -165,7 +159,6 @@ async def test_identity_reads_mapping_version_and_serial(mock_modbus_unit) -> No
     assert identity.serial == "G0R1234567"
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("device_info", "is_11_kw", "cable_is_fixed"),
     [

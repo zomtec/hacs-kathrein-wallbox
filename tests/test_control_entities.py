@@ -1,48 +1,24 @@
 """Tests for disabling control entities while control is not allowed."""
 
 from datetime import timedelta
-from unittest.mock import Mock
 
 import pytest
-from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    async_fire_time_changed,
-)
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.kathrein_wallbox.const import (
-    CONF_ALLOW_CONTROL,
-    CONF_UNIT_ID,
-    DOMAIN,
-)
+from custom_components.kathrein_wallbox.const import CONF_ALLOW_CONTROL
 
-SERIAL = "G0R1234567"
 CONTROL_ENTITIES = (
     ("number", "ems_charging_current"),
     ("select", "ems_relay_matrix"),
 )
-SENSOR_UNIQUE_ID = f"{SERIAL}_charging_state"
 
 
 @pytest.fixture
-def entry(
-    hass, monkeypatch, mock_modbus_unit, enable_custom_integrations
-) -> MockConfigEntry:
-    """Add a Wallbox entry that talks to the in-memory unit."""
-    monkeypatch.setattr(
-        "custom_components.kathrein_wallbox.async_get_unit",
-        Mock(return_value=mock_modbus_unit),
-    )
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        unique_id=SERIAL,
-        data={CONF_HOST: "wallbox.local", CONF_PORT: 502, CONF_UNIT_ID: 0},
-        options={CONF_ALLOW_CONTROL: False},
-    )
-    entry.add_to_hass(hass)
-    return entry
+def allow_control() -> bool:
+    """Start without control by Home Assistant."""
+    return False
 
 
 async def _async_set_allow_control(hass, entry, allowed: bool) -> None:
@@ -53,82 +29,74 @@ async def _async_set_allow_control(hass, entry, allowed: bool) -> None:
     await hass.async_block_till_done()
 
 
-def _disabled_by(hass) -> dict[str, er.RegistryEntryDisabler | None]:
+def _disabled_by(hass, entity_id_of) -> dict[str, er.RegistryEntryDisabler | None]:
     registry = er.async_get(hass)
     return {
-        key: registry.async_get(
-            registry.async_get_entity_id(platform, DOMAIN, f"{SERIAL}_{key}")
-        ).disabled_by
+        key: registry.async_get(entity_id_of(platform, key)).disabled_by
         for platform, key in CONTROL_ENTITIES
     }
 
 
 async def test_controls_are_created_disabled_without_control_allowed(
-    hass, entry
+    hass, setup_integration, entity_id_of
 ) -> None:
     """Create control entities disabled while control is not allowed."""
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done()
+    await setup_integration()
 
-    assert set(_disabled_by(hass).values()) == {er.RegistryEntryDisabler.INTEGRATION}
-    sensor_id = er.async_get(hass).async_get_entity_id(
-        "sensor", DOMAIN, SENSOR_UNIQUE_ID
-    )
+    assert set(_disabled_by(hass, entity_id_of).values()) == {
+        er.RegistryEntryDisabler.INTEGRATION
+    }
+    sensor_id = entity_id_of("sensor", "charging_state")
     assert er.async_get(hass).async_get(sensor_id).disabled_by is None
 
 
-async def test_controls_follow_allow_control_option(hass, entry) -> None:
+async def test_controls_follow_allow_control_option(
+    hass, entry, setup_integration, entity_id_of
+) -> None:
     """Disable controls when control is withdrawn and enable them when allowed."""
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done()
+    await setup_integration()
 
     await _async_set_allow_control(hass, entry, True)
-    assert set(_disabled_by(hass).values()) == {None}
-    assert hass.states.get(
-        er.async_get(hass).async_get_entity_id(
-            "number", DOMAIN, f"{SERIAL}_ems_charging_current"
-        )
-    )
+    assert set(_disabled_by(hass, entity_id_of).values()) == {None}
+    assert hass.states.get(entity_id_of("number", "ems_charging_current"))
 
     await _async_set_allow_control(hass, entry, False)
-    assert set(_disabled_by(hass).values()) == {er.RegistryEntryDisabler.INTEGRATION}
+    assert set(_disabled_by(hass, entity_id_of).values()) == {
+        er.RegistryEntryDisabler.INTEGRATION
+    }
 
 
-async def test_user_disabled_controls_stay_disabled(hass, entry) -> None:
+@pytest.mark.parametrize("allow_control", [True])
+async def test_user_disabled_controls_stay_disabled(
+    hass, entry, setup_integration, entity_id_of
+) -> None:
     """Keep controls the user disabled, whatever the control option says."""
-    hass.config_entries.async_update_entry(entry, options={CONF_ALLOW_CONTROL: True})
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done()
-    registry = er.async_get(hass)
-    number_id = registry.async_get_entity_id(
-        "number", DOMAIN, f"{SERIAL}_ems_charging_current"
+    await setup_integration()
+    er.async_get(hass).async_update_entity(
+        entity_id_of("number", "ems_charging_current"),
+        disabled_by=er.RegistryEntryDisabler.USER,
     )
-    registry.async_update_entity(number_id, disabled_by=er.RegistryEntryDisabler.USER)
 
     await _async_set_allow_control(hass, entry, False)
     await _async_set_allow_control(hass, entry, True)
 
-    assert _disabled_by(hass) == {
+    assert _disabled_by(hass, entity_id_of) == {
         "ems_charging_current": er.RegistryEntryDisabler.USER,
         "ems_relay_matrix": None,
     }
 
 
+@pytest.mark.parametrize("allow_control", [True])
 async def test_keep_alive_runs_with_disabled_timeout_sensor(
-    hass, entry, mock_modbus_unit
+    hass, mock_modbus_unit, setup_integration, entity_id_of
 ) -> None:
     """Read the EMS timeout from the coordinator, not from its disabled sensor."""
     mock_modbus_unit.holding[0x00A0] = 0x8000
     mock_modbus_unit.holding[0x00A2] = 13000
     mock_modbus_unit.holding[0x00A3] = 60
-    hass.config_entries.async_update_entry(entry, options={CONF_ALLOW_CONTROL: True})
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done()
-    registry = er.async_get(hass)
-    sensor_id = registry.async_get_entity_id(
-        "sensor", DOMAIN, f"{SERIAL}_timeout_period"
-    )
-    assert registry.async_get(sensor_id).disabled_by is (
+    await setup_integration()
+    sensor_id = entity_id_of("sensor", "timeout_period")
+    assert er.async_get(hass).async_get(sensor_id).disabled_by is (
         er.RegistryEntryDisabler.INTEGRATION
     )
 
@@ -136,7 +104,5 @@ async def test_keep_alive_runs_with_disabled_timeout_sensor(
     await hass.async_block_till_done()
 
     assert [
-        event.values
-        for event in mock_modbus_unit.write_events
-        if event.address == 0x00A2
+        values for address, values in mock_modbus_unit.writes if address == 0x00A2
     ] == [[13000]]
