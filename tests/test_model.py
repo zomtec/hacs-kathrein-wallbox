@@ -3,12 +3,12 @@
 from datetime import timedelta
 
 import pytest
+from homeassistant.const import CONF_SCAN_INTERVAL
 from modbus_connection import IllegalDataAddressError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.kathrein_wallbox.const import (
     CONF_ALLOW_CONTROL,
-    CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     EXPECTED_MAPPING_VERSION,

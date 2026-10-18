@@ -23,7 +23,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .coordinator import KathreinConfigEntry, KathreinCoordinator
@@ -375,7 +375,7 @@ SENSOR_DESCRIPTIONS: tuple[KathreinSensorDescription, ...] = (
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KathreinConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Wallbox sensors."""
     coordinator = entry.runtime_data.coordinator

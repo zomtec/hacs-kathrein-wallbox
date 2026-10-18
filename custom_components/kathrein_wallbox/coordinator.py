@@ -44,6 +44,8 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
     """Fetch the Wallbox model at a fixed polling interval."""
 
     config_entry: KathreinConfigEntry
+    # Set by _async_setup, which refuses a Wallbox without a serial number.
+    serial: str
 
     def __init__(
         self,
@@ -94,6 +96,7 @@ class KathreinCoordinator(DataUpdateCoordinator["WallboxData"]):
                 translation_domain=DOMAIN,
                 translation_key="missing_serial_number",
             )
+        self.serial = self.identity.serial
 
     async def _async_update_data(self) -> WallboxData:
         """Read essential registers and isolate the optional energy meter."""

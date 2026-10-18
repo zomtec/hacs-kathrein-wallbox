@@ -1,6 +1,4 @@
 set_ems_control_enabled:
-  name: Set EMS control state
-  description: Enable or disable EMS control for this Wallbox.
   fields:
     device_id:
       required: true
@@ -13,8 +11,6 @@ set_ems_control_enabled:
         boolean: {}
 
 set_relay_matrix:
-  name: Set relay matrix
-  description: Choose the relay matrix for EMS control.
   fields:
     device_id:
       required: true
@@ -32,8 +28,6 @@ set_relay_matrix:
             - three_phases
 
 set_charging_current:
-  name: Set charging current setpoint
-  description: Set the charging current requested from the EMS.
   fields:
     device_id:
       required: true
@@ -51,8 +45,6 @@ set_charging_current:
           mode: box
 
 set_timeout_period:
-  name: Set EMS timeout period
-  description: Set how long the EMS override remains active.
   fields:
     device_id:
       required: true
@@ -74,8 +66,6 @@ set_timeout_period:
             - "600"
 
 set_timeout_fallback_relay_matrix:
-  name: Set EMS timeout fallback relay matrix
-  description: Choose the relay matrix used when the EMS timeout expires.
   fields:
     device_id:
       required: true
@@ -93,8 +83,6 @@ set_timeout_fallback_relay_matrix:
             - three_phases
 
 set_timeout_fallback_current:
-  name: Set EMS timeout fallback current
-  description: Set the fallback charging current used when the EMS timeout expires.
   fields:
     device_id:
       required: true
