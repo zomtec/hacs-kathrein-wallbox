@@ -1,7 +1,8 @@
 """Tests for sensor and binary-sensor values."""
 
 import pytest
-from homeassistant.const import STATE_UNKNOWN
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import STATE_UNKNOWN, UnitOfElectricCurrent, UnitOfTime
 
 from custom_components.kathrein_wallbox.binary_sensor import (
     ENTITY_DESCRIPTIONS,
@@ -206,6 +207,29 @@ def test_granted_charging_sensors_are_not_diagnostic(key) -> None:
     description = next(item for item in SENSOR_DESCRIPTIONS if item.key == key)
 
     assert description.entity_category is None
+
+
+@pytest.mark.parametrize(
+    ("key", "device_class", "unit"),
+    [
+        ("granted_current", SensorDeviceClass.CURRENT, UnitOfElectricCurrent.AMPERE),
+        (
+            "timeout_fallback_current",
+            SensorDeviceClass.CURRENT,
+            UnitOfElectricCurrent.AMPERE,
+        ),
+        ("timeout_period", SensorDeviceClass.DURATION, UnitOfTime.SECONDS),
+    ],
+)
+async def test_current_and_timeout_sensors_have_device_class(
+    coordinator, key, device_class, unit
+) -> None:
+    """Classify currents and the EMS timeout, shown in whole amperes and seconds."""
+    entity = _sensor(coordinator, key)
+
+    assert entity.device_class == device_class
+    assert entity.native_unit_of_measurement == unit
+    assert entity.suggested_display_precision == 0
 
 
 async def test_meter_sensor_is_unavailable_without_optional_meter(coordinator) -> None:
